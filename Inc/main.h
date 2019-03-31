@@ -82,8 +82,6 @@ void Error_Handler(void);
 #define rtc_clock_GPIO_Port GPIOA
 #define led_out_Pin GPIO_PIN_0
 #define led_out_GPIO_Port GPIOB
-#define sensor_power_Pin GPIO_PIN_8
-#define sensor_power_GPIO_Port GPIOA
 #define sensor_clock_Pin GPIO_PIN_9
 #define sensor_clock_GPIO_Port GPIOA
 #define sensor_data_Pin GPIO_PIN_10
