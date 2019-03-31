@@ -1,0 +1,92 @@
+Configuration	lm_application
+STM32CubeMX 	5.0.0
+Date	02/04/2019
+MCU	STM32L432KCUx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+I2C1	SMBus-two-wire-Interface	I2C1_SCL	PA9
+I2C1	SMBus-two-wire-Interface	I2C1_SDA	PA10
+I2C3	I2C	I2C3_SCL	PA7
+I2C3	I2C	I2C3_SDA	PB4 (NJTRST)
+LPUART1	Asynchronous	LPUART1_RX	PA3
+LPUART1	Asynchronous	LPUART1_TX	PA2
+SYS	Serial Wire	SYS_JTCK-SWCLK	PA14 (JTCK-SWCLK)
+SYS	Serial Wire	SYS_JTMS-SWDIO	PA13 (JTMS-SWDIO)
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+USB	Device (FS)	USB_DM	PA11
+USB	Device (FS)	USB_DP	PA12
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+8	PA2	LPUART1_TX	
+9	PA3	LPUART1_RX	
+13	PA7	I2C3_SCL	rtc_clock
+14	PB0	GPIO_Output	led_out
+18	PA8	GPIO_Output	sensor_power
+19	PA9	I2C1_SCL	sensor_clock
+20	PA10	I2C1_SDA	sensor_data
+21	PA11	USB_DM	
+22	PA12	USB_DP	
+23	PA13 (JTMS-SWDIO)	SYS_JTMS-SWDIO	
+24	PA14 (JTCK-SWCLK)	SYS_JTCK-SWCLK	
+26	PB3 (JTDO-TRACESWO)*	SYS_JTDO-SWO	
+27	PB4 (NJTRST)	I2C3_SDA	rtc_data
+PERIPHERALS	MODES	FUNCTIONS	PINS
+I2C1	SMBus-two-wire-Interface	I2C1_SCL	PA9
+I2C1	SMBus-two-wire-Interface	I2C1_SDA	PA10
+I2C3	I2C	I2C3_SCL	PA7
+I2C3	I2C	I2C3_SDA	PB4 (NJTRST)
+LPUART1	Asynchronous	LPUART1_RX	PA3
+LPUART1	Asynchronous	LPUART1_TX	PA2
+SYS	Serial Wire	SYS_JTCK-SWCLK	PA14 (JTCK-SWCLK)
+SYS	Serial Wire	SYS_JTMS-SWDIO	PA13 (JTMS-SWDIO)
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+USB	Device (FS)	USB_DM	PA11
+USB	Device (FS)	USB_DP	PA12
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+8	PA2	LPUART1_TX	
+9	PA3	LPUART1_RX	
+13	PA7	I2C3_SCL	rtc_clock
+14	PB0	GPIO_Output	led_out
+18	PA8	GPIO_Output	sensor_power
+19	PA9	I2C1_SCL	sensor_clock
+20	PA10	I2C1_SDA	sensor_data
+21	PA11	USB_DM	
+22	PA12	USB_DP	
+23	PA13 (JTMS-SWDIO)	SYS_JTMS-SWDIO	
+24	PA14 (JTCK-SWCLK)	SYS_JTCK-SWCLK	
+26	PB3 (JTDO-TRACESWO)*	SYS_JTDO-SWO	
+27	PB4 (NJTRST)	I2C3_SDA	rtc_data
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : lm_application
+Project Folder : C:\Users\bhimebau\forge_local\outdoor_monitor\lm_application
+Toolchain / IDE : Makefile
+Firmware Package Name and Version : STM32Cube FW_L4 V1.13.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy all used libraries into the project folder
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : No
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : 
+
+
+
+
+
