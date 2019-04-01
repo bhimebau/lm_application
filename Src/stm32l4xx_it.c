@@ -47,7 +47,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
- 
+#define DELAY_1S 100
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -57,6 +58,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+uint8_t led_state = 0;
 
 /* USER CODE END PV */
 
@@ -197,7 +199,21 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
+  // Systick executed every 100mS
+  static int count = 0;
+  /* static int led_state = 0; */
+  
+  if (count++>=DELAY_1S) {
+    count = 0;
+    if (!led_state) {
+      HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
+    }
+    else {
+      HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
+    }
+    led_state^=1;
+  }
+ 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */

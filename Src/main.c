@@ -43,6 +43,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <string.h>
+#include <stdio.h>
+#include "tsl25911.h"
+#include "retarget.h"
 
 /* USER CODE END Includes */
 
@@ -53,7 +57,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define TICK_FREQ_HZ 100
+#define LIGHT_SENSOR_ADDRESS (0x29<<1)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -70,6 +75,7 @@ UART_HandleTypeDef huart1;
 PCD_HandleTypeDef hpcd_USB_FS;
 
 /* USER CODE BEGIN PV */
+extern uint8_t led_state;
 
 /* USER CODE END PV */
 
@@ -96,7 +102,9 @@ static void MX_USART1_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  enum {ON, OFF};  
+  uint8_t state = OFF;
+ 
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -105,7 +113,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -122,7 +130,8 @@ int main(void)
   MX_USB_PCD_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  RetargetInit(&huart1);                          // Allow printf to work properly
+  SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling 
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -130,7 +139,22 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    switch (state) {
+    case ON:
+      if (!led_state) {
+        printf("LED ON 0x%02x\n\r",tsl2561_readid(&hi2c1));
+        state = OFF;
+      }
+      break;
+    case OFF:
+      if (led_state) {
+        printf("LED OFF\n\r");
+        state = ON;
+      }
+      break;
+    default:
+      state = ON;
+    }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
