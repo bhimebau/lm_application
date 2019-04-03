@@ -102,6 +102,8 @@ static void MX_USART1_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  HAL_StatusTypeDef status;
+  uint8_t ch;
   enum {ON, OFF};  
   uint8_t state = OFF;
  
@@ -136,9 +138,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  printf("\n\rStarting the System ...\n\r\n\r");
   while (1)
   {
     /* USER CODE END WHILE */
+    /* USER CODE BEGIN 3 */
+    if ((status=HAL_UART_Receive(&huart1, &ch, 1, 1)) == HAL_OK) {
+      HAL_UART_Transmit(&huart1,&ch,1,10);
+    }
     switch (state) {
     case ON:
       if (!led_state) {
@@ -155,7 +162,6 @@ int main(void)
     default:
       state = ON;
     }
-    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }

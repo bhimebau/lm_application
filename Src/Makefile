@@ -1,6 +1,9 @@
 all:
 	cd ..; make
 
+gdb:
+	cd ..; make gdb
+
 clean:
 	cd ..; make clean
 
