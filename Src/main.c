@@ -76,6 +76,7 @@ PCD_HandleTypeDef hpcd_USB_FS;
 
 /* USER CODE BEGIN PV */
 extern uint8_t led_state;
+tsl25911_shadow_t sensor_shadow;
 
 /* USER CODE END PV */
 
@@ -139,9 +140,12 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   printf("\n\rStarting the System ...\n\r\n\r");
-  while (1)
-  {
+  SENSOR_POWER_ON;  // Turn on the supply for the light sensor
+  tsl25911_init(&sensor_shadow,&hi2c1,TSL25911_GAIN_MED,TSL25911_INTT_600MS);
+  printf("Light Sensor Control Register = 0x%02x\n\r",tsl25911_readControl(&sensor_shadow));
+  while (1) {
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
     if ((status=HAL_UART_Receive(&huart1, &ch, 1, 1)) == HAL_OK) {
       HAL_UART_Transmit(&huart1,&ch,1,10);
@@ -149,7 +153,8 @@ int main(void)
     switch (state) {
     case ON:
       if (!led_state) {
-        printf("LED ON 0x%02x\n\r",tsl2561_readid(&hi2c1));
+        tsl25911_getALS(&sensor_shadow);
+        printf("LED ON 0x%02x 0x%08x\n\r",tsl25911_readID(&sensor_shadow),(unsigned int) sensor_shadow.rawALS);
         state = OFF;
       }
       break;
@@ -410,14 +415,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, led_out_Pin|SW_MODE_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : led_out_Pin */
-  GPIO_InitStruct.Pin = led_out_Pin;
+  /*Configure GPIO pins : led_out_Pin SW_MODE_Pin */
+  GPIO_InitStruct.Pin = led_out_Pin|SW_MODE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(led_out_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 

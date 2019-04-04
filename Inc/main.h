@@ -88,8 +88,13 @@ void Error_Handler(void);
 #define sensor_data_GPIO_Port GPIOA
 #define rtc_data_Pin GPIO_PIN_4
 #define rtc_data_GPIO_Port GPIOB
+#define SW_MODE_Pin GPIO_PIN_5
+#define SW_MODE_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
+#define SENSOR_POWER_ON  HAL_GPIO_WritePin(GPIOB, SW_MODE_Pin, GPIO_PIN_SET);
+#define SENSOR_POWER_OFF  HAL_GPIO_WritePin(GPIOB, SW_MODE_Pin, GPIO_PIN_RESET);
+  
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
