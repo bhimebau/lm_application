@@ -114,6 +114,7 @@ void tsl25911_disable(tsl25911_shadow_t *shadow) {
   tsl25911_writereg(shadow->i2c_port,TSL25911_REG_ENABLE,&rxbuf,1);
 }
 
+// ALS stands for ambient light sensor ...
 void tsl25911_getALS(tsl25911_shadow_t *shadow) {
   uint8_t sensor_data[4];
   uint32_t start_time = uwTick; // uwTick increments every 10mS in systick
@@ -150,6 +151,136 @@ void tsl25911_getALS(tsl25911_shadow_t *shadow) {
   shadow->ir = shadow->rawALS >> 16;
   shadow->visible = shadow->full - shadow->ir;
 }
+
+void tsl25911_calcLux(tsl25911_shadow_t *shadow) {
+  float atime, again, cpl, lux1, lux2;
+  shadow->saturated = 0;
+  if((shadow->full == 0xFFFF)|(shadow->ir == 0xFFFF)) {
+    shadow->saturated = 1;
+    shadow->lux = 0;
+    return;
+  }
+  switch(shadow->integration) {
+  case TSL25911_INTT_100MS:
+    atime = 100.0F;
+    break;
+  case TSL25911_INTT_200MS:
+    atime = 200.0F;
+    break;
+  case TSL25911_INTT_300MS:
+    atime = 300.0F;
+    break;
+  case TSL25911_INTT_400MS:
+    atime = 400.0F;
+    break;
+  case TSL25911_INTT_500MS:
+    atime = 500.0F;
+    break;
+  case TSL25911_INTT_600MS:
+    atime = 600.0F;
+    break;
+  default:
+    atime = 100.0F;
+    break;
+  }
+  switch(shadow->gain) {
+  case TSL25911_GAIN_LOW:
+    again = 1.0F;
+    break;
+  case TSL25911_GAIN_MED:
+    again = 25.0F;
+    break;
+  case TSL25911_GAIN_HIGH:
+    again = 428.0F;
+    break;
+  case TSL25911_GAIN_MAX:
+    again = 9876.0F;
+    break;
+  default:
+    again = 1.0F;
+    break;
+  }
+  cpl = (atime * again) / TSL25911_LUX_DF;
+  lux1 = ((float)shadow->full - (TSL25911_LUX_COEFB * (float)shadow->ir)) / cpl;
+  lux2 = (( TSL25911_LUX_COEFC * (float)shadow->full ) - ( TSL25911_LUX_COEFD * (float)shadow->ir)) / cpl;
+  shadow->lux = lux1 > lux2 ? lux1 : lux2;
+  shadow->saturated = 0;
+}
+
+
+/* void TSL2591::calcLux(void) */
+/* { */
+/*     float atime, again, cpl, lux1, lux2, lux3; */
+/*     if((full == 0xFFFF)|(ir == 0xFFFF)) { */
+/*         lux3 = 0; */
+/*         return; */
+/*     } */
+/*     switch(_integ) { */
+/*         case TSL2591_INTT_100MS: */
+/*             atime = 100.0F; */
+/*             break; */
+/*         case TSL2591_INTT_200MS: */
+/*             atime = 200.0F; */
+/*             break; */
+/*         case TSL2591_INTT_300MS: */
+/*             atime = 300.0F; */
+/*             break; */
+/*         case TSL2591_INTT_400MS: */
+/*             atime = 400.0F; */
+/*             break; */
+/*         case TSL2591_INTT_500MS: */
+/*             atime = 500.0F; */
+/*             break; */
+/*         case TSL2591_INTT_600MS: */
+/*             atime = 600.0F; */
+/*             break; */
+/*         default: */
+/*             atime = 100.0F; */
+/*             break; */
+/*     } */
+/*     switch(_gain) { */
+/*         case TSL2591_GAIN_LOW: */
+/*             again = 1.0F; */
+/*             break; */
+/*         case TSL2591_GAIN_MED: */
+/*             again = 25.0F; */
+/*             break; */
+/*         case TSL2591_GAIN_HIGH: */
+/*             again = 428.0F; */
+/*             break; */
+/*         case TSL2591_GAIN_MAX: */
+/*             again = 9876.0F; */
+/*             break; */
+/*         default: */
+/*             again = 1.0F; */
+/*             break; */
+/*     } */
+/*     cpl = (atime * again) / TSL2591_LUX_DF; */
+/*     lux1 = ((float)full - (TSL2591_LUX_COEFB * (float)ir)) / cpl; */
+/*     lux2 = (( TSL2591_LUX_COEFC * (float)full ) - ( TSL2591_LUX_COEFD * (float)ir)) / cpl; */
+/*     lux3 = lux1 > lux2 ? lux1 : lux2; */
+/*     lux = (uint32_t)lux3; */
+/* } */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
  *  Read ALS

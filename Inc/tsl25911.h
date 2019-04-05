@@ -92,6 +92,8 @@ typedef struct tsl25911_shadow {
   uint32_t full;
   uint32_t ir;
   uint32_t visible;
+  float lux;
+  int saturated;
 } tsl25911_shadow_t;
 
 #endif
@@ -108,6 +110,7 @@ int tsl25911_setIntg(tsl25911_shadow_t *, tsl25911IntegrationTime_t);
 void tsl25911_enable(tsl25911_shadow_t *);
 void tsl25911_disable(tsl25911_shadow_t *);
 void tsl25911_getALS(tsl25911_shadow_t *);
+void tsl25911_calcLux(tsl25911_shadow_t *);
 
 
 
