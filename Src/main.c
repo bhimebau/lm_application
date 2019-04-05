@@ -141,8 +141,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   printf("\n\rStarting the System ...\n\r\n\r");
   SENSOR_POWER_ON;  // Turn on the supply for the light sensor
-  tsl25911_init(&sensor_shadow,&hi2c1,TSL25911_GAIN_MAX,TSL25911_INTT_600MS);
-  printf("Light Sensor Control Register = 0x%02x\n\r",tsl25911_readControl(&sensor_shadow));
+  //  tsl25911_init(&sensor_shadow,&hi2c1,TSL25911_GAIN_MAX,TSL25911_INTT_600MS);
+  //   printf("Light Sensor Control Register = 0x%02x\n\r",tsl25911_readControl(&sensor_shadow));
   while (1) {
     /* USER CODE END WHILE */
 
@@ -163,10 +163,11 @@ int main(void)
         tsl25911_getALS(&sensor_shadow);
         tsl25911_calcLux(&sensor_shadow);
         if (!sensor_shadow.saturated) {
-            printf("LED OFF 0x%02x 0x%08x Lux = %f\n\r",
-                   tsl25911_readID(&sensor_shadow),
-                   (unsigned int) sensor_shadow.rawALS,
-                   sensor_shadow.lux);
+            /* printf("LED OFF 0x%02x 0x%08x Lux = %f\n\r", */
+            /*        tsl25911_readID(&sensor_shadow), */
+            /*        (unsigned int) sensor_shadow.rawALS, */
+            /*        tsl25911_readsensor(&hi2c1)); */
+            printf("LED OFF Lux = %f\n\r", tsl25911_readsensor(&hi2c1));
         }
         else {
           printf("LED OFF, Sensor Saturated\n\r");

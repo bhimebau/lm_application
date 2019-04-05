@@ -111,6 +111,6 @@ void tsl25911_enable(tsl25911_shadow_t *);
 void tsl25911_disable(tsl25911_shadow_t *);
 void tsl25911_getALS(tsl25911_shadow_t *);
 void tsl25911_calcLux(tsl25911_shadow_t *);
-
+float tsl25911_readsensor(I2C_HandleTypeDef *);
 
 
