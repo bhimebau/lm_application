@@ -10,4 +10,6 @@ This code has been developed to implement the light pollution sensor application
 ### HAL Reference 
 * [STM32L4 Hal Reference](https://www.st.com/content/ccc/resource/technical/document/user_manual/63/a8/8f/e3/ca/a1/4c/84/DM00173145.pdf/files/DM00173145.pdf/jcr:content/translations/en.DM00173145.pdf)
 
-
+### Real-Time Clock 
+* [RV-8803-C7 Datasheet](https://www.microcrystal.com/fileadmin/Media/Products/RTC/Datasheet/RV-8803-C7.pdf)
+* [RV-8803-C7 Application Manual](https://www.microcrystal.com/fileadmin/Media/Products/RTC/App.Manual/RV-8803-C7_App-Manual.pdf) 
