@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include "tsl25911.h"
 #include "retarget.h"
+#include "flash.h"
 
 /* USER CODE END Includes */
 
@@ -70,12 +71,16 @@
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c3;
 
+RTC_HandleTypeDef hrtc;
+
 UART_HandleTypeDef huart1;
 
 PCD_HandleTypeDef hpcd_USB_FS;
 
 /* USER CODE BEGIN PV */
 extern uint8_t led_state;
+RTC_TimeTypeDef current_time;
+RTC_DateTypeDef current_date;
 
 /* USER CODE END PV */
 
@@ -86,6 +91,7 @@ static void MX_I2C1_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_RTC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -131,6 +137,7 @@ int main(void)
   MX_I2C3_Init();
   MX_USB_PCD_Init();
   MX_USART1_UART_Init();
+  MX_RTC_Init();
   /* USER CODE BEGIN 2 */
   RetargetInit(&huart1);                          // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling 
@@ -138,25 +145,38 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  printf("\n\rStarting the System ...\n\r\n\r");
+  printf("\n\rStarting the System ...\n\r");
   SENSOR_POWER_ON;  // Turn on the supply for the light sensor
+  test_flash();
+  while (1);
+
   while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
     if ((status=HAL_UART_Receive(&huart1, &ch, 1, 1)) == HAL_OK) {
       HAL_UART_Transmit(&huart1,&ch,1,10);
     }
     switch (state) {
     case ON:
       if (!led_state) {
+        printf("LED ON \n\r");
         state = OFF;
-        printf("LED ON\n\r");
       }
       break;
     case OFF:
       if (led_state) {
-        printf("LED OFF Lux = %f\n\r", tsl25911_readsensor(&hi2c1));
+        HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
+        HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
+        printf("LED OFF Lux = %f, %02d/%02d/20%d %02d:%02d:%02d\n\r",
+               tsl25911_readsensor(&hi2c1),
+               current_date.Month,
+               current_date.Date,
+               current_date.Year,
+               current_time.Hours,
+               current_time.Minutes,
+               current_time.Seconds);
         state = ON;
       }
       break;
@@ -208,11 +228,13 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_I2C3|RCC_PERIPHCLK_USB;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USART1
+                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_I2C3
+                              |RCC_PERIPHCLK_USB;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
   PeriphClkInit.I2c3ClockSelection = RCC_I2C3CLKSOURCE_PCLK1;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLLSAI1;
   PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
   PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
@@ -325,6 +347,98 @@ static void MX_I2C3_Init(void)
   /* USER CODE BEGIN I2C3_Init 2 */
 
   /* USER CODE END I2C3_Init 2 */
+
+}
+
+/**
+  * @brief RTC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_RTC_Init(void)
+{
+
+  /* USER CODE BEGIN RTC_Init 0 */
+
+  /* USER CODE END RTC_Init 0 */
+
+  RTC_TimeTypeDef sTime = {0};
+  RTC_DateTypeDef sDate = {0};
+  RTC_AlarmTypeDef sAlarm = {0};
+
+  /* USER CODE BEGIN RTC_Init 1 */
+
+  /* USER CODE END RTC_Init 1 */
+  /** Initialize RTC Only 
+  */
+  hrtc.Instance = RTC;
+  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+  hrtc.Init.AsynchPrediv = 127;
+  hrtc.Init.SynchPrediv = 255;
+  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /* USER CODE BEGIN Check_RTC_BKUP */
+    
+  /* USER CODE END Check_RTC_BKUP */
+
+  /** Initialize RTC and set the Time and Date 
+  */
+  /* sTime.Hours = 0x0; */
+  /* sTime.Minutes = 0x0; */
+  /* sTime.Seconds = 0x5; */
+
+  sTime.Hours = 0x9;
+  sTime.Minutes = 35;
+  sTime.Seconds = 0;
+
+  
+  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* sDate.WeekDay = RTC_WEEKDAY_MONDAY; */
+  /* sDate.Month = RTC_MONTH_JANUARY; */
+  /* sDate.Date = 0x1; */
+  /* sDate.Year = 0x0; */
+
+  sDate.WeekDay = RTC_WEEKDAY_SATURDAY;
+  sDate.Month = RTC_MONTH_APRIL;
+  sDate.Date = 0x6;
+  sDate.Year = 19;
+
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Enable the Alarm A 
+  */
+  sAlarm.AlarmTime.Hours = 0x0;
+  sAlarm.AlarmTime.Minutes = 0x0;
+  sAlarm.AlarmTime.Seconds = 0x0;
+  sAlarm.AlarmTime.SubSeconds = 0x0;
+  sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  sAlarm.AlarmMask = RTC_ALARMMASK_NONE;
+  sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
+  sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
+  sAlarm.AlarmDateWeekDay = 0x1;
+  sAlarm.Alarm = RTC_ALARM_A;
+  if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN RTC_Init 2 */
+
+  /* USER CODE END RTC_Init 2 */
 
 }
 

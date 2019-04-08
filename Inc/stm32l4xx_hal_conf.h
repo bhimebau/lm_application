@@ -79,7 +79,7 @@
 /*#define HAL_QSPI_MODULE_ENABLED   */
 /*#define HAL_QSPI_MODULE_ENABLED   */
 /*#define HAL_RNG_MODULE_ENABLED   */
-/*#define HAL_RTC_MODULE_ENABLED   */
+#define HAL_RTC_MODULE_ENABLED
 /*#define HAL_SAI_MODULE_ENABLED   */
 /*#define HAL_SD_MODULE_ENABLED   */
 /*#define HAL_SMBUS_MODULE_ENABLED   */
@@ -158,7 +158,7 @@
   *        This value is used by the UART, RTC HAL module to compute the system frequency
   */
 #if !defined  (LSE_VALUE)
-  #define LSE_VALUE    ((uint32_t)1000U) /*!< Value of the External oscillator in Hz*/
+  #define LSE_VALUE    ((uint32_t)32768U) /*!< Value of the External oscillator in Hz*/
 #endif /* LSE_VALUE */
 
 #if !defined  (LSE_STARTUP_TIMEOUT)
