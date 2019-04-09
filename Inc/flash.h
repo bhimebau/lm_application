@@ -40,15 +40,17 @@ typedef struct raw {
 
 typedef struct flash_status {
   uint64_t * data_start;
-  int total_records;
+  uint32_t total_records;
+  uint32_t max_possible_records;
   uint64_t * next_address;
-  int next_record_number;
+  uint32_t next_record_number;
 } flash_status_t;
  
 #endif
 
-uint64_t * find_program_end(void);
-void test_flash(void);
 uint64_t *find_sentinel(void);
 int flash_write_init(flash_status_t *);
 int write_record(flash_status_t *, void *);
+int read_all_records(flash_status_t * );
+int write_sensor_data(flash_status_t *,uint16_t,uint16_t,uint32_t);
+int report_flash_status(flash_status_t *);

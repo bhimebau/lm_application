@@ -149,6 +149,17 @@ int main(void)
   printf("\n\rStarting the System ...\n\r");
   SENSOR_POWER_ON;  // Turn on the supply for the light sensor
   flash_write_init(&fs);
+  printf("After flash init\n\r");
+  report_flash_status(&fs);
+  read_all_records(&fs);
+  write_sensor_data(&fs,0x45,0x46,3.57);
+  printf("After first write\n\r");
+  report_flash_status(&fs);
+  write_sensor_data(&fs,0x45,0x46,3.57);
+  printf("After Second write\n\r");
+  report_flash_status(&fs);
+  read_all_records(&fs);
+  printf("End of Run\n\r");
   while (1);
 
   while (1) {
