@@ -12,10 +12,43 @@
 #define FLASH_H
 
 // STM32L432 Flash Starts at 0x8000000 and ends at 0x803FFFFF. 
-#define FLASH_END            0x0803FFFC
-#define SENTINEL_MARK        0xDEADBEEFA5A5A5A5
+#define FLASH_START        0x08000000
+#define FLASH_END          0x0803FFF8
+#define SENTINEL_MARK      0xDEADBEEFA5A5A5A5
 
+typedef struct sensordata {
+  uint8_t watermark;               // 0x01=populated, 0xFF=unpopulated 
+  uint8_t status;                  // record type, 01=sensor data, 02=error data;
+  uint16_t record_number;          // Which number is this particular record  
+  uint16_t battery_voltage;        // 16 bit battery voltage
+  uint16_t temperature;            // STM32 Temperature sensor reading 
+  uint32_t timestamp;              // Time, bit packed into 32 bits
+  float lux;                       // Reading from the light sensor
+} sensordata_t;
+
+typedef struct log_data {
+  uint8_t watermark;               // 0x01=populated, 0xFF=unpopulated 
+  uint8_t status;                  // record type, 01=sensor data, 02=error data;
+  uint16_t record_number;          // Which number is this particular record  
+  uint8_t msg[12];                 // 
+} logdata_t;
+
+typedef struct raw {
+  uint64_t data0;
+  uint64_t data1;
+} raw_t;
+
+typedef struct flash_status {
+  uint64_t * data_start;
+  int total_records;
+  uint64_t * next_address;
+  int next_record_number;
+} flash_status_t;
+ 
 #endif
 
-uint32_t * find_flash_start(void);
+uint64_t * find_program_end(void);
 void test_flash(void);
+uint64_t *find_sentinel(void);
+int flash_write_init(flash_status_t *);
+int write_record(flash_status_t *, void *);

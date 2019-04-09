@@ -122,6 +122,7 @@ SECTIONS
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
 	. = ALIGN(8);
+    PROVIDE(flash_data_storage = .);
   } >FLASH
 
   /* used by the startup to initialize data */
@@ -137,6 +138,7 @@ SECTIONS
 
     . = ALIGN(8);
     _edata = .;        /* define a global symbol at data end */
+    PROVIDE(_edata = .);
   } >RAM AT> FLASH
 
   

@@ -112,6 +112,7 @@ int main(void)
   uint8_t ch;
   enum {ON, OFF};  
   uint8_t state = OFF;
+  flash_status_t fs;
  
   /* USER CODE END 1 */
 
@@ -147,7 +148,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   printf("\n\rStarting the System ...\n\r");
   SENSOR_POWER_ON;  // Turn on the supply for the light sensor
-  test_flash();
+  flash_write_init(&fs);
   while (1);
 
   while (1) {
