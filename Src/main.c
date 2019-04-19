@@ -48,6 +48,7 @@
 #include "tsl25911.h"
 #include "retarget.h"
 #include "flash.h"
+#include "rtc.h"
 
 /* USER CODE END Includes */
 
@@ -113,6 +114,7 @@ int main(void)
   enum {ON, OFF};  
   uint8_t state = OFF;
   flash_status_t fs;
+  uint32_t ptime;
  
   /* USER CODE END 1 */
 
@@ -160,7 +162,7 @@ int main(void)
   report_flash_status(&fs);
   read_all_records(&fs);
   printf("End of Run\n\r");
-  while (1);
+  //   while (1);
 
   while (1) {
     /* USER CODE END WHILE */
@@ -181,8 +183,11 @@ int main(void)
       if (led_state) {
         HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
         HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
-        printf("LED OFF Lux = %f, %02d/%02d/20%d %02d:%02d:%02d\n\r",
+        ptime = pack_time(&current_time,&current_date);
+        unpack_time(ptime,&current_time,&current_date);
+        printf("LED OFF Lux = %f, ptime=%08x %02d/%02d/20%d %02d:%02d:%02d\n\r",
                tsl25911_readsensor(&hi2c1),
+               (unsigned int) ptime,
                current_date.Month,
                current_date.Date,
                current_date.Year,

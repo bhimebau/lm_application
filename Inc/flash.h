@@ -30,7 +30,7 @@ typedef struct log_data {
   uint8_t watermark;               // 0x01=populated, 0xFF=unpopulated 
   uint8_t status;                  // record type, 01=sensor data, 02=error data;
   uint16_t record_number;          // Which number is this particular record  
-  uint8_t msg[12];                 // 
+  uint8_t msg[12];                 // String message to make the record seem less cryptic. 
 } logdata_t;
 
 typedef struct raw {

@@ -135,3 +135,4 @@ int report_flash_status(flash_status_t *fs) {
   printf("Next Record Number = %d\n\r",(int) fs->next_record_number);
   return(0);
 }
+
