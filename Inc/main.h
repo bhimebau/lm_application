@@ -78,16 +78,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define rtc_clock_Pin GPIO_PIN_7
-#define rtc_clock_GPIO_Port GPIOA
 #define led_out_Pin GPIO_PIN_0
 #define led_out_GPIO_Port GPIOB
 #define sensor_clock_Pin GPIO_PIN_9
 #define sensor_clock_GPIO_Port GPIOA
 #define sensor_data_Pin GPIO_PIN_10
 #define sensor_data_GPIO_Port GPIOA
-#define rtc_data_Pin GPIO_PIN_4
-#define rtc_data_GPIO_Port GPIOB
 #define SW_MODE_Pin GPIO_PIN_5
 #define SW_MODE_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
