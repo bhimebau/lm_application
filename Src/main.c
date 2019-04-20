@@ -189,7 +189,8 @@ int main(void)
         HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
         ptime = pack_time(&current_time,&current_date);
         unpack_time(ptime,&current_time,&current_date);
-        printf("Bryce Temperature=%d\n\r",(int) read_temp());
+        printf("rawTemp=%d\n\r",(int) read_temp());
+        printf("Vintref=%d\n\r",(int) read_vrefint());
         printf("LED OFF rtc_counter = %d, Lux = %f, ptime=%08x %02d/%02d/20%d %02d:%02d:%02d\n\r",
                (int) rtc_counter, 
                tsl25911_readsensor(&hi2c1),
