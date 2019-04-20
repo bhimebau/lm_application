@@ -37,18 +37,18 @@ int32_t read_temp(void) {
   printf("Cal2 = 0x%08x\n\r",(*(int *)TEMPSENSOR_CAL2_ADDR));
   
 
-  return(__HAL_ADC_CALC_TEMPERATURE(__VREFANALOG_VOLTAGE__,
-                                    rawValue,
-                                    ADC_RESOLUTION_12B));
-   
-  /* return(__HAL_ADC_CALC_TEMPERATURE((uint32_t)3750, */
+  /* return(__HAL_ADC_CALC_TEMPERATURE(__VREFANALOG_VOLTAGE__, */
   /*                                   rawValue, */
   /*                                   ADC_RESOLUTION_12B)); */
+   
+  return(__HAL_ADC_CALC_TEMPERATURE((uint32_t)3750,
+                                    rawValue,
+                                    ADC_RESOLUTION_12B));
          
   /* temp = ((float)rawValue) / 4095 * 3300; */
   /* temp = ((temp - 760.0) / 2.5) + 25; */
   /* return(temp); */
-__HAL_ADC_CALC_VREFANALOG_VOLTAGE
+/* __HAL_ADC_CALC_VREFANALOG_VOLTAGE */
   
 }
 
