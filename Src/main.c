@@ -62,6 +62,8 @@
 /* USER CODE BEGIN PD */
 #define TICK_FREQ_HZ 100
 #define LIGHT_SENSOR_ADDRESS (0x29<<1)
+#define DELAY_1S 100
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -100,7 +102,19 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
+  /* static int count = 0; */
   rtc_counter++;
+  /* static int led_state = 0; */
+  /* if (count++>=DELAY_1S) { */
+    /* count = 0; */
+  if (!led_state) {
+    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
+  }
+  else {
+    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
+  }
+  led_state^=1;
+/* } */
 }
 
 // ADC_CHANNEL_TEMPSENSOR
@@ -126,6 +140,8 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  // AL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations
+  //HAL_PWR_EnterSTOPMode
   HAL_Init();
 
   /* USER CODE BEGIN Init */
@@ -153,26 +169,30 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   printf("\n\rStarting the System ...\n\r");
-  SENSOR_POWER_ON;  // Turn on the supply for the light sensor
+  //  SENSOR_POWER_ON;  // Turn on the supply for the light sensor
   flash_write_init(&fs);
   printf("After flash init\n\r");
   report_flash_status(&fs);
   read_all_records(&fs);
-  write_sensor_data(&fs,0x45,0x46,3.57);
+  write_sensor_data(&fs,2910,22,3.57);
   printf("After first write\n\r");
   report_flash_status(&fs);
-  write_sensor_data(&fs,0x45,0x46,3.57);
+  write_sensor_data(&fs,2910,21,3.57);
   printf("After Second write\n\r");
   report_flash_status(&fs);
   read_all_records(&fs);
   printf("End of Run\n\r");
-  //   while (1);
-
+  HAL_DBGMCU_EnableDBGStopMode();
+  /* while (1) { */
+  /*   printf("Stopping\n\r"); */
+  /*   HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations */
+  /*   printf("Awake\n\r"); */
+  /* } */
+  
   while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
     if ((status=HAL_UART_Receive(&huart1, &ch, 1, 1)) == HAL_OK) {
       HAL_UART_Transmit(&huart1,&ch,1,10);
     }
@@ -187,12 +207,21 @@ int main(void)
       if (led_state) {
         HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
         HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
+        printf("Date = %d\n\r",current_date.Year);
+        printf("\n\rBefore pack rtc_counter=%d, %02d/%02d/20%02d %02d:%02d:%02d\n\r",
+               (int) rtc_counter,
+               current_date.Month,
+               current_date.Date,
+               current_date.Year,
+               current_time.Hours,
+               current_time.Minutes,
+               current_time.Seconds);
         ptime = pack_time(&current_time,&current_date);
         unpack_time(ptime,&current_time,&current_date);
-        printf("rawTemp=%d\n\r",(int) read_temp());
-        printf("Vintref=%d\n\r",(int) read_vrefint());
-        printf("LED OFF rtc_counter = %d, Lux = %f, ptime=%08x %02d/%02d/20%d %02d:%02d:%02d\n\r",
-               (int) rtc_counter, 
+        //         printf("rawTemp=%d\n\r",(int) read_temp());
+        //         printf("Vintref=%d\n\r",(int) read_vrefint());
+        printf("LED OFF rtc_counter = %d, Lux = %f, ptime=%08x %02d/%02d/20%02d %02d:%02d:%02d\n\r",
+               (int) rtc_counter,
                tsl25911_readsensor(&hi2c1),
                (unsigned int) ptime,
                current_date.Month,
@@ -201,6 +230,7 @@ int main(void)
                current_time.Hours,
                current_time.Minutes,
                current_time.Seconds);
+        printf("LED OFF\n\r");
         state = ON;
       }
       break;
@@ -208,6 +238,7 @@ int main(void)
       state = ON;
     }
   }
+  //  HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations
   /* USER CODE END 3 */
 }
 
@@ -416,8 +447,8 @@ static void MX_RTC_Init(void)
 
   /** Initialize RTC and set the Time and Date 
   */
-  sTime.Hours = 0x0;
-  sTime.Minutes = 0x0;
+  sTime.Hours = 0x15;
+  sTime.Minutes = 0x34;
   sTime.Seconds = 0x0;
   sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sTime.StoreOperation = RTC_STOREOPERATION_RESET;
@@ -426,9 +457,9 @@ static void MX_RTC_Init(void)
     Error_Handler();
   }
   sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-  sDate.Month = RTC_MONTH_JANUARY;
-  sDate.Date = 0x1;
-  sDate.Year = 0x0;
+  sDate.Month = RTC_MONTH_APRIL;
+  sDate.Date = 0x22;
+  sDate.Year = 0x19;
 
   if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
   {
@@ -442,7 +473,7 @@ static void MX_RTC_Init(void)
   sAlarm.AlarmTime.SubSeconds = 0x0;
   sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  sAlarm.AlarmMask = RTC_ALARMMASK_SECONDS;
+  sAlarm.AlarmMask = RTC_ALARMMASK_ALL;
   sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
   sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
   sAlarm.AlarmDateWeekDay = 0x1;

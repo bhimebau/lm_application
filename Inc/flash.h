@@ -52,5 +52,5 @@ uint64_t *find_sentinel(void);
 int flash_write_init(flash_status_t *);
 int write_record(flash_status_t *, void *);
 int read_all_records(flash_status_t * );
-int write_sensor_data(flash_status_t *,uint16_t,uint16_t,uint32_t);
+int write_sensor_data(flash_status_t *,uint16_t,uint16_t,float);
 int report_flash_status(flash_status_t *);

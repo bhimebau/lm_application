@@ -105,6 +105,8 @@ int read_all_records(flash_status_t * fs) {
   else {
     while (p->watermark!=0xFF) {
       printf("Found record number %d\n\r",p->record_number);
+      printf("Battery Voltage %d\n\r",(int) p->battery_voltage);
+      printf("Lux Value = %f\n\r",p->lux);
       p++;
     }
     printf("End of records\n\r");
@@ -115,7 +117,7 @@ int read_all_records(flash_status_t * fs) {
 int write_sensor_data(flash_status_t *fs,
                       uint16_t battery_voltage,
                       uint16_t temperature,
-                      uint32_t lux) {
+                      float lux) {
   sensordata_t p = {0x01,
                     0x01,
                     fs->next_record_number,

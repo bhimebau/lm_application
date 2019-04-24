@@ -16,23 +16,23 @@ uint32_t pack_time(RTC_TimeTypeDef *time, RTC_DateTypeDef *date) {
   uint32_t temp = 0;
   temp = (((uint32_t) date->Date) & 0b00011111) << 27;           // Add the date
   out = temp;
-  printf("temp=0x%08x,date=%d\n\r",(unsigned int) temp, date->Date);
+  //   printf("temp=0x%08x,date=%d\n\r",(unsigned int) temp, date->Date);
   temp = (((uint32_t) date->Month) & 0b00001111) << 22;          // Add the month   
   out |= temp;
-  printf("temp=0x%08x,date=%d\n\r",(unsigned int) temp, date->Month);
+  //   printf("temp=0x%08x,date=%d\n\r",(unsigned int) temp, date->Month);
   temp = ((((uint32_t) date->Year) - 19) & 0b00000111) << 19;  // Add the year 
   out |= temp;
-  printf("temp=0x%08x,date=%d\n\r",(unsigned int) temp, date->Year);
+  //   printf("temp=0x%08x,date=%d\n\r",(unsigned int) temp, date->Year);
   temp = (((uint32_t) time->Hours) & 0b00011111) << 13;           // Add the hour 
   out |= temp;
-  printf("temp=0x%08x,hours=%d\n\r",(unsigned int) temp, time->Hours);
+  //   printf("temp=0x%08x,hours=%d\n\r",(unsigned int) temp, time->Hours);
   temp = (((uint32_t) time->Minutes) & 0b00111111) << 6;          // Add the minute
   out |= temp;
-  printf("temp=0x%08x,minutes=%d\n\r",(unsigned int) temp, time->Minutes);
+  //   printf("temp=0x%08x,minutes=%d\n\r",(unsigned int) temp, time->Minutes);
   temp = (((uint32_t) time->Seconds) & 0b00111111);               // Add the second 
   out |= temp;
-  printf("temp=0x%08x,seconds=%d\n\r",(unsigned int) temp, time->Seconds);
-  printf("Done Packing Time/Date\n\r");
+  //  printf("temp=0x%08x,seconds=%d\n\r",(unsigned int) temp, time->Seconds);
+  //   printf("Done Packing Time/Date\n\r");
   return out;
 }
 

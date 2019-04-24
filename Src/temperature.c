@@ -23,10 +23,7 @@ uint32_t read_temp(void) {
   if (first_time_up) {
     sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
     sConfig.Rank = ADC_REGULAR_RANK_1;
-    // sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
     sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
-    // sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
-    // sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
     sConfig.SingleDiff = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset = 0;
@@ -79,22 +76,3 @@ uint32_t read_vrefint(void) {
 }
 
 
-
-
-
-
-  
-  //  printf("Cal1 = 0x%08x\n\r",(*(int *)TEMPSENSOR_CAL1_ADDR));
-  //  printf("Cal2 = 0x%08x\n\r",(*(int *)TEMPSENSOR_CAL2_ADDR));
-  /* return(__HAL_ADC_CALC_TEMPERATURE(__VREFANALOG_VOLTAGE__, */
-  /*                                   rawValue, */
-  /*                                   ADC_RESOLUTION_12B)); */
-   
-  /* return(__HAL_ADC_CALC_TEMPERATURE((uint32_t)3750, */
-  /*                                   rawValue, */
-  /*                                   ADC_RESOLUTION_12B)); */
-         
-  /* temp = ((float)rawValue) / 4095 * 3300; */
-  /* temp = ((temp - 760.0) / 2.5) + 25; */
-  /* return(temp); */
-/* __HAL_ADC_CALC_VREFANALOG_VOLTAGE */
