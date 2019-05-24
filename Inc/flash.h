@@ -16,13 +16,16 @@
 #define FLASH_END          0x0803FFF8
 #define SENTINEL_MARK      0xDEADBEEFA5A5A5A5
 
+#define DATA_RECORD 1
+#define LOG_RECORD 2
+
 typedef struct sensordata {
   uint8_t watermark;               // 0x01=populated, 0xFF=unpopulated 
   uint8_t status;                  // record type, 01=sensor data, 02=error data;
   uint16_t record_number;          // Which number is this particular record  
+  uint32_t timestamp;              // Time, bit packed into 32 bits
   uint16_t battery_voltage;        // 16 bit battery voltage
   uint16_t temperature;            // STM32 Temperature sensor reading 
-  uint32_t timestamp;              // Time, bit packed into 32 bits
   float lux;                       // Reading from the light sensor
 } sensordata_t;
 
@@ -30,7 +33,8 @@ typedef struct log_data {
   uint8_t watermark;               // 0x01=populated, 0xFF=unpopulated 
   uint8_t status;                  // record type, 01=sensor data, 02=error data;
   uint16_t record_number;          // Which number is this particular record  
-  uint8_t msg[12];                 // String message to make the record seem less cryptic. 
+  uint32_t timestamp;              // Time, bit packed into 32 bits
+  uint8_t msg[8];                  // String message to make the record seem less cryptic.
 } logdata_t;
 
 typedef struct raw {
@@ -53,4 +57,5 @@ int flash_write_init(flash_status_t *);
 int write_record(flash_status_t *, void *);
 int read_all_records(flash_status_t * );
 int write_sensor_data(flash_status_t *,uint16_t,uint16_t,float);
+int write_log_data(flash_status_t *, char *);
 int report_flash_status(flash_status_t *);

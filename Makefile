@@ -44,6 +44,8 @@ Src/tsl25911.c \
 Src/flash.c \
 Src/rtc.c \
 Src/temperature.c \
+Src/strategy.c \
+Src/command.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c \

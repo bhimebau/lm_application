@@ -19,6 +19,8 @@ uint32_t read_temp(void) {
   static uint32_t first_time_up = 1;
   static ADC_ChannelConfTypeDef sConfig = {0};
   uint32_t rawTemp;
+  uint32_t vref;
+  
     
   if (first_time_up) {
     sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
@@ -37,11 +39,13 @@ uint32_t read_temp(void) {
   HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
   rawTemp = HAL_ADC_GetValue(&hadc1);
   HAL_ADC_Stop(&hadc1);
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
-      Error_Handler();
-  }
-  return (__HAL_ADC_CALC_TEMPERATURE(read_vrefint(),
+  /* sConfig.Rank = ADC_REGULAR_RANK_2; */
+  /* if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) { */
+  /*     Error_Handler(); */
+  /* } */
+  vref = read_vrefint();
+  //  printf("raw temperature = %d, reference voltage = %d\n\r",(int)rawTemp, (int)vref);
+  return (__HAL_ADC_CALC_TEMPERATURE(vref,
                                      rawTemp,
                                      ADC_RESOLUTION_12B));
 }
