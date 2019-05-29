@@ -1,0 +1,6 @@
+Issues: 
+
+(closed) Added a 200ohm load to stabilize 1.6V supply
+(closed) TX/RX lines swapped on connections between the MSP430 and the 3232 driver
+(Closed) Need a startup delay for the 8Mhz crystal to allow it to stabilize. 
+(Closed) Ground shift in analog array - added blue wire...

@@ -1,0 +1,109 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.03.06.19.18.39;	author bhimebau;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@;; Interrupt Vectors
+#include <io.h>
+        .text
+.global vector_ffee
+.global ad_result_raw
+        	
+;;;  Interrupt Handler for ADC channels
+vector_ffee:      
+        mov.w #ad_result_raw,r4
+       	add.w &ADC12IV,r0	
+        reti			; No Interrupt
+	jmp ADOV         	; A2D Overflow interrupt
+	jmp ADTOV        	; A2D Timing Overflow
+        jmp ADM0                
+        jmp ADM1
+        jmp ADM2
+        jmp ADM3
+        jmp ADM4
+        jmp ADM5
+        jmp ADM6
+        jmp ADM7
+        jmp ADM8
+        jmp ADM9
+        jmp ADM10
+        jmp ADM11
+        jmp ADM12
+        jmp ADM13
+        jmp ADM14
+ADM15:
+        mov.w &ADC12MEM15,30(r4)
+        jmp vector_ffee
+ADM0:                       
+        mov.w &ADC12MEM0,0(r4)
+        reti                    
+ADM1:                       
+        mov.w &ADC12MEM1,2(r4) 
+        reti                    
+ADM2:                       
+        mov.w &ADC12MEM2,4(r4)
+        reti                    
+ADM3:        
+        mov &ADC12MEM3,6(r4)
+        reti                    
+ADM4:                       
+        mov &ADC12MEM4,8(r4) 
+        reti                    
+ADM5:                       
+        mov &ADC12MEM5,10(r4) 
+        reti                    
+ADM6:                       
+        mov.w &ADC12MEM0,0(r4)
+        mov.w &ADC12MEM1,2(r4) 
+        mov.w &ADC12MEM2,4(r4)
+        mov.w &ADC12MEM3,6(r4)
+        mov.w &ADC12MEM4,8(r4) 
+        mov.w &ADC12MEM5,10(r4) 
+        mov.w &ADC12MEM6,12(r4) 
+        reti                    
+ADM7:                       
+        mov &ADC12MEM7,14(r4) 
+        reti                    
+ADM8:                       
+        mov &ADC12MEM8,16(r4) 
+        reti                    
+ADM9:                       
+        mov &ADC12MEM9,18(r4) 
+        reti                    
+ADM10:                       
+        mov &ADC12MEM10,20(r4) 
+        reti                    
+ADM11:                       
+        mov &ADC12MEM11,22(r4) 
+        reti                    
+ADM12:                       
+        mov &ADC12MEM12,24(r4) 
+        reti                    
+ADM13:                       
+        mov &ADC12MEM13,26(r4) 
+        reti                    
+ADM14:                       
+        mov &ADC12MEM14,28(r4) 
+        reti                    
+ADTOV:  
+        reti
+ADOV:   
+        reti                   
+@

@@ -1,0 +1,82 @@
+Current Output Calibration
+Attach the DVM in current mode to the pin with the active LED
+Use the up arrow and down arrow keys to adjust the current
+-----------------------------------------------------------------
+0@200uA> 3
+0@0uA> 1 493
+1@200uA> 1
+1@0uA> -1 491
+2@200uA> -1
+2@0uA> -4 488
+3@200uA> -3
+3@0uA> -4 488
+4@200uA> 0
+4@0uA> -1 491
+5@200uA> 1
+5@0uA> -1 491
+6@200uA> -2
+6@0uA> -3 489
+7@200uA> -1
+7@0uA> -3 489
+8@200uA> 1
+8@0uA> -1 491
+9@200uA> 1
+9@0uA> -1 491
+10@200uA> 2
+10@0uA> 1 493
+11@200uA> 1
+11@0uA> -1 491
+12@200uA> 1
+12@0uA> 0 492
+13@200uA> -2
+13@0uA> -3 489
+14@200uA> 7
+14@0uA> 5 497
+15@200uA> 5
+15@0uA> 3 495
+16@200uA> 1
+16@0uA> -1 491
+17@200uA> 1
+17@0uA> -2 490
+18@200uA> 1
+18@0uA> 0 492
+19@200uA> 5
+19@0uA> 3 495
+20@200uA> -3
+20@0uA> -5 487
+21@200uA> 3
+21@0uA> 1 493
+22@200uA> 0
+22@0uA> -2 490
+23@200uA> 6
+23@0uA> 3 495
+24@200uA> -1
+24@0uA> -2 490
+0 199 150 99 49 floor=0,offset=0
+1 197 147 98 47 floor=2,offset=2
+2 193 144 93 43 floor=0,offset=6
+3 196 147 97 48 floor=0,offset=3
+4 194 144 94 45 floor=0,offset=5
+5 194 144 94 44 floor=1,offset=6
+6 204 154 105 56 floor=5,offset=-4
+7 198 148 98 48 floor=3,offset=2
+8 196 146 95 45 floor=0,offset=4
+9 192 142 92 43 floor=1,offset=7
+10 199 149 99 49 floor=6,offset=1
+11 196 146 96 46 floor=2,offset=4
+12 197 148 98 49 floor=1,offset=2
+13 198 148 98 48 floor=8,offset=2
+14 197 146 96 45 floor=1,offset=4
+15 194 144 94 44 floor=1,offset=6
+16 192 144 93 42 floor=1,offset=7
+17 196 145 95 44 floor=1,offset=5
+18 196 146 97 46 floor=1,offset=3
+19 195 145 92 44 floor=7,offset=6
+20 202 153 102 53 floor=2,offset=-2
+21 195 146 96 45 floor=1,offset=4
+22 192 144 94 44 floor=1,offset=6
+23 189 139 88 39 floor=0,offset=11
+24 198 149 98 49 floor=1,offset=1
+Commit calibration to external flash ? (y or n)
+Calibration Saved !
+OK

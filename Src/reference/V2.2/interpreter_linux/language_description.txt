@@ -1,0 +1,58 @@
+1.) Reporting 
+    a.) Pin Voltages 
+    b.) LLA Relationships
+
+2.) Setting Constants
+    a.) Current Sources
+    
+3.) Setting LLAs 
+    a.) Define LLA relationship 
+    b.) Data Streaming 
+
+4.) Mode Control
+    a.) Active 
+    b.) Halted          
+
+
+// Command Language Specification 
+// All commands terminated with newline and are case insensitive. 
+// Responds with "OK" or E[err_num]
+
+// Read/Write primatives 
+[Read],[Voltage,Current],[X],[Y]
+[Write],[Current],[X],[Y]
+
+// add,delete,modify,report
+[LLA],[A,D,M,R],[REF TAG],[Xin],[Yin],[Xout,0],[Yout,0],[FUNCTION NUM],[SPEED]
+
+// write new functions to flash look-up tables
+[F],[0-52],[Sample Count 1-256],[DATA0],[DATA1],...  
+
+// Global enable/disable for LLA processing 
+[MODE],[RUN,HALT]
+
+// Grid values 
+#define L 0x40
+#define V 0x80
+#define I 0xC0
+
+typedef struct lla {
+   char tag[4];   
+   unsigned char xin;
+   unsigned char yin;
+   unsigned char xout;
+   unsigned char yout;
+   unsigned char function_num;
+   unsigned char rate;          // writing a zero here disables LLA
+} lla_t;
+
+typedef struct ueac {
+   unsigned char grid[25];
+   unsigned int ival_in[25];
+   unsigned int ival_out[25];
+   lla_t lla_table[25];
+} ueac_t;  
+
+        
+
+

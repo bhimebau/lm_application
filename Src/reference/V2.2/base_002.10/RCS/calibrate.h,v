@@ -1,0 +1,112 @@
+head	1.2;
+access;
+symbols;
+locks
+	bhimebau:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2006.03.30.10.00.34;	author bhimebau;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2006.03.06.19.22.37;	author bhimebau;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@check-in for Ryan Varick
+@
+text
+@/* calibrate.h --- 
+ * 
+ * Filename: calibrate.h
+ * Description: 
+ * Author: Bryce Himebaugh
+ * Maintainer: 
+ * Created: Fri Feb 10 10:16:54 2006
+ * Version: 
+ * Last-Updated: 
+ *           By: 
+ *     Update #: 0
+ * Keywords: 
+ * Compatibility: 
+ * 
+ */
+
+/* Commentary: 
+ * 
+ * 
+ * 
+ */
+
+/* Change log:
+ * 
+ * 
+ */
+
+/* This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/* Code: */
+void current_output_calibration (ueac_t *);
+void current_input_calibration (ueac_t *);
+void voltage_input_calibration (ueac_t *);
+void scan_leds(void);
+
+/* calibrate.h ends here */
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d45 3
+a47 23
+
+
+// Constants
+#define CAL_DAC_START_LOW 0x270
+#define CAL_DAC_START_HIGH 0x1a0
+#define LOW_CURRENT_THRESHOLD_DELTA 0xF
+#define TARGET_200uA 0x371
+#define FILTER_LIMIT 8;
+
+// Types 
+typedef struct pin_cal {
+  int init;
+  int init_val;
+  int high;
+  int high_val;
+  int low;
+  int low_val;
+} pin_cal_t;
+
+// Function Prototypes 
+void interactive_diagnostic(void);
+void sys_cal(void);
+int calibrate_current_source(int, pin_cal_t *);
+@

@@ -1,0 +1,1337 @@
+head	1.18;
+access;
+symbols;
+locks
+	bhimebau:1.18; strict;
+comment	@ * @;
+
+
+1.18
+date	2006.04.03.16.21.53;	author bhimebau;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2006.03.30.10.02.08;	author bhimebau;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2006.03.28.18.09.29;	author bhimebau;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2006.03.07.14.30.41;	author bhimebau;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2006.03.06.19.19.04;	author bhimebau;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2006.02.11.11.07.03;	author bhimebau;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2006.02.10.14.40.46;	author bhimebau;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2006.02.08.15.34.56;	author bhimebau;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2005.11.08.20.11.35;	author bhimebau;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2005.11.07.22.01.37;	author bhimebau;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2005.11.04.16.02.39;	author bhimebau;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2005.11.02.18.15.02;	author bhimebau;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2005.11.02.16.23.21;	author bhimebau;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2005.11.02.16.22.12;	author bhimebau;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2005.11.02.16.20.52;	author bhimebau;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2005.11.02.14.56.44;	author bhimebau;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2005.11.02.14.52.18;	author bhimebau;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2005.11.02.14.50.58;	author bhimebau;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.18
+log
+@Checkin for integration with lla code package
+@
+text
+@/* main.c --- 
+ * 
+ * Filename: main.c
+ * Description: 
+ * Author: Bryce Himebaugh
+ * Maintainer: 
+ * Created: Wed Nov  2 11:19:17 2005
+ * Version: 
+ * Last-Updated: Tue Nov  8 16:50:17 2005
+ *           By: Bryce Himebaugh
+ *     Update #: 236
+ * Keywords: 
+ * Compatibility: 
+ * 
+ */
+
+/* Commentary: 
+ * 
+ * 
+ * 
+ */
+
+/* Change log:
+ * 
+ * 
+ */
+
+/* This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/* Doxygen Main index docs */
+/*! \mainpage uEAC Hybrid Computer Operating System  
+    \authors Bryce Himebaugh
+    \section A uEAC Command Interpreter Documentation
+    <ul>
+        <li> <a href="../interpreter_doc/index.html"> Command Language </a>
+    </ul> 
+    \section B uEAC R002 Schematics 
+    <ul> 
+        <li> <a href="../pdf/sheet1.pdf"> Top Level </a>
+        <li> <a href="../pdf/sheet2.pdf"> Probe Row 0</a>
+        <li> <a href="../pdf/sheet3.pdf"> Probe Row 1</a>
+        <li> <a href="../pdf/sheet4.pdf"> Probe Row 2</a>
+        <li> <a href="../pdf/sheet5.pdf"> Probe Row 3</a>
+        <li> <a href="../pdf/sheet6.pdf"> Probe Row 4</a>
+        <li> <a href="../pdf/sheet7.pdf"> FTDI Serial/Power Supplies</a>
+    </ul> 
+    \section C Component Reference Docs 
+    <ul> 
+        <li> <a href="../pdf/slau049e-1.pdf"> TI MSP430 User's Manual</a>
+        <li> <a href="../pdf/ds2232c_15.pdf"> FTDI DS2232C Datasheet</a>
+    </ul>    
+  */ 
+
+/* Code: */
+#include <msp430x16x.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include "ueaclib.h"
+#include "ueac.h"
+#include "external_flash.h"
+#include "interpreter.h"
+#include "filter.h"
+#include "conversion.h"
+#include "global.h"
+#include "timer.h"
+#include "calibrate.h"
+
+void print_grid_v();
+void print_grid_i();
+int get_command(char *command_buf);
+extern short dac_translation[];
+
+int main(void) {
+  int i;
+  init_sys();                        // setup the MSP430 peripherals
+  printf(BACK_WHITE);
+  printf(CLR);
+  printf("UEAC POST\n\r");
+  init_global_variables();
+  flash_integrity_test();
+  scan_leds();
+  for (i=0;i<25;i++) {
+    write_lla(i,0);
+    write_led(i,0);
+    write_current(i,0);
+  }
+  delay_1_25mS(800);     
+  write_current(0,200);
+  delay_1_25mS(800);
+  write_current(0,0);
+  printf(CLR);
+  printf("uEACos V2.2 base_002.6\n\r");
+  while(1) {
+    printf("ueac> ");
+    get_command(command);
+    interpreter(command,&ueac_state);
+  }
+}
+
+int get_command(char *command_buf) {
+  char ch;
+  int counter=0;
+  while(((ch=getchar())!='\n')&&(ch!='\r')&&(counter++<100)) {
+    *command_buf++=ch;
+  }
+  *command_buf++='\n';
+  *command_buf=0;
+  return (counter);
+}     
+
+void print_grid_v() {
+  int i,j;
+  for (i=0;i<5;i++) {
+    for (j=0;j<5;j++) {
+      convert_a2d(V_CONVERSION,pin_data[i*5+j].filtered_result,&conversion_result); 
+      printf("%d.%d ",conversion_result.integer,conversion_result.hundredth);
+    }
+    printf("\n\r");
+  }
+}
+
+void print_grid_i() {
+  int i,j;
+  for (i=0;i<5;i++) {
+    for (j=0;j<5;j++) {
+      write_lla(i*5+j,1);
+      write_current(i*5+j,200);
+      delay_1_25mS(500);
+      convert_a2d(I_CONVERSION,pin_data[i*5+j].filtered_result,&conversion_result); 
+      printf("%d ",conversion_result.integer);
+      write_lla(i*5+j,0);
+    }
+    printf("\n\r");
+  }
+}
+
+
+
+/* main.c ends here */
+@
+
+
+1.17
+log
+@check-in for Ryan Varick
+@
+text
+@d90 1
+a90 1
+  init_sys(); // setup the MSP430 for the uEAC board
+a96 2
+  delay_1_25mS(700);
+  printf(CLR);
+d102 1
+a102 1
+  delay_1_25mS(1000);
+d104 1
+a104 1
+  delay_1_25mS(1000);
+d106 2
+a107 2
+  //  print_grid_i();
+  printf("uEACos V2.2 base_002.5\n\r");
+@
+
+
+1.16
+log
+@Significant improvements to the sampling infrastructure.
+@
+text
+@d74 1
+a74 1
+#include "calibrate.h"
+a75 1
+#include "ueac.h"
+d80 2
+d84 1
+a89 1
+  int tick_counter=0;
+a90 2
+  init_global_variables();
+
+d93 2
+a94 1
+  //  printf("UEAC POST\n\r");
+d96 3
+a98 24
+  //   scan_leds();
+
+  //  sys_cal();
+  //printf(CLR);
+  for (i=0;i<25;i++) {
+   write_lla(i,0);
+   write_led(i,0);
+   write_dac(i,dac_translation[200-0]); 
+  }
+/*   while (1) { */
+/*     printf(CLR); */
+/*     print_grid_v(); */
+/*     tick_counter=0;                        */
+/*     while (tick_counter<100) {             */
+/*       if (timer_tick) {                    */
+/*         tick_counter++;                    */
+/*         timer_tick=0;                      */
+/*       }                                    */
+/*     }                                      */
+/*   } */
+
+  // write_led(0,1);
+  // write_lla(0,1);
+
+a99 10
+    write_lla(i,1);
+    write_dac(i,dac_translation[0]);  // 200uA 
+    tick_counter=0;
+    while (tick_counter<200) {
+      if (timer_tick) {
+        tick_counter++;
+        timer_tick=0;
+      }
+    }
+    convert_a2d(I_CONVERSION,pin_data[i].filtered_result,&conversion_result);
+d101 2
+a102 1
+    printf("%d\n\r",conversion_result.integer);
+d104 6
+a109 2
+
+  printf("uEACos V2.2 base_002.4\n\r");
+d139 16
+@
+
+
+1.15
+log
+@Added command interpreter. This phase was done to allow
+development on the host side tools. Backend analog processing
+is not running in this version. Return data is synthesized.
+@
+text
+@d45 7
+a51 2
+/*! \mainpage uEAC Calibration Application 
+    \section A uEAC R003 Schematics 
+d61 1
+a61 1
+    \section B Component Reference Docs 
+d66 1
+a66 2
+
+ */ 
+d78 3
+d82 1
+a82 5
+#define MAX_BUF 100
+
+ueac_t ueac_state;
+volatile unsigned short ad_result_raw[25];
+char command[MAX_BUF];
+d84 1
+d88 1
+a88 3
+  for (i=0;i<25;i++) {
+    ad_result_raw[i]=0;
+  }
+d90 2
+a92 3
+  // for (i=0;i<25;i++) {
+  //   printf("%d 0x%04x\n\r",i,ad_result_raw[i]);
+  // }
+d94 1
+a94 1
+  printf("UEAC POST\n\r");
+d96 40
+a135 6
+  scan_leds();
+  // sys_cal();
+  // interactive_diagnostic();
+  // printf("Reached end of main ... Spinning forever\n\r");
+  printf(CLR);
+  printf("UEAC R002\n\r");
+d146 1
+a146 1
+  while(((ch=getchar())!='\n')&&(ch!='\r')&&(counter++<MAX_BUF)) {
+d154 12
+@
+
+
+1.14
+log
+@check-in for V002.3
+@
+text
+@d72 2
+d75 3
+d79 2
+d89 10
+d101 4
+a104 2
+  for (i=0;i<25;i++) {
+    printf("%d 0x%04x\n\r",i,ad_result_raw[i]);
+a105 6
+  scan_leds();
+  flash_integrity_test();
+  sys_cal();
+  interactive_diagnostic();
+  printf("Reached end of main ... Spinning forever\n\r");
+  while(1);
+d108 11
+@
+
+
+1.13
+log
+@Flash debug completed.
+@
+text
+@d73 2
+d76 12
+a87 1
+  init_sys();                                        // setup the MSP430 for the uEAC board
+@
+
+
+1.12
+log
+@Tweaked to diagnose issue with uEAC02.01. No substantial changes from
+the original.
+@
+text
+@d70 2
+a71 24
+
+
+typedef struct pin_cal {
+  int init;
+  int init_val;
+  int high;
+  int high_val;
+  int low;
+  int low_val;
+} pin_cal_t;
+
+void write_dac(int,int);
+void write_led(int,int);
+void write_lla(int,int);
+int calibrate_current_source(int, pin_cal_t *);
+void sys_cal(void);
+
+volatile int cal_chan = 0;
+pin_cal_t cal_data;
+volatile int cal_enable=0;
+volatile int a2d_results[28];
+volatile int zero_val[25];
+
+#define CHAN_NUM 4
+a73 5
+  enum {OFF,ON};
+  char ch;  
+  int channel=0;
+  int i,j;
+  //  int test_state=OFF;
+d75 1
+d77 3
+a79 117
+  // write_dac(2,zero_val[2]-112);                   // half scale 
+  // write_dac(22,zero_val[22]-112);
+  // write_lla(12,1);                                // center lla 
+
+  //  while(1) {
+  //  printf("0x%04x\n\r",a2d_results[12]);            
+  // }
+
+/*   write_led(0,ON); */
+/*   printf("#### system alive ####\n\r"); */
+
+  // Turn off all of the LEDs and LLA pull-down. 
+/*   for (i=1;i<25;i++) {  */
+/*     write_led(i,OFF); */
+/*     write_lla(i,OFF); */
+/*   } */
+
+//  write_dac(CHAN_NUM,0x01EF+125);
+/*   write_dac(CHAN_NUM,0x01EF+5); */
+
+/*   while (1) { */
+/*     switch (test_state) { */
+/*     case OFF: */
+/*       printf("State off\n\r"); */
+/*       write_led(CHAN_NUM,OFF); */
+/*       write_lla(CHAN_NUM,OFF); */
+/*       while ((ch=getchar())!='n') { */
+/*         printf("%c 0x%04x\r\n",ch,a2d_results[CHAN_NUM]); */
+/*       } */
+/*       printf("\n\r"); */
+/*       test_state=ON; */
+/*       break; */
+/*     case ON: */
+/*       printf("State on\n\r"); */
+/*       write_led(CHAN_NUM,ON); */
+/*       write_lla(CHAN_NUM,ON); */
+/*       while ((ch=getchar())!='n') { */
+/*         printf("%c 0x%04x\r\n",ch,a2d_results[CHAN_NUM]); */
+/*       } */
+/*       printf("\n\r"); */
+/*       test_state=OFF; */
+/*       break; */
+/*     } */
+/*   for (i=1;i<25;i++) {  */
+/*     write_led(i,OFF); */
+/*     write_lla(i,OFF); */
+/*   } */
+/*   for (i=0;i<25;i++) { */
+/*     printf ("Begin Calibration\n\r"); */
+/*     cal_chan=i; */
+/*     cal_enable=1; */
+/*     while (cal_enable);  */
+/*     printf ("\n\rCH%d\n\r",i); */
+/*     printf ("Init DAC = 0x%04x val=0x%04x\n\r",cal_data.init,cal_data.init_val); */
+/*     printf ("Low DAC = 0x%04x val=0x%04x\n\r",cal_data.low,cal_data.low_val); */
+/*     write_dac(i,cal_data.low); */
+/*     zero_val[i]=cal_data.low; */
+/*     printf ("High DAC = 0x%04x val=0x%04x\n\r",cal_data.high,cal_data.high_val); */
+/*   } */
+/*   printf ("Calibration Complete\n\r"); */
+ 
+/*   for (i=0;i<25;i++) { */
+/*     write_led(i,0);           // Turn off the leds */
+/*   } */
+
+
+
+  write_led(channel,ON);
+  write_lla(channel,ON);
+  printf("channel %d\n\r",channel);
+
+  while(1) {
+    if ((ch=getchar())=='n') {
+      write_led(channel,OFF);
+      write_lla(channel,OFF);
+      if (++channel>24) {
+        channel=0;
+      }
+      write_led(channel,ON);
+      write_lla(channel,ON);
+      for (i=0;i<5;i++) {
+        for (j=0;j<5;j++) {
+          printf("0x%04x ",a2d_results[5*i+j]);
+        }
+        printf("\n\r");
+      }
+      printf("VOP=%d.%dV\n\r",a2d_results[25]/220,(int)((((long)a2d_results[25]*100))/220)%100);
+      printf("Temperature = 0x%04x\n\r",a2d_results[26]);
+      printf("Half Scale = 0x%04x\n\r",a2d_results[27]);
+    }
+    if (ch=='p') {
+      write_led(channel,OFF);
+      write_lla(channel,OFF);
+      if (--channel<0) {
+        channel=24;
+      }
+      write_led(channel,ON);
+      write_lla(channel,ON);
+      for (i=0;i<5;i++) {
+        for (j=0;j<5;j++) {
+          printf("0x%04x ",a2d_results[5*i+j]);
+        }
+        printf("\n\r");
+      }
+      printf("VOP=%d.%dV\n\r",a2d_results[25]/220,(int)((((long)a2d_results[25]*100))/220)%100);
+      printf("Temperature = 0x%04x\n\r",a2d_results[26]);
+      printf("Half Scale = 0x%04x\n\r",a2d_results[27]);
+    }
+    printf("channel %d\n\r",channel);
+
+    for (i=0;i<=1023;i+=10) {
+      write_dac(channel,i);
+    }
+    for (i=1023;i>=0;i-=10) {
+      write_dac(channel,i);
+    }
+  }
+a81 298
+void sys_cal(void) {
+  enum {OFF,ON};
+  int i;
+  for (i=1;i<25;i++) { 
+    write_led(i,OFF);
+    write_lla(i,OFF);
+    write_dac(i,0x1e5);    // write the DACs to the approximately off case
+  }
+
+  for (i=0;i<25;i++) {
+    printf ("Begin Calibration\n\r");
+    cal_chan=i;
+    cal_enable=1;
+    while (cal_enable); 
+    printf ("\n\rCH%d\n\r",i);
+    printf ("Init DAC = 0x%04x val=0x%04x\n\r",cal_data.init,cal_data.init_val);
+    printf ("Low DAC = 0x%04x val=0x%04x\n\r",cal_data.low,cal_data.low_val);
+    write_dac(i,cal_data.low);
+    zero_val[i]=cal_data.low;
+    printf ("High DAC = 0x%04x val=0x%04x\n\r",cal_data.high,cal_data.high_val);
+  }
+  printf ("Calibration Complete\n\r");
+  for (i=0;i<25;i++) {
+    write_lla(i,0);
+    write_led(i,0);                // Turn off the leds
+    write_dac(i,zero_val[i]-0xa);    // write the DACs to their off value
+  }
+}  
+
+void write_dac(int channel,int value) {
+  // write_dac(channel,value)
+  // channel = 0-24 where the channels are the control voltages for the current sources. The current 
+  // sources are labeled starting at the top left corner as follows.
+  //  0  1  2  3  4
+  //  5  6  7  8  9
+  // 10 11 12 13 14
+  // 15 16 17 18 19
+  // 20 21 22 23 24
+  //
+  // Value = 0-1023 (10-bit) where the number represents a control voltage that is 0-3.3v. Each bit represents 
+  // a voltage of 3.3v/1023 or 3.22mV. 
+  //
+  // Hardware Note: Channels 0-23 are implemented by external SPI octal dacs (Linear LTC1660 components). Channel 
+  // 24 is implemented using DAC0 on the MSP430 
+  // 
+  // Initial Version BH 11/1/05
+
+  if (channel < 8) {
+    P4OUT=~0x01;                                    // assert the proper chip select
+    channel++;                                      // increment the channel number LTC1660 channels run from 1-8   
+  }           
+  else if (channel < 16) {
+    P4OUT=~0x02;                                    // assert the proper chip select
+    channel-=7;                                     // bring channel number into range 1-8
+  } 
+  else if (channel < 24) {
+    P4OUT=~0x04;                                    // assert the proper chip select
+    channel-=15;                                    // bring channel number into range 1-8
+  }
+  else if (channel == 24) {
+    DAC12_0DAT=value<<2;                            // Shift up to a 12-bit number and write to the MSP430 DAC0 
+    return;                                         // This is all to do for the MSP430 DAC case, exit...
+  }
+  else {                                            // channel number provided is too large, exit... 
+    return;
+  }
+  value=(value&0x03FF)<<2;                          // mask and shift the value to align properly in the dac sentence
+  channel<<=4;
+  *(((unsigned char *) &value)+1)|=((unsigned char) channel); // "or" in the channel number to the value data
+  send_spi_byte(*(((unsigned char *) &value)+1));             // send the high byte 
+  send_spi_byte(*((unsigned char *) &value));                 // send the high byte 
+  P4OUT|=0x07;                                                // deassert all of the spi dac chip selects   
+}
+
+void write_led (int channel, int enable) {
+  static unsigned long led_state = 0x00000000;
+  if (enable) {
+    if (channel<8) {
+      *((unsigned char *) &led_state) |= 0x01<<channel;       // Save the new state of the LED in led_state
+      P1OUT=*((unsigned char *) &led_state);                  // Place the relevant byte of led_state on the latch bus 
+      P5OUT|=0x01;                                            // strobe the chip select for the target latch
+      P5OUT&=~0x01;                                           // clear the chip select bit
+    }
+    else if (channel<16) {
+      channel-=8;
+      *(((unsigned char *) &led_state)+1) |= 0x01<<channel;  
+      P1OUT=*(((unsigned char *) &led_state)+1);  
+      P5OUT=0x02;
+      P5OUT&=~0x02;                                           // clear the chip select bit
+    }
+    else if (channel<24) {
+      channel-=16;
+      *(((unsigned char *) &led_state)+2) |= 0x01<<channel;  
+      P1OUT=*(((unsigned char *) &led_state)+2);  
+      P5OUT=0x04;
+      P5OUT&=~0x04;                                           // clear the chip select bit
+    }
+    else if (channel==24) {
+      *(((unsigned char *) &led_state)+3) |= 0x01;  
+      P2OUT|=0x01;
+    }
+  }
+  else {
+    if (channel<8) {
+      *((unsigned char *) &led_state) &= ~(0x01<<channel);  
+      P1OUT=*((unsigned char *) &led_state);  
+      P5OUT=0x01;
+      P5OUT&=~0x01;                                           // clear the chip select bit
+    }
+    else if (channel<16) {
+      channel-=8;
+      *(((unsigned char *) &led_state)+1) &= ~(0x01<<channel);  
+      P1OUT=*(((unsigned char *) &led_state)+1);  
+      P5OUT=0x02;
+      P5OUT&=~0x02;                                           // clear the chip select bit
+    }
+    else if (channel<24) {
+      channel-=16;
+      *(((unsigned char *) &led_state)+2) &= ~(0x01<<channel);  
+      P1OUT=*(((unsigned char *) &led_state)+2);  
+      P5OUT=0x04;
+      P5OUT&=~0x04;                                           // clear the chip select bit
+    }
+    else if (channel==24) {
+      *(((unsigned char *) &led_state)+3) &= 0xFE;  
+      P2OUT&=0xFE;
+    }
+  }
+}
+
+void write_lla (int channel, int enable) {
+  static unsigned long lla_state = 0x00000000;
+  if (enable) {
+    if (channel<8) {
+      *((unsigned char *) &lla_state) |= 0x01<<channel;       // Save the new state of the LED in lla_state
+      P1OUT=*((unsigned char *) &lla_state);                  // Place the relevant byte of lla_state on the latch bus 
+      P5OUT|=0x08;                                            // strobe the chip select for the target latch
+      P5OUT&=~0x08;                                           // clear the chip select bit
+    }
+    else if (channel<16) {
+      channel-=8;
+      *(((unsigned char *) &lla_state)+1) |= 0x01<<channel;  
+      P1OUT=*(((unsigned char *) &lla_state)+1);  
+      P5OUT=0x10;
+      P5OUT&=~0x10;                                           // clear the chip select bit
+    }
+    else if (channel<24) {
+      channel-=16;
+      *(((unsigned char *) &lla_state)+2) |= 0x01<<channel;  
+      P1OUT=*(((unsigned char *) &lla_state)+2);  
+      P5OUT=0x20;
+      P5OUT&=~0x20;                                           // clear the chip select bit
+    }
+    else if (channel==24) {
+      *(((unsigned char *) &lla_state)+3) |= 0x01;  
+      P2OUT|=0x02;
+    }
+  }
+  else {
+    if (channel<8) {
+      *((unsigned char *) &lla_state) &= ~(0x01<<channel);  
+      P1OUT=*((unsigned char *) &lla_state);  
+      P5OUT=0x08;
+      P5OUT&=~0x08;                                           // clear the chip select bit
+    }
+    else if (channel<16) {
+      channel-=8;
+      *(((unsigned char *) &lla_state)+1) &= ~(0x01<<channel);  
+      P1OUT=*(((unsigned char *) &lla_state)+1);  
+      P5OUT=0x10;
+      P5OUT&=~0x10;                                           // clear the chip select bit
+    }
+    else if (channel<24) {
+      channel-=16;
+      *(((unsigned char *) &lla_state)+2) &= ~(0x01<<channel);  
+      P1OUT=*(((unsigned char *) &lla_state)+2);  
+      P5OUT=0x20;
+      P5OUT&=~0x20;                                           // clear the chip select bit
+    }
+    else if (channel==24) {
+      *(((unsigned char *) &lla_state)+3) &= 0xFE;  
+      P2OUT&=0xFD;
+    }
+  }
+}
+
+/*! Timer A1 Interupt Handler
+ *
+ * Timer A is used as the time base for the scheduler. This interrupt occurs every 500uS. 
+ */
+#ifndef DOX_SKIP 
+interrupt (TIMERA1_VECTOR) 
+#endif 
+timer_a1_irq() {
+  enum {SAMPLE,STORE};
+  static int mux_chan=0;
+  volatile int dummy;
+  static int ad_state = SAMPLE;
+  static int cal_counter = 0;
+
+  dummy=TAIV;                           // read interrupt vector register to clear the flag, have to read TAIV to get this done 
+  TACCR1+=0x0FA0;                       // Increment the compare register for 4000 ticks into future (500uS)
+
+  switch (ad_state) {
+  case SAMPLE:                          // Issue command to start A2D converter through the series of channels 
+    ADC12CTL0|=ENC|ADC12SC;             // Send the A2D off to convert the channels -> should take converter about 200uS @@ 32uS/sample
+    ad_state=STORE;                     // switch states for next time to collect the measurements 
+    break;
+  case STORE:                           // Collects results from the converter and sets up the external muxes for the next conversion
+    a2d_results[mux_chan]=ADC12MEM0;    // pin matrix channels 0-7 
+    a2d_results[8+mux_chan]=ADC12MEM1;  // pin matrix channels 8-15 
+    a2d_results[16+mux_chan]=ADC12MEM2; // pin matrix channels 16-23 
+    a2d_results[24]=ADC12MEM3;          // pin matrix channel 24 
+    a2d_results[25]=ADC12MEM4;          // VOP voltage measurement 
+    a2d_results[26]=ADC12MEM5;          // Internal MSP430 Temperature sensor
+    a2d_results[27]=ADC12MEM6;          // Half Scale Avcc/2 measurement - just a sanity check on the converter 
+    mux_chan++;                         // increment the channel variable 
+    mux_chan&=0x07;                     // clamp the channel variable to 0-7
+    P4OUT&=0x8F;                        // clear the control bits for the muxes, preparation for the next "or" instruction 
+    P4OUT|=(mux_chan<<4);               // send out the new channel bits to the external multiplexers 
+    ad_state=SAMPLE;                    // switch states, allows multiplexors time to settle. 
+    break;
+  }
+  if (cal_enable) {
+    if (++cal_counter>=20) {
+      cal_counter=0;
+      if (calibrate_current_source(cal_chan,&cal_data)) {
+        cal_enable=0;
+      }
+    }
+  }
+}
+
+#define CAL_DAC_START_LOW 0x270
+// #define CAL_DAC_START_LOW 0x200 
+
+#define CAL_DAC_START_HIGH 0x1a0
+// #define CAL_DAC_START_HIGH 0x177
+#define LOW_CURRENT_THRESHOLD_DELTA 0xF
+#define TARGET_200uA 0x371
+#define FILTER_LIMIT 8;
+
+/*! Empircally determines the threshold DAC value that turns off the current supply */
+int calibrate_current_source(int cal_channel, pin_cal_t *cal_results) {
+  enum {INIT,READ_INIT,FIND_0,FIND_200u};
+  enum {OFF,ON};
+  static int cal_state = INIT;
+  static int cal_dac_val = CAL_DAC_START_LOW;       // Nominally the center voltage is 0x1F0 (1.6V)
+  static int filter_counter=0;
+  int return_val = 0;
+  static long accumulator;
+  
+ 
+  switch (cal_state) {
+  case INIT:
+    cal_dac_val=CAL_DAC_START_LOW;
+    write_dac(cal_channel,cal_dac_val);            // Set the current for the channel 
+    write_lla(cal_channel,ON);
+    write_led(cal_channel,ON);
+    cal_state=READ_INIT;
+    filter_counter=0;
+    cal_results->init_val=0;
+    break;
+  case READ_INIT:
+    cal_results->init=cal_dac_val;
+    cal_results->init_val+=a2d_results[cal_channel];
+    if (filter_counter++>7) {
+      cal_results->init_val>>=3; 
+      cal_state=FIND_0;
+      filter_counter=0;
+      accumulator=0;
+    }
+    break;
+  case FIND_0:
+    write_dac(cal_channel,--cal_dac_val);       // Set the current for the channel 
+    //    accumulator+=a2d_results[cal_channel];
+    if (a2d_results[cal_channel] >= (LOW_CURRENT_THRESHOLD_DELTA+cal_results->init_val)) { 
+      cal_results->low_val=a2d_results[cal_channel];
+      cal_results->low=cal_dac_val-1;           // send out the cal result 
+      cal_state=FIND_200u;
+      cal_dac_val=CAL_DAC_START_HIGH;
+    }
+    break;
+  case FIND_200u:
+    write_dac(cal_channel,--cal_dac_val);       // Set the current for the channel 
+    if (a2d_results[cal_channel] >= TARGET_200uA) { 
+      cal_results->high_val=a2d_results[cal_channel];
+      cal_results->high=cal_dac_val-1;           // send out the cal result 
+      cal_state=INIT;
+      write_lla(cal_channel,OFF);
+      // write_led(cal_channel,OFF);
+      return_val=1;
+    }
+    break;
+  }
+  return (return_val);
+}
+  
+@
+
+
+1.11
+log
+@V2.2 UEAC testcode initial revision
+@
+text
+@d45 1
+a45 1
+/*! \mainpage uEAC Example Application
+a78 1
+
+d103 3
+a105 3
+  write_dac(2,zero_val[2]-112);                       // half scale 
+  write_dac(22,zero_val[22]-112);
+  write_lla(12,1);                                   // center lla 
+d189 1
+a189 2
+  
+      printf("VOP=%d.%dV\n\r",a2d_results[25]/248,(int)((((long)a2d_results[25]*100))/248)%100);
+d207 1
+a207 1
+      printf("VOP=%d.%dV\n\r",a2d_results[25]/248,(int)((((long)a2d_results[25]*100))/248)%100);
+a215 1
+
+a218 1
+
+a250 1
+
+d455 5
+a459 2
+#define CAL_DAC_START_LOW 0x200
+#define CAL_DAC_START_HIGH 0x177
+d473 1
+@
+
+
+1.10
+log
+@Calibration Routine seems to work ok...
+@
+text
+@d9 1
+a9 1
+ * Last-Updated: Tue Nov  8 15:11:18 2005
+d11 1
+a11 1
+ *     Update #: 217
+d86 1
+d102 9
+d112 2
+a113 3
+  init_sys();                                        // setup the MSP430 for the uEAC board
+  write_led(0,ON);
+  printf("#### system alive ####\n\r");
+d116 4
+a119 4
+  //  for (i=1;i<25;i++) { 
+  //  write_led(i,OFF);
+  //  write_lla(i,OFF);
+  // }
+d121 1
+a121 1
+  //  write_dac(CHAN_NUM,0x01EF+125);
+d147 20
+d168 2
+a169 17
+  while (1) {
+    if ((ch=getchar())=='c') {
+      for (i=0;i<25;i++) {
+        printf ("Begin Calibration\n\r");
+        cal_chan=i;
+        cal_enable=1;
+        while (cal_enable); 
+        printf ("\n\rCH%d\n\r",i);
+        printf ("Init DAC = 0x%04x val=0x%04x\n\r",cal_data.init,cal_data.init_val);
+        printf ("Low DAC = 0x%04x val=0x%04x\n\r",cal_data.low,cal_data.low_val);
+        zero_val[i]=cal_data.low;
+        printf ("High DAC = 0x%04x val=0x%04x\n\r",cal_data.high,cal_data.high_val);
+      }
+      printf ("Calibration Complete\n\r");
+    }
+  }
+   
+d226 29
+d513 1
+a513 1
+      write_led(cal_channel,OFF);
+@
+
+
+1.9
+log
+@Added Calibration routine
+@
+text
+@d9 1
+a9 1
+ * Last-Updated: Mon Nov  7 16:58:51 2005
+d11 1
+a11 1
+ *     Update #: 207
+a86 1
+
+d91 1
+d103 2
+a104 1
+  uprintf(&putchar_1,"#### system alive ####\n\r");
+d107 5
+a111 4
+  for (i=0;i<25;i++) { 
+    write_led(i,OFF);
+    write_lla(i,OFF);
+  }
+d118 1
+a118 1
+/*       uprintf(&putchar_1,"State off\n\r"); */
+d121 2
+a122 2
+/*       while ((ch=getchar_1())!='n') { */
+/*         uprintf(&putchar_1,"%c 0x%04x\r\n",ch,a2d_results[CHAN_NUM]); */
+d124 1
+a124 1
+/*       uprintf(&putchar_1,"\n\r"); */
+d128 1
+a128 1
+/*       uprintf(&putchar_1,"State on\n\r"); */
+d131 2
+a132 2
+/*       while ((ch=getchar_1())!='n') { */
+/*         uprintf(&putchar_1,"%c 0x%04x\r\n",ch,a2d_results[CHAN_NUM]); */
+d134 1
+a134 1
+/*       uprintf(&putchar_1,"\n\r"); */
+d140 1
+a140 1
+    if ((ch=getchar_1())=='c') {
+d142 1
+a142 1
+        uprintf (&putchar_1,"Begin Calibration\n\r");
+d146 5
+a150 4
+        uprintf (&putchar_1,"\n\rCH%d\n\r",i);
+        uprintf (&putchar_1,"Init DAC = 0x%04x val=0x%04x\n\r",cal_data.init,cal_data.init_val);
+        uprintf (&putchar_1,"Low DAC = 0x%04x val=0x%04x\n\r",cal_data.low,cal_data.low_val);
+        uprintf (&putchar_1,"High DAC = 0x%04x val=0x%04x\n\r",cal_data.high,cal_data.high_val);
+d152 1
+a152 1
+      uprintf (&putchar_1,"Calibration Complete\n\r");
+d159 1
+a159 1
+  uprintf(&putchar_1,"channel %d\n\r",channel);
+d162 1
+a162 1
+    if ((ch=getchar_1())=='n') {
+d172 1
+a172 1
+          uprintf(&putchar_1,"0x%04x ",a2d_results[5*i+j]);
+d174 1
+a174 1
+        uprintf(&putchar_1,"\n\r");
+d177 3
+a179 3
+      uprintf(&putchar_1,"VOP=%d.%dV\n\r",a2d_results[25]/248,(int)((((long)a2d_results[25]*100))/248)%100);
+      uprintf(&putchar_1,"Temperature = 0x%04x\n\r",a2d_results[26]);
+      uprintf(&putchar_1,"Half Scale = 0x%04x\n\r",a2d_results[27]);
+d191 1
+a191 1
+          uprintf(&putchar_1,"0x%04x ",a2d_results[5*i+j]);
+d193 1
+a193 1
+        uprintf(&putchar_1,"\n\r");
+d195 3
+a197 3
+      uprintf(&putchar_1,"VOP=%d.%dV\n\r",a2d_results[25]/248,(int)((((long)a2d_results[25]*100))/248)%100);
+      uprintf(&putchar_1,"Temperature = 0x%04x\n\r",a2d_results[26]);
+      uprintf(&putchar_1,"Half Scale = 0x%04x\n\r",a2d_results[27]);
+d199 1
+a199 1
+    uprintf(&putchar_1,"channel %d\n\r",channel);
+d419 1
+a419 1
+#define LOW_CURRENT_THRESHOLD_DELTA 0xa
+@
+
+
+1.8
+log
+@new sampling state machine in the timer A interrupt routine
+@
+text
+@d9 1
+a9 1
+ * Last-Updated: Fri Nov  4 11:02:12 2005
+d11 1
+a11 1
+ *     Update #: 91
+d71 11
+d85 1
+d87 4
+d93 2
+d100 1
+d105 2
+a106 1
+  for (i=0;i<25;i++) {
+d110 43
+d375 2
+a376 2
+  enum {INIT,SAMPLE,STORE};
+  static int channel=0;
+d378 6
+a383 3
+  static int ad_state = INIT;
+  dummy=TAIV;                          // read interrupt vector to clear the flag, have to read TAIV to get this done 
+  TACCR1+=0x0FA0;                      // Increment the compare register for 4000 ticks into future (500uS)
+d385 46
+d432 7
+a438 2
+    P4OUT&=0x8F;                       // clear the mux control bits-> might be able to drop this state later...
+    ad_state=SAMPLE;                   // start the SAMPLE/STORE state machine
+d440 19
+a458 3
+  case SAMPLE:                         // Issue command to start A2D converter through the series of channels 
+    ADC12CTL0|=ENC|ADC12SC;            // sampling of the series of channels starts here - see you in 500uS.  
+    ad_state=STORE;                    // switch states for next time to collect the measurements - should take converter about 200uS
+d460 10
+a469 13
+  case STORE:                          // Collects results from the converter and sets up the external muxes for the next conversion
+    a2d_results[channel]=ADC12MEM0;    // pin matrix channels 0-7 
+    a2d_results[8+channel]=ADC12MEM1;  // pin matrix channels 8-15 
+    a2d_results[16+channel]=ADC12MEM2; // pin matrix channels 16-23 
+    a2d_results[24]=ADC12MEM3;         // pin matrix channel 24 
+    a2d_results[25]=ADC12MEM4;         // VOP voltage measurement 
+    a2d_results[26]=ADC12MEM5;         // Internal MSP430 Temperature sensor
+    a2d_results[27]=ADC12MEM6;         // Half Scale Avcc/2 measurement - just a sanity check on the converter 
+    channel++;                         // increment the channel variable 
+    channel&=0x07;                     // clamp the channel variable  
+    P4OUT&=0x8F;                       // clear the control bits for the external multiplexors 
+    P4OUT|=(channel<<4);               // send out the new channel bits to the external multiplexers 
+    ad_state=SAMPLE;                   // switch states, allows multiplexors time to settle. 
+d472 2
+a473 17
+
+/*   a2d_results[last_channel]=ADC12MEM0; */
+/*   a2d_results[8+last_channel]=ADC12MEM1; */
+/*   a2d_results[16+last_channel]=ADC12MEM2; */
+/*   a2d_results[24]=ADC12MEM3; */
+/*   a2d_results[25]=ADC12MEM4;       */
+/*   a2d_results[26]=ADC12MEM5;  */
+/*   a2d_results[27]=ADC12MEM6;  */
+
+/*   last_channel=channel; */
+/*   P4OUT&=0x8F;                      // clear the control bits for the external multiplexors */
+/*   if (++channel>7) { */
+/*     channel=0; */
+/*   } */
+/*   P4OUT|=(channel<<6);              // send out the new channel bits  */
+/*   ADC12CTL0|=ENC|ADC12SC;           // sampling of the series of channels starts here - see you in 500uS.  */
+
+a474 10
+/*   if (timer++>100) { */
+/*     timer=0; */
+/*     write_led(channel,OFF); */
+/*     if (++channel>24) { */
+/*       channel=0; */
+/*     } */
+/*     write_led(channel,ON); */
+/*   } */
+}
+
+@
+
+
+1.7
+log
+@added #ifndef around interrupt function modifier to allow doxygen to correctly parse this function
+@
+text
+@d9 1
+a9 1
+ * Last-Updated: Wed Nov  2 13:11:22 2005
+d11 1
+a11 1
+ *     Update #: 20
+d45 16
+a60 7
+/*! \mainpage here it is 
+ * \section fsdfsa
+ * \section afdsaf a
+ * \section afdsadf 
+ * \section sasfd a
+ */
+
+d62 1
+d75 2
+d79 1
+a79 1
+  char ch;  /*! ch is a significant local variable */
+d81 1
+a81 1
+  int i;
+a85 2
+  while (1);
+
+d104 10
+d123 9
+d134 1
+d138 1
+d142 1
+d304 1
+a304 1
+/*! \brief Little description of the interrupt function
+d306 1
+a306 2
+ * 12321432423
+ *12312312123323124325346235
+d312 1
+a312 3
+/*! \author Bryce Himebaugh */
+  enum {OFF,ON};
+  static int timer=0;
+d314 44
+a357 1
+  int dummy;
+a358 2
+  dummy=TAIV;                       // read interrupt vector to clear the flag 
+  TACCR1+=0x1F40;                   // Increment the compare register for 4000 ticks into future (500uS)
+d360 8
+a367 8
+  if (timer++>100) {
+    timer=0;
+    write_led(channel,OFF);
+    if (++channel>24) {
+      channel=0;
+    }
+    write_led(channel,ON);
+  }
+@
+
+
+1.6
+log
+@Version control system checks verified
+@
+text
+@d9 1
+a9 1
+ * Last-Updated: Wed Nov  2 11:23:01 2005
+d11 1
+a11 1
+ *     Update #: 3
+d44 8
+d67 1
+a67 1
+  char ch;
+d272 10
+a281 1
+interrupt (TIMERA1_VECTOR) timer_a1_irq() {
+@
+
+
+1.5
+log
+@Tweaked to check the CVS/header interation
+@
+text
+@d9 1
+a9 1
+ * Last-Updated: Wed Nov  2 11:21:47 2005
+d11 1
+a11 1
+ *     Update #: 2
+d44 3
+a46 1
+/* ode: */
+@
+
+
+1.4
+log
+@Added auto generated header
+@
+text
+@d9 1
+a9 1
+ * Last-Updated: Wed Nov  2 11:20:26 2005
+d11 1
+a11 1
+ *     Update #: 1
+d44 1
+a44 1
+/* Code: */
+@
+
+
+1.3
+log
+@Removed double while structure.
+@
+text
+@d1 44
+d62 2
+d280 2
+@
+
+
+1.2
+log
+@Added double while(1) to check the CVS process
+@
+text
+@d15 1
+a15 1
+  int init;
+d17 1
+a17 1
+  int_sys();                                        // setup the MSP430 for the uEAC board
+a18 2
+  while (1);
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d19 1
+@

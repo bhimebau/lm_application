@@ -1,0 +1,515 @@
+head	1.3;
+access;
+symbols;
+locks
+	bhimebau:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	2006.03.30.10.00.04;	author bhimebau;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2006.03.28.18.13.02;	author bhimebau;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2006.03.06.19.22.29;	author bhimebau;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.3
+log
+@Check-in for 3/30 release to Ryan Varick
+@
+text
+@/* calibrate.c --- 
+ * 
+ * Filename: calibrate.c
+ * Description: 
+ * Author: Bryce Himebaugh
+ * Maintainer: 
+ * Created: Fri Feb 10 09:48:40 2006
+ * Version: 
+ * Last-Updated: 
+ *           By: 
+ *     Update #: 0
+ * Keywords: 
+ * Compatibility: 
+ * 
+ */
+
+/* Commentary: 
+ * 
+ * 
+ * 
+ */
+
+/* Change log:
+ * 
+ * 
+ */
+
+/* This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+#include <msp430x16x.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include "ueaclib.h"
+#include "ueac.h"
+#include "calibrate.h"
+#include "conversion.h"
+#include "timer.h"
+#include "filter.h"
+#include "global.h"
+#include "external_flash.h"
+
+extern short dac_translation[];
+#define LED_DWELL 100
+
+/* Code: */
+void scan_leds(void) {
+  enum {OFF,ON};
+  int index; 
+  printf("Scanning LEDs ");
+  // All LEDs off
+  for (index=0;index<25;index++) {
+    write_led(index,OFF);
+  }
+  // Scan Rows 
+  for (index=0;index<25;index+=5) {
+    write_led(index,ON);
+    write_led(index+1,ON);
+    write_led(index+2,ON);
+    write_led(index+3,ON);
+    write_led(index+4,ON);
+    delay_1_25mS(LED_DWELL);
+    write_led(index,OFF);
+    write_led(index+1,OFF);
+    write_led(index+2,OFF);
+    write_led(index+3,OFF);
+    write_led(index+4,OFF);
+  }
+  // Scan Columns 
+  for (index=0;index<5;index++) {
+    write_led(index,ON);
+    write_led(index+5,ON);
+    write_led(index+10,ON);
+    write_led(index+15,ON);
+    write_led(index+20,ON);
+    delay_1_25mS(LED_DWELL);
+    write_led(index,OFF);
+    write_led(index+5,OFF);
+    write_led(index+10,OFF);
+    write_led(index+15,OFF);
+    write_led(index+20,OFF);
+  }
+  // All LEDs ON
+  for (index=0;index<25;index++) {
+    write_led(index,ON);
+  }
+  delay_1_25mS(LED_DWELL*2);
+  // All LEDs OFF
+  for (index=0;index<25;index++) {
+    write_led(index,OFF);
+  }
+  printf(GREEN);
+  printf("[DONE]\n\r");
+  printf(BLACK);
+}
+
+void current_output_calibration (ueac_t *system) {
+  enum {FIND_ESCAPE,FIND_LEFT_BRACKET,EVALUATE_ARROW};
+  int i;
+  char ch;
+  int parse_state=FIND_ESCAPE;
+  int i_offset=0;
+  int found=0;
+
+  printf("\n\rCurrent Output Calibration\n\r");
+  printf("Attach the DVM in current mode to the pin with the active LED\n\r");
+  printf("Use the up arrow and down arrow keys to adjust the current\n\r");
+  printf("-----------------------------------------------------------------\n\r");
+  buffer1_write(0,'V');        // write the valid char to the first location of external flash                          
+  for (i=1;i<PAGE_SIZE;i++) {  // clear out the external flash's SRAM buffer
+    buffer1_write(i,0);
+  }
+  for (i=0;i<25;i++) {
+    write_led(i,1);
+    found=0;
+    i_offset=0;
+    printf("%d@@200uA> ",i);
+    while (!found) {
+      write_dac(i,dac_translation[0]+i_offset);  
+      if (((ch=getchar())!='\n')&&(ch!='\r')) {
+        switch (parse_state) {
+        case FIND_ESCAPE:
+          if (ch==0x1b) {
+            parse_state=FIND_LEFT_BRACKET;
+          }
+          break;
+        case FIND_LEFT_BRACKET:
+          if (ch=='[') {
+            parse_state=EVALUATE_ARROW;
+          }
+          else {
+            parse_state=FIND_ESCAPE;
+          }
+          break;
+        case EVALUATE_ARROW: 
+          if (ch=='A') {
+            i_offset--;
+          }
+          else if (ch=='B') {
+            i_offset++;
+          }
+          parse_state=FIND_ESCAPE;
+          break;
+        }
+      }
+      else {
+        buffer1_write(i+1,i_offset);
+        printf("%d\n\r",i_offset);
+        found=1;
+        system->pin_cal[i].i_200uA_offset=i_offset;
+      }
+    }
+    found=0;
+    i_offset=0;
+    printf("%d@@0uA> ",i);
+    while (!found) {
+      write_dac(i,dac_translation[200]+i_offset);  
+      if (((ch=getchar())!='\n')&&(ch!='\r')) {
+        switch (parse_state) {
+        case FIND_ESCAPE:
+          if (ch==0x1b) {
+            parse_state=FIND_LEFT_BRACKET;
+          }
+          break;
+        case FIND_LEFT_BRACKET:
+          if (ch=='[') {
+            parse_state=EVALUATE_ARROW;
+          }
+          else {
+            parse_state=FIND_ESCAPE;
+          }
+          break;
+        case EVALUATE_ARROW: 
+          if (ch=='A') {
+            i_offset--;
+          }
+          else if (ch=='B') {
+            i_offset++;
+          }
+          parse_state=FIND_ESCAPE;
+          break;
+        }
+      }
+      else {
+        buffer1_write(i+26,i_offset);
+        printf("%d %d\n\r",i_offset,dac_translation[200]+i_offset);
+        found=1;
+        system->pin_cal[i].i_zero_offset=i_offset;
+      }
+    }
+    write_led(i,0);
+  }
+  printf("Commit calibration to external flash ? (y or n) ");
+  while (1) {
+    if (((ch=getchar())=='y')||(ch=='Y')) {
+      buffer1_to_page_e(0);
+      printf("\n\rCalibration Saved !\n\r");
+      break;
+    }
+    if ((ch=='n')||(ch=='N')) {
+      printf("\n\rCalibration Abort !\n\r");
+      break;
+    }
+    else {
+      printf("\n\rPlease respond with y or n: ");
+    }
+  }
+}
+
+/*   for (i=0;i<25;i++) { */
+/*     write_lla(i,1); */
+/*     delay_1_25mS(200); */
+/*     convert_a2d(I_CONVERSION,pin_data[i].filtered_result,&conversion_result); */
+/*     write_lla(i,0); */
+/*     printf("%d\n\r",conversion_result.integer); */
+/*   } */
+
+void current_input_calibration (ueac_t *system) {
+  printf("\n\rCurrent Input Calibration\n\r");
+}
+
+void voltage_input_calibration (ueac_t *system) {
+  printf("\n\rVoltage Input  Calibration\n\r");
+}
+
+
+
+
+/* calibrate.c ends here */
+@
+
+
+1.2
+log
+@revising calibration routine to make it totally interactive.
+The interactive version should be significantly mode accurate.
+@
+text
+@d49 1
+d51 5
+d57 2
+a58 6
+// Global Variables 
+volatile int cal_chan = 0;
+pin_cal_t cal_data;
+volatile int cal_enable=0;
+volatile int a2d_results[28];
+volatile int zero_val[25];
+a63 1
+  volatile long i;
+a68 1
+
+d76 1
+a76 1
+    for (i=0;i<0x3FFFF;i++);
+a82 1
+
+d90 1
+a90 1
+    for (i=0;i<0x3FFFF;i++);
+d101 1
+a101 1
+  for (i=0;i<0x3FFFF;i++);
+d111 48
+a158 16
+void interactive_diagnostic(void) {
+  enum {OFF,ON};
+  char ch;  
+  int channel=0;
+  int i,j;
+
+  write_led(channel,ON);
+  write_lla(channel,ON);
+  printf("channel %d\n\r",channel);
+
+  while(1) {
+    if ((ch=getchar())=='n') {
+      write_led(channel,OFF);
+      write_lla(channel,OFF);
+      if (++channel>24) {
+        channel=0;
+d160 5
+a164 7
+      write_led(channel,ON);
+      write_lla(channel,ON);
+      for (i=0;i<5;i++) {
+        for (j=0;j<5;j++) {
+          printf("0x%04x ",a2d_results[5*i+j]);
+        }
+        printf("\n\r");
+a165 3
+      printf("VOP=%d.%dV\n\r",a2d_results[25]/220,(int)((((long)a2d_results[25]*100))/220)%100);
+      printf("Temperature = 0x%04x\n\r",a2d_results[26]);
+      printf("Half Scale = 0x%04x\n\r",a2d_results[27]);
+d167 30
+a196 5
+    if (ch=='p') {
+      write_led(channel,OFF);
+      write_lla(channel,OFF);
+      if (--channel<0) {
+        channel=24;
+d198 5
+a202 7
+      write_led(channel,ON);
+      write_lla(channel,ON);
+      for (i=0;i<5;i++) {
+        for (j=0;j<5;j++) {
+          printf("0x%04x ",a2d_results[5*i+j]);
+        }
+        printf("\n\r");
+a203 3
+      printf("VOP=%d.%dV\n\r",a2d_results[25]/220,(int)((((long)a2d_results[25]*100))/220)%100);
+      printf("Temperature = 0x%04x\n\r",a2d_results[26]);
+      printf("Half Scale = 0x%04x\n\r",a2d_results[27]);
+d205 12
+a216 4
+    printf("channel %d\n\r",channel);
+
+    for (i=0;i<=1023;i+=10) {
+      write_dac(channel,i);
+d218 2
+a219 2
+    for (i=1023;i>=0;i-=10) {
+      write_dac(channel,i);
+d224 7
+a230 27
+void sys_cal(void) {
+  enum {OFF,ON};
+  int i;
+  for (i=1;i<25;i++) { 
+    write_led(i,OFF);
+    write_lla(i,OFF);
+    write_dac(i,0x1e5);                 // write the DACs to the approximately off case
+  }
+  for (i=0;i<25;i++) {
+    printf ("Begin Calibration\n\r");
+    cal_chan=i;
+    cal_enable=1;
+    while (cal_enable); 
+    printf ("\n\rCH%d\n\r",i);
+    printf ("Init DAC = 0x%04x val=0x%04x\n\r",cal_data.init,cal_data.init_val);
+    printf ("Low DAC = 0x%04x val=0x%04x\n\r",cal_data.low,cal_data.low_val);
+    write_dac(i,cal_data.low);
+    zero_val[i]=cal_data.low;
+    printf ("High DAC = 0x%04x val=0x%04x\n\r",cal_data.high,cal_data.high_val);
+  }
+  printf ("Calibration Complete\n\r");
+  for (i=0;i<25;i++) {
+    write_lla(i,0);
+    write_led(i,0);                    // Turn off the leds
+    write_dac(i,zero_val[i]-0xa);      // write the DACs to their off value
+  }
+}  
+d232 3
+d236 2
+a237 53
+/*! Empircally determines the threshold DAC value that turns off the current supply */
+int calibrate_current_source(int cal_channel, pin_cal_t *cal_results) {
+  enum {INIT,READ_INIT,FIND_0,FIND_200u};
+  enum {OFF,ON};
+  static int cal_state = INIT;
+  static int cal_dac_val = CAL_DAC_START_LOW;       // Nominally the center voltage is 0x1F0 (1.6V)
+  static int filter_counter=0;
+  int return_val = 0;
+  static long accumulator;
+ 
+  switch (cal_state) {
+  case INIT:
+    cal_dac_val=CAL_DAC_START_LOW;
+    write_dac(cal_channel,cal_dac_val);            // Set the current for the channel 
+    write_lla(cal_channel,ON);
+    write_led(cal_channel,ON);
+    cal_state=READ_INIT;
+    filter_counter=0;
+    cal_results->init_val=0;
+    break;
+  case READ_INIT:
+    cal_results->init=cal_dac_val;
+    cal_results->init_val+=a2d_results[cal_channel];
+    if (filter_counter++>7) {
+      cal_results->init_val>>=3; 
+      cal_state=FIND_0;
+      filter_counter=0;
+      accumulator=0;
+    }
+    break;
+  case FIND_0:
+    write_dac(cal_channel,--cal_dac_val);       // Set the current for the channel 
+    //  accumulator+=a2d_results[cal_channel];
+    if (a2d_results[cal_channel] >= (LOW_CURRENT_THRESHOLD_DELTA+cal_results->init_val)) { 
+      cal_results->low_val=a2d_results[cal_channel];
+      cal_results->low=cal_dac_val-1;           // send out the cal result 
+      cal_state=FIND_200u;
+      cal_dac_val=CAL_DAC_START_HIGH;
+    }
+    break;
+  case FIND_200u:
+    write_dac(cal_channel,--cal_dac_val);       // Set the current for the channel 
+    if (a2d_results[cal_channel] >= TARGET_200uA) { 
+      cal_results->high_val=a2d_results[cal_channel];
+      cal_results->high=cal_dac_val-1;           // send out the cal result 
+      cal_state=INIT;
+      write_lla(cal_channel,OFF);
+      // write_led(cal_channel,OFF);
+      return_val=1;
+    }
+    break;
+  }
+  return (return_val);
+d240 3
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@a197 45
+/*! Timer A1 Interupt Handler
+ *
+ * Timer A is used as the time base for the scheduler. This interrupt occurs every 500uS. 
+ */
+#ifndef DOX_SKIP 
+interrupt (TIMERA1_VECTOR) 
+#endif 
+timer_a1_irq() {
+  enum {SAMPLE,STORE};
+  static int mux_chan=0;
+  volatile int dummy;
+  static int ad_state = SAMPLE;
+  static int cal_counter = 0;
+  dummy=TAIV;                           // read interrupt vector register to clear the flag, have to read TAIV to get this done 
+  TACCR1+=0x0FA0;                       // Increment the compare register for 4000 ticks into future (500uS)
+
+  switch (ad_state) {
+  case SAMPLE:                          // Issue command to start A2D converter through the series of channels 
+    ADC12CTL0|=ENC|ADC12SC;             // Send the A2D off to convert the channels -> should take converter about 200uS @@ 32uS/sample
+    ad_state=STORE;                     // switch states for next time to collect the measurements 
+    break;
+  case STORE:                           // Collects results from the converter and sets up the external muxes for the next conversion
+    a2d_results[mux_chan]=ADC12MEM0;    // pin matrix channels 0-7 
+    a2d_results[8+mux_chan]=ADC12MEM1;  // pin matrix channels 8-15 
+    a2d_results[16+mux_chan]=ADC12MEM2; // pin matrix channels 16-23 
+    a2d_results[24]=ADC12MEM3;          // pin matrix channel 24 
+    a2d_results[25]=ADC12MEM4;          // VOP voltage measurement 
+    a2d_results[26]=ADC12MEM5;          // Internal MSP430 Temperature sensor
+    a2d_results[27]=ADC12MEM6;          // Half Scale Avcc/2 measurement - just a sanity check on the converter 
+    mux_chan++;                         // increment the channel variable 
+    mux_chan&=0x07;                     // clamp the channel variable to 0-7
+    P4OUT&=0x8F;                        // clear the control bits for the muxes, preparation for the next "or" instruction 
+    P4OUT|=(mux_chan<<4);               // send out the new channel bits to the external multiplexers 
+    ad_state=SAMPLE;                    // switch states, allows multiplexors time to settle. 
+    break;
+  }
+  if (cal_enable) {
+    if (++cal_counter>=20) {
+      cal_counter=0;
+      if (calibrate_current_source(cal_chan,&cal_data)) {
+        cal_enable=0;
+      }
+    }
+  }
+}
+d231 1
+a231 1
+    //    accumulator+=a2d_results[cal_channel];
+@

@@ -1,0 +1,110 @@
+\section{filter.c File Reference}
+\label{filter_8c}\index{filter.c@{filter.c}}
+{\tt \#include $<$stdlib.h$>$}\par
+{\tt \#include $<$stdio.h$>$}\par
+{\tt \#include \char`\"{}filter.h\char`\"{}}\par
+
+
+Include dependency graph for filter.c:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=82pt]{filter_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+unsigned short {\bf update\_\-a2d\_\-data} ({\bf channel\_\-t} $\ast$channel\_\-struct, unsigned short data)
+\item 
+int {\bf report\_\-channel\_\-structure} ({\bf channel\_\-t} $\ast$channel\_\-struct)
+\item 
+int {\bf initialize\_\-channel\_\-structure} ({\bf channel\_\-t} $\ast$channel\_\-struct)
+\end{CompactItemize}
+
+
+\subsection{Function Documentation}
+\index{filter.c@{filter.c}!initialize_channel_structure@{initialize\_\-channel\_\-structure}}
+\index{initialize_channel_structure@{initialize\_\-channel\_\-structure}!filter.c@{filter.c}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}int initialize\_\-channel\_\-structure ({\bf channel\_\-t} $\ast$ {\em channel\_\-struct})}\label{filter_8c_a2}
+
+
+
+
+Definition at line 80 of file filter.c.
+
+References channel::channel\_\-data, FILTER\_\-DEPTH, channel::filtered\_\-result, channel::insertion\_\-point, and channel::raw\_\-result.
+
+Referenced by init\_\-pin\_\-data\_\-structure().
+
+\footnotesize\begin{verbatim}80                                                             {
+81   int i;
+82   channel_struct->insertion_point=0;
+83   for (i=0;i<FILTER_DEPTH;i++) {
+84     channel_struct->channel_data[i]=0;
+85   }
+86   channel_struct->raw_result=0;
+87   channel_struct->filtered_result=0;
+88   return (0);
+89 }
+\end{verbatim}\normalsize 
+
+
+\index{filter.c@{filter.c}!report_channel_structure@{report\_\-channel\_\-structure}}
+\index{report_channel_structure@{report\_\-channel\_\-structure}!filter.c@{filter.c}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}int report\_\-channel\_\-structure ({\bf channel\_\-t} $\ast$ {\em channel\_\-struct})}\label{filter_8c_a1}
+
+
+
+
+Definition at line 65 of file filter.c.
+
+References channel::channel\_\-data, channel::filtered\_\-result, channel::insertion\_\-point, and channel::raw\_\-result.
+
+\footnotesize\begin{verbatim}65                                                         {
+66   int i,j;
+67   printf("insertion_point=%d\n",channel_struct->insertion_point);
+68   printf("raw_result=%d\n",channel_struct->raw_result);
+69   printf("filtered_results=%d\n",channel_struct->filtered_result);
+70   for (i=0;i<4;i++) {
+71     for (j=0;j<4;j++) {
+72       printf("%5d ",channel_struct->channel_data[4*i+j]);
+73     }
+74     printf("\n");
+75   }
+76   printf("\n");
+77   return (0);
+78 }
+\end{verbatim}\normalsize 
+
+
+\index{filter.c@{filter.c}!update_a2d_data@{update\_\-a2d\_\-data}}
+\index{update_a2d_data@{update\_\-a2d\_\-data}!filter.c@{filter.c}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}unsigned short update\_\-a2d\_\-data ({\bf channel\_\-t} $\ast$ {\em channel\_\-struct}, unsigned short {\em data})}\label{filter_8c_a0}
+
+
+
+
+Definition at line 49 of file filter.c.
+
+References channel::channel\_\-data, FILTER\_\-DEPTH, channel::filtered\_\-result, channel::insertion\_\-point, and channel::raw\_\-result.
+
+Referenced by timer\_\-a0\_\-irq().
+
+\footnotesize\begin{verbatim}49                                                                                 {
+50   long sum = 0;
+51   int i;
+52   channel_struct->raw_result=data;
+53   channel_struct->channel_data[channel_struct->insertion_point++]=data;
+54   if (channel_struct->insertion_point>=FILTER_DEPTH) {
+55     channel_struct->insertion_point=0;
+56   }
+57   for (i=0;i<FILTER_DEPTH;i++) {
+58     sum += channel_struct->channel_data[i];
+59   }
+60   sum /= FILTER_DEPTH;
+61   channel_struct->filtered_result = (unsigned short) sum;
+62   return (channel_struct->filtered_result);
+63 }
+\end{verbatim}\normalsize 
+
+

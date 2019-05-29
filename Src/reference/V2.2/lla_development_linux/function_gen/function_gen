@@ -1,0 +1,268 @@
+#!/usr/bin/perl
+
+use Switch;
+
+# Constants 
+
+$logic_zero=0;
+$logic_one=200;
+$logic_half=$logic_one/2;
+
+$data_file_directory="\.\/dat";
+
+open (INCLUDE_FILE,">lla_function_definition.c") || die "could not open lla_function_definition.c for writing\n";
+for ($function_num=1;$function_num<28;$function_num++) {
+    open (DATA_FILE,">$data_file_directory\/$function_num.dat") || die "could not open $function_num.dat\n";
+    open (CMD_FILE,">$data_file_directory\/$function_num.cmd") || die "could not open $function_num.cmd\n";
+    print INCLUDE_FILE "const int f$function_num\[\]=\{\\\n\t";
+    $row_count=0;
+    $rhs=$logic_zero;
+    $lhs=$logic_zero;
+    $y=$logic_zero;
+    $lla_output=$logic_zero;
+    for ($x=0;$x<=$logic_one;$x++) {
+        switch ($function_num) {
+            case 1 {
+                $lhs=$logic_zero;
+                $rhs=$logic_zero;
+            }
+            case 2 {
+                $lhs=$logic_zero;
+                $rhs=$logic_half;
+            }
+            case 3 {
+                $lhs=$logic_zero;
+                $rhs=$logic_one;
+            }
+            case 4 {
+                $lhs=$x;
+                $rhs=$logic_zero;
+            }
+            case 5 {
+                $lhs=$logic_one-$x;
+                $rhs=$logic_zero;
+            }
+            case 6 {
+                $lhs=2*$x;
+                $rhs=$logic_zero;
+            }
+            case 7 {
+                $lhs=2*$x;
+                $rhs=$logic_zero;
+            }
+            case 8 {
+                $lhs=2*$x-$logic_one;
+                $rhs=$logic_zero;
+            }
+            case 9 {
+                $lhs=2*$x-$logic_one;
+                $rhs=$logic_zero;
+            }
+            case 10 {
+                $lhs=2*$x;
+                $rhs=$logic_half;
+            }
+            case 11 {
+                $lhs=$logic_one-$x-$logic_half;
+                $rhs=$logic_half;
+            }
+            case 12 {
+                $lhs=$x-$logic_half;
+                $rhs=$logic_zero;
+            }
+            case 13 {
+                $lhs=$x-$logic_half;
+                $rhs=$logic_half;
+            }
+            case 14 {
+                $lhs=$logic_one-$x-$logic_half;
+                $rhs=$logic_half;
+            }
+            case 15 {
+                $lhs=$logic_one-$x-$logic_half;
+                $rhs=$logic_zero;
+            }
+            case 16 {
+                $lhs=$x-$logic_half;
+                $rhs=$logic_half;
+            }
+            case 17 {
+                $lhs=$x-$logic_half;
+                $rhs=$logic_zero;
+            }
+            case 18 {
+                $lhs=2*$x-$logic_one;
+                $rhs=2*($logic_one-$x)-$logic_one;
+            }
+            case 19 {
+                $lhs=2*$x-$logic_one;
+                $rhs=2*($logic_one-$x)-$logic_one;
+            }
+            case 20 {
+                $lhs=$x-$logic_half;
+                $rhs=$logic_one-$x-$logic_half;
+            }
+            case 21 {
+                $lhs=$x-$logic_half;
+                $rhs=$logic_one-$x-$logic_half;
+            }
+            case 22 {
+                $lhs=$logic_one-$x-$logic_half;
+                $rhs=$x-$logic_half;
+            }
+            case 23 {
+                $lhs=$logic_one-$x-$logic_half;
+                $rhs=$x-$logic_half;
+            }
+            case 24 {
+                $lhs=2*$x-$logic_one;
+                $rhs=$logic_one-$x-$logic_half;
+            }
+            case 25 {
+                $lhs=$x-$logic_half;
+                $rhs=2*($logic_one-$x)-$logic_one;
+            }
+            case 26 {
+                $lhs=2*$x-$logic_one;
+                $rhs=$logic_one-$x-$logic_half;
+            }
+            case 27 {
+                $lhs=$x-$logic_half;
+                $rhs=2*($logic_one-$x)-$logic_one;
+            }
+        }
+
+        # Clamping for the intermediate terms
+        if ($lhs<$logic_zero) {
+            $lhs = $logic_zero;
+        }
+        if ($rhs<$logic_zero) {
+            $rhs = $logic_zero;
+        }
+        $y=$lhs+$rhs;
+        if ($y<$logic_zero) {
+            $y=$logic_zero;
+        }
+        switch ($function_num) {
+            case 1 {
+                $lla_output=$logic_zero;
+            }
+            case 2 {
+                $lla_output=$y;
+                }
+            case 3 {
+                $lla_output=$y
+            }
+            case 4 {
+                $lla_output=$y;
+            }
+            case 5 {
+                $lla_output=$y;
+            }
+            case 6 {
+                $lla_output=$y;
+            }
+            case 7 {
+                $lla_output=$logic_one-$y;
+            }
+            case 8 {
+                $lla_output=$logic_one-$y;
+            }
+            case 9 {
+                $lla_output=$y;
+            }
+            case 10 {
+                $lla_output=$y;
+            }
+            case 11 {
+                $lla_output=$y;
+            }
+            case 12 {
+                $lla_output=$logic_one-$y;
+            }
+            case 13 {
+                $lla_output=$y;
+            }
+            case 14 {
+                $lla_output=$logic_one-$y;
+            }
+            case 15 {
+                $lla_output=$y;
+            }
+            case 16 {
+                $lla_output=$logic_one-$y;
+            }
+            case 17 {
+                $lla_output=$y;
+            }
+            case 18 {
+                $lla_output=$logic_one-$y;
+            }
+            case 19 {
+                $lla_output=$y;
+            }
+            case 20 {
+                $lla_output=$logic_one-$y;
+            }
+            case 21 {
+                $lla_output=$logic_one-$y-$logic_half;
+            }
+            case 22 {
+                $lla_output=$y+$logic_half;
+            }
+            case 23 {
+                $lla_output=$y;
+            }
+            case 24 {
+                $lla_output=$logic_one-$y;
+            }
+            case 25 {
+                $lla_output=$logic_one-$y;
+            }
+            case 26 {
+                $lla_output=$y;
+            }
+            case 27 {
+                $lla_output=$y;
+            }
+        }
+        #clamp output function
+        if ($lla_output>$logic_one) {
+            $lla_output=$logic_one;
+        }
+        if ($lla_output<$logic_zero) {
+            $lla_output=$logic_zero;
+        }
+        print DATA_FILE "$lla_output\n";
+        if ($x!=$logic_one) { 
+            print INCLUDE_FILE "$lla_output,";
+            if ($row_count++>8) {
+                $row_count=0;
+                print INCLUDE_FILE "\\\n\t";                        
+            }
+        }
+        else {
+            print INCLUDE_FILE "$lla_output\};\n";
+        }
+    }
+    close (DATA_FILE);
+    $y_low = $logic_zero-10;
+    $y_high = $logic_one+10;
+
+    print CMD_FILE "set terminal jpeg\n";
+    print CMD_FILE "set output \"$data_file_directory\/$function_num.jpg\"\n";
+    print CMD_FILE "set data style lines\n";
+    print CMD_FILE "set time\n";
+    print CMD_FILE "set title \"Function $function_num\"\n";
+    print CMD_FILE "set nokey\n";
+    print CMD_FILE "set yrange \[$y_low:$y_high\]\n";
+    print CMD_FILE "plot \"$data_file_directory\/$function_num.dat\"\n";
+    close (CMD_FILE);
+}
+
+print INCLUDE_FILE "const int *lla_function_index\[\]=\{\\\n\t";
+print INCLUDE_FILE "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,\\\n\t";
+print INCLUDE_FILE "f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,\\\n\t";
+print INCLUDE_FILE "f21,f22,f23,f24,f25,f26,f27\};\n";
+
+close (INCLUDE_FILE);

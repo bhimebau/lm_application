@@ -1,0 +1,140 @@
+\section{conversion.h File Reference}
+\label{conversion_8h}\index{conversion.h@{conversion.h}}
+
+
+This graph shows which files directly or indirectly include this file:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=109pt]{conversion_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{CompactItemize}
+\item 
+struct {\bf ueacval}
+\end{CompactItemize}
+\subsection*{Defines}
+\begin{CompactItemize}
+\item 
+\#define {\bf V\_\-CONVERSION}~0
+\item 
+\#define {\bf I\_\-CONVERSION}~1
+\end{CompactItemize}
+\subsection*{Typedefs}
+\begin{CompactItemize}
+\item 
+typedef {\bf ueacval} {\bf ueacval\_\-t}
+\end{CompactItemize}
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+void {\bf convert\_\-a2d} (char, unsigned short, {\bf ueacval\_\-t} $\ast$, int)
+\end{CompactItemize}
+
+
+\subsection{Define Documentation}
+\index{conversion.h@{conversion.h}!I_CONVERSION@{I\_\-CONVERSION}}
+\index{I_CONVERSION@{I\_\-CONVERSION}!conversion.h@{conversion.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}\#define I\_\-CONVERSION~1}\label{conversion_8h_a1}
+
+
+
+
+Definition at line 53 of file conversion.h.
+
+Referenced by current\_\-output\_\-calibration(), evaluate\_\-lla(), print\_\-grid\_\-i(), scan\_\-probes(), and ueac\_\-execute\_\-instruction().\index{conversion.h@{conversion.h}!V_CONVERSION@{V\_\-CONVERSION}}
+\index{V_CONVERSION@{V\_\-CONVERSION}!conversion.h@{conversion.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}\#define V\_\-CONVERSION~0}\label{conversion_8h_a0}
+
+
+
+
+Definition at line 52 of file conversion.h.
+
+Referenced by convert\_\-a2d(), print\_\-grid\_\-v(), and ueac\_\-execute\_\-instruction().
+
+\subsection{Typedef Documentation}
+\index{conversion.h@{conversion.h}!ueacval_t@{ueacval\_\-t}}
+\index{ueacval_t@{ueacval\_\-t}!conversion.h@{conversion.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf ueacval}  {\bf ueacval\_\-t}}\label{conversion_8h_a2}
+
+
+
+
+\subsection{Function Documentation}
+\index{conversion.h@{conversion.h}!convert_a2d@{convert\_\-a2d}}
+\index{convert_a2d@{convert\_\-a2d}!conversion.h@{conversion.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}void convert\_\-a2d (char, unsigned {\em short}, {\bf ueacval\_\-t} $\ast$, int)}\label{conversion_8h_a3}
+
+
+
+
+Definition at line 61 of file conversion.c.
+
+References a2d\_\-i\_\-conversion, ueacval::hundredth, cal::i\_\-in\_\-floor, cal::i\_\-in\_\-offset, ueacval::integer, ueac::pin\_\-cal, ueac\_\-state, and V\_\-CONVERSION.
+
+Referenced by current\_\-output\_\-calibration(), evaluate\_\-lla(), print\_\-grid\_\-i(), print\_\-grid\_\-v(), scan\_\-probes(), and ueac\_\-execute\_\-instruction().
+
+\footnotesize\begin{verbatim}61                                                                                         {
+62   if (value_type==V_CONVERSION) {
+63     if (a2d_data < 400) {
+64       return_val->integer=0;
+65       return_val->hundredth=a2d_data>>2;
+66     }
+67     else if (a2d_data < 800) {
+68       return_val->integer=1;
+69       return_val->hundredth=(a2d_data-400)>>2;
+70     }
+71     else if (a2d_data < 1200) {
+72       return_val->integer=2;
+73       return_val->hundredth=(a2d_data-800)>>2;
+74     }
+75     else if (a2d_data < 1600) {
+76       return_val->integer=3;
+77       return_val->hundredth=(a2d_data-1200)>>2;
+78     }
+79     else if (a2d_data < 2000) {
+80       return_val->integer=4;
+81       return_val->hundredth=(a2d_data-1600)>>2;
+82     }
+83     else if (a2d_data < 2400) {
+84       return_val->integer=5;
+85       return_val->hundredth=(a2d_data-2000)>>2;
+86     }
+87     else if (a2d_data < 2800) {
+88       return_val->integer=6;
+89       return_val->hundredth=(a2d_data-2400)>>2;
+90     }
+91     else if (a2d_data < 3200) {
+92       return_val->integer=7;
+93       return_val->hundredth=(a2d_data-2800)>>2;
+94     }
+95     else if (a2d_data < 3600) {
+96       return_val->integer=8;
+97       return_val->hundredth=(a2d_data-3200)>>2;
+98     }
+99     else if (a2d_data < 4000) {
+100       return_val->integer=9;
+101       return_val->hundredth=(a2d_data-3600)>>2;
+102     }
+103     else {
+104       return_val->integer=10;
+105       return_val->hundredth=(a2d_data-4000)>>2;
+106     }
+107   }
+108   else {
+109     return_val->integer=a2d_i_conversion[a2d_data];
+110     if (pin<25) {
+111       if (return_val->integer<=ueac_state.pin_cal[pin].i_in_floor) {
+112         return_val->integer=0;
+113       }
+114       else {
+115         return_val->integer+=ueac_state.pin_cal[pin].i_in_offset;
+116       }
+117     }
+118     return_val->hundredth=0;
+119   }
+120 }
+\end{verbatim}\normalsize 
+
+

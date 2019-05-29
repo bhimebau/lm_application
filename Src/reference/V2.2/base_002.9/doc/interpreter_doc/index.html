@@ -1,0 +1,201 @@
+<html> 
+<head>
+   <title>uEACos Command Specification</title>
+   <base href="http://www.cs.indiana.edu/~bhimebau/ueac/uEACos/doc/interpreter_doc/index.html">
+</head>
+
+<H1><Center> uEACos Command Specification </center></H1>
+<h2>Overview</h2> 
+<blockquote> 
+The uEAC hybrid computer is designed to explore novel paradims in the
+area of analog computation. The analog backend of the machine is
+augmented with a ucontroller interface. The ucontroller utilized is
+the MSP430F169. The communication with the host is implented with an
+FTDI2232C usb controller. The FTDI chip provides a virtual serial port
+interface. 
+<p>
+To communicate with the uEAC, a serial console program such as hyperterminal
+can be used to send command strings. These strings are used to
+configure the analog circuitry of the system. The serial console
+program should be configured as follows 19200 baud (8N1). 
+<p> 
+Each newline-terminated command is broken into fields that are delimited by a comma. When
+a command is accepted, the uEAC will return "OK". If the command is
+not accepted, the ueac will return "NOK". The commands are not case
+sensitive and the fields can have embedded spaces. 
+<p>
+For commands that operate on a particular pin, the pins are numbered
+by x,y pair. Where pin 1,1 is in the upper left corner of the
+board. Pin 5,5 is in the lower right corner of the board. 
+</blockquote> 
+<h2>Commands</h2>
+<h3><i>Read All</i></h3>
+Command returning reading from all 25 probe sites. If voltage mode is
+sent, then a comma-delimited list of all of the pin voltages will be
+returned. If current mode is sent, then only pins setup as current
+output or LLA inputs will return numeric current values. Other pins
+will return "*". 
+<ul>
+  <li><b>Format:</b> P,[V,I]\n
+  <ul> 
+    <li><b>P:</b> Read All Instruction Type
+    <li><b>[V,I]:</b> V=voltage mode I=current mode
+  </ul>
+  <li><b>example:</b>
+  Read the voltage present at each of the 25 grid nodes. 
+  <ul>
+     <li><i>host:</i> "p,v\n" 
+     <li><i>ueac:</i> "[voltage pin 1,1],[voltage pin 1,2],...[voltage
+     pin 5,5],OK\n"
+  </ul>   
+</ul>  
+
+<h3><i>Read Probe</i></h3>
+Command allowing the voltage or current to be read from a particular
+probe. The probe is specified by it's row,column grid
+location. A numeric voltage will be returned from the specified grid
+point. When in current mode, a numeric value will only be returned if
+the pin is setup as a current output or LLA input/output. Voltage is returned
+in volts and current is returned in uA.  
+<ul>
+  <li><b>Format:</b> R,[V,I],X_LOC,Y_LOC,[Value]\n
+  <ul> 
+    <li><b>R:</b> Read Probe Instruction Type
+    <li><b>[V,I]:</b> V=voltage I=current
+    <li><b>X_LOC</b> Position of the pin left to right. Ranges from
+    1-5.
+    <li><b>Y_LOC</b> Position of the pin top to bottom. Ranges from
+    1-5.
+    <li><b>[Value]</b> Dummy output current ranging from -200uA (sink) to
+    200uA (source). Used to maintain parser commonality with the Write
+    Probe commands. The value needs to be in the range
+    -200<=value<=200.  
+  </ul>
+  <li><b>example:</b>
+  Read the current flowing at pin 2,2. Assumes that pin 2,2 is setup
+  as a current output or LLA input/output. 
+  <ul>
+     <li><i>host:</i> "r,i,2,2,100\n" 
+     <li><i>ueac:</i> "[current (uA) pin 2,2],OK\n"
+  </ul>   
+</ul>  
+
+<h3><i>Write Probe</i></h3>
+Command that allows a pin location to be written to a desired current
+value. The current value can range from -200 to 200 uA. Negative
+current values indicate a current sink. Positive values indicate a
+current source. 
+<ul>
+  <li><b>Format:</b> W,I,X_LOC,Y_LOC,[Value]\n
+  <ul> 
+    <li><b>W:</b> Write Probe Instruction Type
+    <li><b>I:</b> Current mode instruction
+    <li><b>X_LOC</b> Position of the pin left to right. Ranges from
+    1-5.
+    <li><b>Y_LOC</b> Position of the pin top to bottom. Ranges from
+    1-5.
+    <li><b>[Value]</b> Output current ranging from -200uA (sink) to
+    200uA (source). 
+  </ul>
+  <li><b>example:</b>
+  Cause pin 1,1 to source 150uA. 
+  <ul>
+     <li><i>host:</i> "w,i,1,1,150\n" 
+     <li><i>ueac:</i> "OK\n"
+  </ul>   
+</ul>
+
+<h3><i>LLA Instantiation</i></h3>
+Command that allows LLA relationships to be added or removed. 
+<ul> 
+  <li><b>Format:</b>L,[A,D,E,R],XIN_LOC,YIN_LOC,XOUT_LOC,YOUT_LOC,NUM_DESCR,FUNC,PERIOD\n 
+  <ul> 
+     <li><b>L:</b> LLA Instantiation Instruction Type
+     <li><b>[A,D,E,R]:</b> Add,Disable,Enable,Report
+     <li><b>XIN_LOC:</b> LLA input Pin X location. Position of the pin left to right. Ranges from
+    1-5. 
+     <li><b>YIN_LOC:</b> LLA input Pin Y location. Position of the pin left to right. Ranges from
+    1-5. 
+     <li><b>XOUT_LOC:</b> LLA output Pin X location. Position of the
+     pin left to right. Ranges from 0-5. 0 indicates that the output
+     is virtual and is not physically connected to the sheet. Both the
+     XOUT_LOC and YOUT_LOC need to be 0 to be accepted as a virtual
+     output. 
+     <li><b>YOUT_LOC:</b> LLA output Pin Y location. Position of the
+     pin left to right. Ranges from 0-5. 0 indicates that the output
+     is virtual and is not physically connected to the sheet. Both the
+     XOUT_LOC and YOUT_LOC need to be 0 to be accepted as a virtual
+     output. 
+     <li><b>NUM_DESCR:</b> User defined numeric descriptor to use to refer
+     to the specific lla. Ranges from 1-10.  
+     <li><b>FUNC:</b> LLA Function number. This number can range from
+     1-50. The functions are lookup tables that have an input range
+     of 0-200uA and an output range of -200uA-200uA. The first 27
+     functions are the 27 basic LLA functions described by Jonathan
+     Mills. 
+     <li><b>PERIOD:</b> Determines the rate at which the LLA should be
+     evaluated. This number specifies the integer multiple of the base 10mS LLA
+     evaluation interval. The period can range from 1-255. If the
+     specified period is greater than 1, then the input pins is
+     sampled at the base rate and averaged at the specified interval
+     to use to look-up the output value. 
+  </ul>
+</ul>
+
+<h3><i>Reset Board</i></h3>
+Causes the MSP430 to go through a full system reset. This does not
+effect the FTDI USB interface.
+<ul> 
+  <li><b>Format:</b> RST\n
+  <li><b>example:</b>
+  Resets the board causing all of the current sources to go back to a
+  value of 0uA. 
+  <ul>
+     <li><i>host:</i> "rst\n" 
+     <li><i>ueac:</i> "OK\n" then goes through power-on-self-test to
+     arrive back at the prompt. 
+  </ul>   
+</ul>  
+
+<h3><i>LED Screen</i></h3>
+These commands allow the LED screen to be enabled and disabled. The
+LED screen is enabled by default. 
+<ul> 
+  <li><b>Enable Format:</b> LON\n
+  <li><b>Disable Format:</b> LOF\n
+  <li><b>example:</b>
+  Turns off the LED screen. This might be important for noise
+  reduction. 
+  <ul>
+     <li><i>host:</i> "lof\n" 
+     <li><i>ueac:</i> "OK\n" The screen is disabled immediately.
+  </ul>   
+</ul>  
+<h3><i>Probe Calibration</i></h3>
+Command that allows the probes on the board to be calibrated at
+manufacturing test. This command requires the foam substrate to be
+removed from the board to complete successfully. Do not run this
+command unless you are certain that you know what you are doing. If
+you run it by accident, just index through the tests using
+enter. Indicate "n" when you are asked to commit the values to
+external flash. 
+<ul> 
+  <li><b>Format:</b> CAL\n
+  <li><b>example:</b>
+  Calibrate the current supplies and measurement points. Each of the
+  25 probes is calibrated at 200uA (output), 0uA (output), 200uA
+  (input), 3.3V (input). 
+  <ul>
+     <li><i>host:</i> "cal\n" 
+     <li><i>ueac:</i> 
+      <blockquote>
+      Current Output Calibration <br> 
+      Attach the DVM in current mode to the pin with the active LED<br> 
+      Use the up arrow and down arrow keys to adjust the current<br> 
+      -----------------------------------------------------------------<br> 
+      0@200uA><\blockquote>
+  </ul> 
+</ul>  
+</html>
+
+

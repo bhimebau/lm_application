@@ -1,0 +1,989 @@
+head	1.8;
+access;
+symbols;
+locks
+	bhimebau:1.8; strict;
+comment	@ * @;
+
+
+1.8
+date	2006.03.30.10.03.31;	author bhimebau;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2006.03.28.18.21.02;	author bhimebau;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2006.03.07.14.38.27;	author bhimebau;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2006.03.06.19.17.55;	author bhimebau;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2006.02.08.15.35.50;	author bhimebau;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2005.11.07.22.04.33;	author bhimebau;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2005.11.02.16.24.46;	author bhimebau;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2005.11.02.14.57.08;	author bhimebau;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.8
+log
+@check-in for Ryan Varick
+@
+text
+@/* ueaclib.c --- 
+ * 
+ * Filename: ueaclib.c
+ * Description: library of utilities needed to interact with the uEAC R002
+ * Author: Bryce Himebaugh
+ * Maintainer: 
+ * Created: Wed Nov  2 11:24:10 2005
+ * Version: 
+ * Last-Updated: Tue Nov  8 11:46:20 2005
+ *           By: Bryce Himebaugh
+ *     Update #: 105
+ * Keywords: 
+ * Compatibility: 
+ * 
+ */
+
+/* Commentary: 
+ * 
+ * 
+ * 
+ */
+
+/* Change log:
+ * 
+ * 
+ */
+
+/* This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+
+ */
+
+/* Code: */
+// Header file for the IUCS uEAC R002 hardware
+// 6/1/05 initial version BH
+
+#include <msp430x16x.h>
+#include <signal.h>
+#include <stdio.h>
+#include "ueaclib.h"
+#include "ueac.h"
+#include "external_flash.h"
+#include "interpreter.h"
+#include "filter.h"
+#include "conversion.h"
+#include "global.h"
+#include "timer.h"
+#include "calibrate.h"
+
+extern short dac_translation[];
+
+#define DELTA 900                   // target DCO = DELTA*(4096) = 3686400
+
+// Function Prototypes
+void init_pins(void);
+void init_spi_0 (void);
+void init_serial_1 (void);
+void init_timer_a(void);
+void init_dac(void);
+void init_a2d(void);
+void start_a2d_converter (void);
+void Set_DCO (void);
+void clear_latches(void);
+void system_reset(void); 
+
+
+void init_sys(void) {
+  unsigned int i;
+  WDTCTL = WDTPW + WDTHOLD;    // Stop watchdog
+  init_pins();                 // Setup the discrete I/O - important to enable 8Mhz crystal 
+  for (i = 0xFFFF;i>0;i--);    // Delay for XTAL and oscillator to fire up and settle
+  Set_DCO();                   // calibrate DCO using the 32.768Khz crystal to 3.686400 Mhz  
+  init_spi_0();
+  init_serial_1();             // initialize USB virtual serial port
+  init_timer_a();              
+  init_dac();
+  init_a2d();
+  clear_latches();
+  _EINT();                     // Global interrupt enable
+}
+
+void system_reset(void) {
+  WDTCTL = WDTPW;              // start the watchdog, 32k SMCLK ticks until reset 
+  while (1);                   // wedge here until the dog resets the core
+}
+
+void clear_latches(void) {
+  P1OUT=0x00;
+  P5OUT=0x3F;
+  P5OUT=0x00;
+}
+
+void Set_DCO (void) { 
+  unsigned int Compare, Oldcapture = 0;
+  CCTL0 = 0x0000;                       // this too - see next comment
+  CCTL1 = 0x0000;                       // see if this fixes the clock cal issue
+  CCTL2 = 0x0000;
+  CCTL2 = CCIS0 + CM0 + CAP;            // Define CCR2, CAP, ACLK
+  TACTL = TASSEL1 + TACLR + MC1;        // SMCLK, continous mode
+  while (1) {
+    while ((CCTL2 & CCIFG) != CCIFG);   // Wait until capture occured!
+    CCTL2 &= ~CCIFG;                    // Capture occured, clear flag
+    Compare = CCR2;                     // Get current captured SMCLK
+    Compare = Compare - Oldcapture;     // SMCLK difference
+    Oldcapture = CCR2;                  // Save current captured SMCLK
+    if (DELTA == Compare) {
+      break;                            // if equal, leave "while(1)"
+    }
+    else if (DELTA < Compare) {         // DCO is too fast, slow it down
+      DCOCTL--;
+      if (DCOCTL == 0xFF) {             // Did DCO roll under?
+	BCSCTL1--;                      // Select next lower RSEL
+      }
+    }
+    else {                      
+      DCOCTL++;
+      if (DCOCTL == 0x00) {             // Did DCO roll over?
+        BCSCTL1++;                      // Select next higher RSEL
+      }
+    }
+  }  
+  CCTL2 = 0;                              // Stop CCR2 function
+  TACTL = 0;                              // Stop Timer_A
+}
+
+void init_spi_0 (void) {
+  UCTL0 |= SWRST;                // Place USART into RESET 
+  UCTL0  = CHAR|SYNC|MM|SWRST;   // 8-bit,SPI,Master,Hold Module in RESET
+  UTCTL0 = CKPH|SSEL1|SSEL0|STC; // falling edge out,SMCLK,3-pin SPI (Works for LTC Parts)
+  // UTCTL0 = CKPL|SSEL1|SSEL0|STC; // falling edge out,SMCLK,3-pin SPI (Works for AT parts)
+  // LTC1660 DAC can handle a 5Mhz SCLK
+  // AT45DB041 Flash can handle 20Mhz SCLK 
+  UBR00  = 0x02;                 // Run at SMCLK/2 - 8Mhz/2=4Mhz for normal operation
+  UBR10  = 0x00;                 // Upper half of SCLK control 
+  ME1    = USPIE0;               // Enable the SPI module for UART0
+  UMCTL0 = 0x00;                 // Modulation control not used by SPI set to 0 according to User's Guide
+  UCTL0 &= ~SWRST;               // release USART from RESET 
+}
+
+unsigned char send_spi_byte(unsigned char data_byte) {
+  TXBUF0 = data_byte;        // buffer 1 write  
+  while(!(UTCTL0&0x01));     // wait until transmitter empty
+  return(RXBUF0);            // return any received data
+                             // No data returned from DAC
+                             // SPI flash returns read data
+}
+
+void init_serial_1 (void) {
+  char temp;
+  // Data Comm Port - Connected to FT2232 Port A
+  UCTL1 = CHAR + SWRST;
+  UTCTL1 = SSEL1 + SSEL0;
+
+  // 19.2k init (3.686400 Mhz Clock)
+  UBR01=0xC0; 
+  UBR11=0x00;
+  UMCTL1=0x00; 
+  ME2 = 0x30;
+  UCTL1 = CHAR;
+  temp=RXBUF1;  // Flush the RX buffer 
+  temp=RXBUF1;  
+}
+    
+int putchar(int in_char){
+  while (!(IFG2&UTXIFG1));
+  TXBUF1=in_char;
+  return(0);
+}
+
+char getchar(void) {
+  char rx_data;
+  while (!(IFG2&URXIFG1));
+  rx_data= RXBUF1;
+  return (rx_data);
+}
+
+void init_pins(void) {
+ /*!
+  * <i><b>P1 Usage</b></i> 
+  * <table>
+  * <tr><th>Pin<th>Function<th>Direction<th>Select
+  * <tr><td>P1.0<td>Latch_Data(0)<td>Output<td>Dio  
+  * <tr><td>P1.1<td>Latch_Data(1)<td>Output<td>Dio    
+  * <tr><td>P1.2<td>Latch_Data(2)<td>Output<td>Dio    
+  * <tr><td>P1.3<td>Latch_Data(3)<td>Output<td>Dio    
+  * <tr><td>P1.4<td>Latch_Data(4)<td>Output<td>Dio    
+  * <tr><td>P1.5<td>Latch_Data(5)<td>Output<td>Dio    
+  * <tr><td>P1.6<td>Latch_Data(6)<td>Output<td>Dio    
+  * <tr><td>P1.7<td>Latch_Data(7)<td>Output<td>Dio    
+  * </table>
+  */
+  P1SEL = 0x00;
+  P1OUT = 0x00;
+  P1DIR = 0xFF;
+
+ /*!
+  * <i><b>P2 Usage</b></i> 
+  * <table>
+  * <tr><th>Pin<th>Function<th>Direction<th>Select
+  * <tr><td>P2.0<td>LED_OUT(24)<td>Output<td>Dio    
+  * <tr><td>P2.1<td>LLA_ENABLE(24)<td>Output<td>Dio    
+  * <tr><td>P2.2<td>BSL(0) FTDI CHB TXD<td>Input<td>Dio  
+  * <tr><td>P2.3<td>No Connect<td>Output<td>Dio    
+  * <tr><td>P2.4<td>No Connect<td>Output<td>Dio    
+  * <tr><td>P2.5<td>100k Pull-up Rosc<td>Input<td>Dio    
+  * <tr><td>P2.6<td>No Connect<td>Output<td>Dio    
+  * <tr><td>P2.7<td>FTDI nRTS<td>Input<td>Dio    
+  * </table>
+  */
+  P2SEL = 0x00;
+  P2OUT = 0x00;
+  P2DIR = 0x5B;
+
+ /*!
+  * <i><b>P3 Usage</b></i> 
+  * <table>
+  * <tr><th>Pin<th>Function<th>Direction<th>Select
+  * <tr><td>P3.0<td>FTDI nCTS<td>Output<td>Dio
+  * <tr><td>P3.1<td>SIMO-0<td>Output<td><b>Sel</b>
+  * <tr><td>P3.2<td>SOMI-0<td>Input<td><b>Sel</b>
+  * <tr><td>P3.3<td>SCK-0<td>Output<td><b>Sel</b>
+  * <tr><td>P3.4<td>UART0 TX<td>Output<td><b>Sel</b>
+  * <tr><td>P3.5<td>UART0 RX<td>Input<td><b>Sel</b>
+  * <tr><td>P3.6<td>UART1 TX<td>Output<td><b>Sel</b>
+  * <tr><td>P3.7<td>UART1 RX<td>Input<td><b>Sel</b>
+  * </table>
+  */
+  P3SEL = 0xFE;
+  P3OUT = 0x00;
+  P3DIR = 0x5B;
+
+ /*!
+  * <i><b>P4 Usage</b></i> 
+  * <table>
+  * <tr><th>Pin<th>Function<th>Direction<th>Select
+  * <tr><td>P4.0<td>SPI nCS DAC CH 0-7<td>Output<td>Dio
+  * <tr><td>P4.1<td>SPI nCS DAC CH 8-15<td>Output<td>Dio
+  * <tr><td>P4.2<td>SPI nCS DAC CH 16-23<td>Output<td>Dio
+  * <tr><td>P4.3<td>SPI nCS Serial Flash<td>Output<td>Dio
+  * <tr><td>P4.4<td>Analog Mux Select (0)<td>Output<td>Dio
+  * <tr><td>P4.5<td>Analog Mux Select (1)<td>Output<td>Dio
+  * <tr><td>P4.6<td>Analog Mux Select (2)<td>Output<td>Dio
+  * <tr><td>P4.7<td>8Mhz Osc Enable<td>Output<td>Dio
+  * </table>
+  */
+  P4SEL = 0x00;
+  //  P4OUT = 0x8F;   
+  P4OUT = 0x8F;   
+  P4DIR = 0xFF; 
+
+ /*!
+  * <i><b>P5 Usage</b></i> 
+  * <table>
+  * <tr><th>Pin<th>Function<th>Direction<th>Select
+  * <tr><td>P5.0<td>LED Latch Clk CH 0-7<td>Output<td>Dio
+  * <tr><td>P5.1<td>LED Latch Clk CH 8-15<td>Output<td>Dio
+  * <tr><td>P5.2<td>LED Latch Clk CH 16-23<td>Output<td>Dio
+  * <tr><td>P5.3<td>LLA Latch Clk CH 0-7<td>Output<td>Dio
+  * <tr><td>P5.4<td>LLA Latch Clk CH 8-15<td>Output<td>Dio
+  * <tr><td>P5.5<td>LLA Latch Clk CH 16-23<td>Output<td>Dio
+  * <tr><td>P5.6<td>No Connect<td>Output<td>Dio
+  * <tr><td>P5.7<td>No Connect<td>Output<td>Dio
+  * </table>
+  */
+  P5SEL = 0x00;
+  P5OUT = 0x00;
+  P5DIR = 0xFF; 
+
+ /*!
+  * <i><b>P6 Usage</b></i> 
+  * <table>
+  * <tr><th>Pin<th>Function<th>Direction<th>Select
+  * <tr><td>P6.0<td>VMUX_OUT(0)<td>Input<td><b>Sel</b>
+  * <tr><td>P6.1<td>VMUX_OUT(1)<td>Input<td><b>Sel</b>
+  * <tr><td>P6.2<td>VMUX_OUT(2)<td>Input<td><b>Sel</b>
+  * <tr><td>P6.3<td>VMUX_OUT(3)<td>Input<td><b>Sel</b>
+  * <tr><td>P6.4<td>VMUX_OUT(4)<td>Input<td><b>Sel</b>
+  * <tr><td>P6.5<td>No Connect<td>Input<td>Dio
+  * <tr><td>P6.6<td>DAC Control CH24<td>Input (analog output)<td><b>Sel</b>
+  * <tr><td>P6.7<td>No Connect<td>Input<td>Dio
+  * </table>
+  */
+  P6SEL = 0x5F;
+  P6OUT = 0x00;
+  P6DIR = 0xA0; 
+}
+
+void init_timer_a(void) {
+  // SMCLK SOURCE (3.686400Mhz)
+  // Timer in Continuous Mode 
+  // Clear the timer register (TAR)
+  // Compare 1 used as main time base at 1.25mS. 
+  TACTL=TASSEL1|MC1|TACLR;  // Timer a sourced from 3.686400 Mhz SMCLK, continuous mode
+  TACCTL0=CCIE;             // Enable the timer interrupt
+  TACCR0=0x1200;            // 1.25mS interrupt rate (4608*271nS) 
+}
+
+void init_dac(void) {
+  // Dac 0 Controls Sources 
+  // Dac 1 Controls Sinks
+  // Parameters
+  // [14-13] DAC12SREFx (11) Use VeREF+->3.3V 
+  // [12] DAC12RES (0) 12-Bit Resolution  
+  // [11-10] DAC12LSELx (00) Load DAC on write to the DAC12_0DAT register
+  // [9] DAC12CALON (1) Calibration active, poll until this bit is clear 
+  // [8] DAC12IR (1) Input range = 1x
+  // [7-5] DAC12AMPx (111) High Speed, High Current 
+  // [4] DAC12DF (0) Straight Binary 
+  // [3] DAC12IE (0) Interrupt Disabled
+  // [2] DAC12IFG (x) Interrupt flag
+  // [1] DAC12ENC (1) Enable DAC conversion 
+  // [0] DAC12GRP (0) Channel grouping disabled 
+  DAC12_0CTL = DAC12SREF1|DAC12SREF0|DAC12CALON|DAC12IR|DAC12AMP2|DAC12AMP1|DAC12AMP0|DAC12ENC;
+  while (DAC12_0CTL&DAC12CALON);  // spin here until cal complete
+}
+
+/*!  ADC12 Initialization Function
+ * \section AA Overview
+ * This project utilizes the first 5 channels of the A/D. Each of the channels is setup to use the 3.3V supply as the 
+ * Reference. <br>
+ *
+ * \section BB Converter Usage
+ * <table> 
+ * <tr><th>Pin<th>Function<th>Description
+ * <tr><td>P6.0<td>A/D 0<td>Reads External Mux for CH 0-7
+ * <tr><td>P6.1<td>A/D 1<td>Reads External Mux for CH 8-15
+ * <tr><td>P6.2<td>A/D 2<td>Reads External Mux for CH 16-23
+ * <tr><td>P6.3<td>A/D 3<td>Reads CH24 
+ * <tr><td>P6.3<td>A/D 4<td>Reads VOP Voltage 10k//2.5k divider 
+ * </table>
+ * \section CC VOP Calculation
+ * VOP_Voltage = AD_Counts_VOP/248  
+ * \section D Converter Sampling Time Usage
+ * t_sample>(Rs+2k)x9.011x40pf+800nS; Rs is the channel external input resistance - 200 ohms for uEAC<br>
+ * t_sample>2200x9.011x40pf+800nS=1.6uS 
+ * 1.6uS = 12.8 clocks of the 8Mhz oscillator. Choose 16 for the sample clock divisor. 
+ */ 
+void init_a2d (void) {
+  // ADC12 Parameters
+  // Sample Hold Time - 16 clocks 
+  /*! \section D ADC12CTRL0 Config 
+  */
+  ADC12CTL0 = SHT1_2|SHT0_2|MSC|REF2_5V|REFON|ADC12ON; // sampling time set to 3.2uS 
+  ADC12CTL1 = SHP|CONSEQ0;                             // sample sequence of channels and then stop 
+  ADC12MCTL0 =  SREF_2|INCH_0;                         // Use Avcc (3.3V) as the reference, channels (0-7)   
+  ADC12MCTL1 =  SREF_2|INCH_1;                         // Use Avcc (3.3V) as the reference, channels (8-15)   
+  ADC12MCTL2 =  SREF_2|INCH_2;                         // Use Avcc (3.3V) as the reference, channels (16-23)   
+  ADC12MCTL3 =  EOS|SREF_2|INCH_3;                     // Use Avcc (3.3V) as the reference, channels (24)    
+}
+
+void start_a2d_converter(void) {
+  ADC12CTL0|=ENC|ADC12SC;                    // start the converter 
+}  
+
+void stop_a2d_converter(void) {
+  ADC12CTL0&=~ENC;                           // stop the converter 
+}  
+
+int wait_a2d_busy(void) {
+  int count=0;
+  while (ADC12CTL1&ADC12BUSY) count++;
+  return count;
+}
+
+void write_analog_mux(unsigned char select) {
+  select&=0x07;   // clamp the input to 7 
+  select<<=4;     // shift to align with bits 6-4 (mux select bits)
+  P4OUT&=0x8F;    // clear the mux select bits
+  P4OUT|=select;  // "or" in the new select value
+}
+
+void write_current(int channel,int value_uA) {
+  if (value_uA>200) value_uA=200;
+  if (value_uA<-200) value_uA=-200;
+  if (value_uA==0) {
+    write_dac(channel,(dac_translation[200]+ueac_state.pin_cal[channel].i_zero_offset));
+  }
+  else {
+    write_dac(channel,dac_translation[200-value_uA]+ueac_state.pin_cal[channel].i_200uA_offset);
+  }
+}
+
+void write_dac(int channel,int value) {
+  // write_dac(channel,value)
+  // channel = 0-24 where the channels are the control voltages for the current sources. The current 
+  // sources are labeled starting at the top left corner as follows.
+  //  0  1  2  3  4
+  //  5  6  7  8  9
+  // 10 11 12 13 14
+  // 15 16 17 18 19
+  // 20 21 22 23 24
+  //
+  // Value = 0-1023 (10-bit) where the number represents a control voltage that is 0-3.3v. Each bit represents 
+  // a voltage of 3.3v/1023 or 3.22mV. 
+  //
+  // Hardware Note: Channels 0-23 are implemented by external SPI octal dacs (Linear LTC1660 components). Channel 
+  // 24 is implemented using DAC0 on the MSP430 
+  // 
+  // Initial Version BH 11/1/05
+
+  if (channel < 8) {
+    P4OUT=~0x01;                                    // assert the proper chip select
+    channel++;                                      // increment the channel number LTC1660 channels run from 1-8   
+  }           
+  else if (channel < 16) {
+    P4OUT=~0x02;                                    // assert the proper chip select
+    channel-=7;                                     // bring channel number into range 1-8
+  } 
+  else if (channel < 24) {
+    P4OUT=~0x04;                                    // assert the proper chip select
+    channel-=15;                                    // bring channel number into range 1-8
+  }
+  else if (channel == 24) {
+    DAC12_0DAT=value<<2;                            // Shift up to a 12-bit number and write to the MSP430 DAC0 
+    return;                                         // This is all to do for the MSP430 DAC case, exit...
+  }
+  else {                                            // channel number provided is too large, exit... 
+    return;
+  }
+  value=(value&0x03FF)<<2;                          // mask and shift the value to align properly in the dac sentence
+  channel<<=4;
+  *(((unsigned char *) &value)+1)|=((unsigned char) channel); // "or" in the channel number to the value data
+  send_spi_byte(*(((unsigned char *) &value)+1));             // send the high byte 
+  send_spi_byte(*((unsigned char *) &value));                 // send the high byte 
+  P4OUT|=0x07;                                                // deassert all of the spi dac chip selects   
+}
+
+void write_led (int channel, int enable) {
+  static unsigned long led_state = 0x00000000;
+  if (enable) {
+    if (channel<8) {
+      *((unsigned char *) &led_state) |= 0x01<<channel;       // Save the new state of the LED in led_state
+      P1OUT=*((unsigned char *) &led_state);                  // Place the relevant byte of led_state on the latch bus 
+      P5OUT|=0x01;                                            // strobe the chip select for the target latch
+      P5OUT&=~0x01;                                           // clear the chip select bit
+    }
+    else if (channel<16) {
+      channel-=8;
+      *(((unsigned char *) &led_state)+1) |= 0x01<<channel;  
+      P1OUT=*(((unsigned char *) &led_state)+1);  
+      P5OUT=0x02;
+      P5OUT&=~0x02;                                           // clear the chip select bit
+    }
+    else if (channel<24) {
+      channel-=16;
+      *(((unsigned char *) &led_state)+2) |= 0x01<<channel;  
+      P1OUT=*(((unsigned char *) &led_state)+2);  
+      P5OUT=0x04;
+      P5OUT&=~0x04;                                           // clear the chip select bit
+    }
+    else if (channel==24) {
+      *(((unsigned char *) &led_state)+3) |= 0x01;  
+      P2OUT|=0x01;
+    }
+  }
+  else {
+    if (channel<8) {
+      *((unsigned char *) &led_state) &= ~(0x01<<channel);  
+      P1OUT=*((unsigned char *) &led_state);  
+      P5OUT=0x01;
+      P5OUT&=~0x01;                                           // clear the chip select bit
+    }
+    else if (channel<16) {
+      channel-=8;
+      *(((unsigned char *) &led_state)+1) &= ~(0x01<<channel);  
+      P1OUT=*(((unsigned char *) &led_state)+1);  
+      P5OUT=0x02;
+      P5OUT&=~0x02;                                           // clear the chip select bit
+    }
+    else if (channel<24) {
+      channel-=16;
+      *(((unsigned char *) &led_state)+2) &= ~(0x01<<channel);  
+      P1OUT=*(((unsigned char *) &led_state)+2);  
+      P5OUT=0x04;
+      P5OUT&=~0x04;                                           // clear the chip select bit
+    }
+    else if (channel==24) {
+      *(((unsigned char *) &led_state)+3) &= 0xFE;  
+      P2OUT&=0xFE;
+    }
+  }
+}
+
+void write_lla (int channel, int enable) {
+  static unsigned long lla_state = 0x00000000;
+  if (enable) {
+    if (channel<8) {
+      *((unsigned char *) &lla_state) |= 0x01<<channel;       // Save the new state of the LED in lla_state
+      P1OUT=*((unsigned char *) &lla_state);                  // Place the relevant byte of lla_state on the latch bus 
+      P5OUT|=0x08;                                            // strobe the chip select for the target latch
+      P5OUT&=~0x08;                                           // clear the chip select bit
+    }
+    else if (channel<16) {
+      channel-=8;
+      *(((unsigned char *) &lla_state)+1) |= 0x01<<channel;  
+      P1OUT=*(((unsigned char *) &lla_state)+1);  
+      P5OUT=0x10;
+      P5OUT&=~0x10;                                           // clear the chip select bit
+    }
+    else if (channel<24) {
+      channel-=16;
+      *(((unsigned char *) &lla_state)+2) |= 0x01<<channel;  
+      P1OUT=*(((unsigned char *) &lla_state)+2);  
+      P5OUT=0x20;
+      P5OUT&=~0x20;                                           // clear the chip select bit
+    }
+    else if (channel==24) {
+      *(((unsigned char *) &lla_state)+3) |= 0x01;  
+      P2OUT|=0x02;
+    }
+  }
+  else {
+    if (channel<8) {
+      *((unsigned char *) &lla_state) &= ~(0x01<<channel);  
+      P1OUT=*((unsigned char *) &lla_state);  
+      P5OUT=0x08;
+      P5OUT&=~0x08;                                           // clear the chip select bit
+    }
+    else if (channel<16) {
+      channel-=8;
+      *(((unsigned char *) &lla_state)+1) &= ~(0x01<<channel);  
+      P1OUT=*(((unsigned char *) &lla_state)+1);  
+      P5OUT=0x10;
+      P5OUT&=~0x10;                                           // clear the chip select bit
+    }
+    else if (channel<24) {
+      channel-=16;
+      *(((unsigned char *) &lla_state)+2) &= ~(0x01<<channel);  
+      P1OUT=*(((unsigned char *) &lla_state)+2);  
+      P5OUT=0x20;
+      P5OUT&=~0x20;                                           // clear the chip select bit
+    }
+    else if (channel==24) {
+      *(((unsigned char *) &lla_state)+3) &= 0xFE;  
+      P2OUT&=0xFD;
+    }
+  }
+}
+
+/* ueaclib.c ends here */
+
+@
+
+
+1.7
+log
+@Made changes in the init_a2d function. Also pruned unused serial port
+init functions.
+@
+text
+@d51 12
+d76 2
+a80 1
+
+d94 5
+d384 11
+@
+
+
+1.6
+log
+@globally disabled interrupts to correct issue with the command
+interpreter. Interrupts seems to be causeing two issues:
+
+1.) corruption of the tokbuf post whitespace removal (interpreter.c)
+2.) corruption of the return serial stream.
+
+#1 seems likely to be stack overflow or pointer corruption
+#2 is likely a temporal issue.
+@
+text
+@a53 1
+
+a54 1
+void init_clock_module(void);
+a55 1
+void init_serial_0 (void);
+d62 2
+a63 3
+void stop_a2d_converter (void);
+void init_dma(void);
+static void Set_DCO (void);
+a69 1
+  //   init_serial_0 ();       // initialize DB9 serial port
+a71 1
+  init_clock_module();         // Switch to 8Mhz external oscillator. 
+d77 2
+a78 2
+  start_a2d_converter();
+  //_EINT();                     // Global interrupt enable
+d81 5
+d87 1
+a87 1
+static void Set_DCO (void) { 
+a119 26
+
+void init_clock_module(void) {
+  volatile int i;
+  //  for (i=0;i<30000;i++);
+  BCSCTL1 &= ~XT2OFF;         // Turn on XT2 
+  BCSCTL2 = SELM1|SELS;       // switch to XT2 for MCLK and SMCLK
+  while (IFG1&OFIFG) {
+    IFG1&=~OFIFG;             // try to clear OFIFG
+    for (i=0;i<10000;i++);    // delay for at least 50uS to see if the flag is set again 
+  }
+}
+
+// Serial Communication USART 0 is used for both the SPI DACs and SPI flash. 
+// This channel is also used for the diagnostic serial port (DB9 port). 
+void init_serial_0 (void) {
+  // Diagnostic Serial Port - DB9 connector
+  // 19.2K baud 8-N-1
+  UCTL0 = CHAR + SWRST;
+  UTCTL0 = SSEL1 + SSEL0;    
+  UBR00=0xA0;  
+  UBR10=0x01; 
+  UMCTL0=0x5B;
+  ME1 = 0xC0;
+  UCTL0 = CHAR;
+}
+
+a134 1
+  //  while(!(UTCTL1&0x01)); // wait until transmitter empty
+a147 10
+  // 115k (8Mhz Clock)
+  //  UBR01=0x45;  
+  //  UBR11=0x00; 
+  //  UMCTL1=0xAA;
+
+  // 19.2k (8Mhz Clock)
+  UBR01=0xA0;  
+  UBR11=0x01; 
+  UMCTL1=0x5B;
+  
+d149 3
+a151 4
+  // UBR01=0xC0; 
+  // UBR11=0x00;
+  // UMCTL1=0x00; 
+
+a153 1
+
+a157 14
+int putchar_0(int in_char){
+  while (!(IFG1&UTXIFG0));
+  TXBUF0=in_char;
+  return(0);
+}
+
+char getchar_0(void) {
+  char rx_data;
+  while (!(IFG1&URXIFG0));
+  rx_data= RXBUF0;
+  return (rx_data);
+}
+
+    
+d241 1
+d283 1
+a283 1
+  // SMCLK SOURCE (8Mhz)
+d286 4
+a289 5
+  // Compare 1 used as main time base at 1mS. 
+  TACTL=TASSEL1|MC1|TACLR;  // Timer a sourced from 8Mhz SMCLK 
+  // Block the timer interrupt from messing with the A2D converter 
+  //  TACCTL1=CCIE;             // Use TA1 as the interrupt source to trigger DAC channels 
+  TACCR1=0x0FA0;            // 1mS interrupt rate (8000*125nS) 
+d325 1
+a325 1
+ * \section C VOP Calculation
+d337 6
+a342 11
+  ADC12CTL0 = SHT13|SHT03|MSC|REFON|ADC12ON; // sampling time set to 32uS to make sure that the temp sensor can settle. 
+  //  ADC12CTL1 = SHP|CONSEQ0
+  ADC12CTL1 = SHP|CONSEQ1|CONSEQ0;           // sample sequence of channels repeatedly        
+  ADC12MCTL0 = SREF_2|INCH_0;
+  ADC12MCTL1 = SREF_2|INCH_1;
+  ADC12MCTL2 = SREF_2|INCH_2;
+  ADC12MCTL3 = SREF_2|INCH_3;
+  ADC12MCTL4 = SREF_2|INCH_4;
+  ADC12MCTL5 = SREF_1|INCH_10;               // Temperature Diode
+  ADC12MCTL6 = EOS|SREF_2|INCH_11;           // (Avcc-Avss)/2
+  ADC12IE=BIT6;                              // Enable interrupt on the last channel in the sequence
+d353 5
+d359 5
+a363 4
+void init_dma(void) {
+  //DMACTL0=DMA0TSEL2|DMA0TSEL1;              // DMA Channel 0 controlled by ADC12
+  //DMACTL1=DMAONFETCH;                       // DMA occurs on the next instruction fetch after trigger
+  //  DMA0CTL=
+@
+
+
+1.5
+log
+@check-in for V002.3 interpreter upgrade
+@
+text
+@d84 1
+a84 1
+  _EINT();                     // Global interrupt enable
+d171 1
+d193 3
+@
+
+
+1.4
+log
+@Initial Testcode Revision
+@
+text
+@d63 4
+a66 1
+void init_a2d (void);
+d83 1
+d148 1
+a148 1
+  UCTL0 |= SWRST;    // Place USART into RESET 
+d150 2
+a151 1
+  UTCTL0 = CKPH|SSEL1|SSEL0|STC; // falling edge out,SMCLK,3-pin SPI
+d154 5
+a158 5
+  UBR00  = 0x02;     // Run at SMCLK/2 - 8Mhz/2=4Mhz for normal operation
+  UBR10  = 0x00;     // Upper half of SCLK control 
+  ME1    = USPIE0;   // Enable the SPI module for UART0
+  UMCTL0 = 0x00;     // Modulation control not used by SPI set to 0 according to User's Guide
+  UCTL0 &= ~SWRST;   // release USART from RESET 
+a171 1
+  // 115.2K baud 8-N-1
+d175 1
+a175 1
+  // 115k
+d180 1
+a180 1
+  // 19.2k
+d184 6
+d337 2
+a338 1
+  TACCTL1=CCIE;             // Use TA1 as the interrupt source to trigger DAC channels 
+d387 3
+a389 2
+  ADC12CTL0 = SHT13|SHT03|MSC|REFON|ADC12ON;       // sampling time set to 32uS to make sure that the temp sensor can settle. 
+  ADC12CTL1 = SHP|CONSEQ0; 
+d395 175
+a569 2
+  ADC12MCTL5 = SREF_1|INCH_10;       // Temperature Diode
+  ADC12MCTL6 = EOS|SREF_2|INCH_11;   // (Avcc-Avss)/2
+@
+
+
+1.3
+log
+@Checking back in after adding the calibration functions...
+@
+text
+@d9 1
+a9 1
+ * Last-Updated: Mon Nov  7 10:58:58 2005
+d11 1
+a11 1
+ *     Update #: 72
+d52 3
+d64 1
+d67 2
+d70 1
+a70 2
+  init_pins();                  // Setup the discrete I/O - important to enable 8Mhz crystal 
+  init_clock_module();         // Select 8Mhz external oscillator
+d72 3
+d83 35
+d119 8
+a126 3
+  BCSCTL1 = 0x04;
+  BCSCTL2 = SELM1+SELS;
+  IFG1 &= 0xFD;                         // clear OFIFG
+a130 1
+
+d198 1
+a198 1
+int putchar_1(int in_char){
+d204 1
+a204 1
+char getchar_1(void) {
+a374 1
+   
+a375 2
+  //   ADC12CTL0 = SHT11|SHT01|MSC|REFON|ADC12ON;  // sampling time set to ~2uS - does not work for the temperature sensor
+  //  ADC12CTL0 = SHT13|SHT10|SHT03|SHT00|MSC|REFON|ADC12ON;       // sampling time set to 32uS to make sure that the temp sensor can settle. 
+a376 3
+
+  //   ADC12CTL1 = SHP|ADC12SSEL1|ADC12SSEL1|CONSEQ0; 
+  //  ADC12CTL1 = SHP|ADC12DIV_7|CONSEQ0; 
+a377 1
+  //  ADC12MCTL0 = EOS|SREF_2|INCH_0;
+@
+
+
+1.2
+log
+@Added auto generated header
+@
+text
+@d4 1
+a4 1
+ * Description: 
+d9 1
+a9 1
+ * Last-Updated: Wed Nov  2 11:24:27 2005
+d11 1
+a11 1
+ *     Update #: 1
+d54 1
+a54 1
+void init_dio(void);
+d64 1
+a64 1
+  init_dio();                  // Setup the discrete I/O - important to enable 8Mhz crystal 
+d71 1
+a71 1
+  // init_a2d();
+d164 15
+a178 10
+void init_dio(void) {
+  // ** P1 Usage ** 
+  // P1.0 Latch_Data(0) (Output)  
+  // P1.1 Latch_Data(1) (Output)  
+  // P1.2 Latch_Data(2) (Output)  
+  // P1.3 Latch_Data(3) (Output)  
+  // P1.4 Latch_Data(4) (Output)  
+  // P1.5 Latch_Data(5) (Output)  
+  // P1.6 Latch_Data(6) (Output)  
+  // P1.7 Latch_Data(7) (Output)  
+d183 14
+a196 9
+  // ** P2 Usage ** 
+  // P2.0 LED_OUT(24) (Output)
+  // P2.1 LLA_ENABLE(24) (Output) 
+  // P2.2 BSL(0) Channel B FTDI TXD (Input)
+  // P2.3 No Connect (STATIC OUTPUT LOW)
+  // P2.4 No Connect (STATIC OUTPUT LOW)
+  // P2.5 100k Pull-up Rosc (Input) 
+  // P2.6 No Connect (STATIC OUTPUT LOW)
+  // P2.7 FTDI nRTS (Input)
+d201 14
+a214 9
+  // ** P3 Usage ** 
+  // P3.0 FTDI nCTS (Output)
+  // P3.1 SIMO-0 (Output) SEL,OUTPUT
+  // P3.2 SOMI-0 (Input) SEL,OUTPUT
+  // P3.3 SCK-0 (Output) SEl,OUTPUT
+  // P3.4 UART0 TX (diag link) SEL,OUTPUT     
+  // P3.5 UART0 RX (diag link) SEL,INPUT   
+  // P3.6 UART1 TX (USB Comm) SEL,OUTPUT  
+  // P3.7 UART1 RX (USB Comm) SEL,INPUT  
+d219 14
+a232 9
+  // ** P4 Usage **  
+  // P4.0 SPI nCS DAC CH0-7 (Output) 
+  // P4.1 SPI nCS DAC CH8-15 (Output) 
+  // P4.2 SPI nCS DAC CH16-23 (Output) 
+  // P4.3 SPI nCS Serial Flash (Output) 
+  // P4.4 Analog Mux Select (0) (Output)
+  // P4.5 Analog Mux Select (1) (Output)
+  // P4.6 Analog Mux Select (2) (Output)
+  // P4.7 8Mhz Osc Enable 
+d237 14
+a250 9
+  // ** P5 Usage **  
+  // P5.0 LED Latch Clk CH0-7 (Output) 
+  // P5.1 LED Latch Clk CH8-15 (Output) 
+  // P5.2 LED Latch Clk CH16-23 (Output) 
+  // P5.3 LLA Latch Clk CH0-7 (Output) 
+  // P5.4 LLA Latch Clk CH8-15 (Output) 
+  // P5.5 LLA Latch Clk CH16-23 (Output) 
+  // P5.6 No Connect (STATIC OUTPUT LOW)
+  // P5.7 No Connect (STATIC OUTPUT LOW)
+d255 15
+a269 10
+  // ** P6 Usage **  
+  // P6.0 VMUX_OUT(0) SEL,ANALOG INPUT (CH0-7) 
+  // P6.1 VMUX_OUT(1) SEL,ANALOG INPUT (CH8-15)  
+  // P6.2 VMUX_OUT(2) SEL,ANALOG INPUT (CH16-23)
+  // P6.3 VMUX_OUT(3) SEL,ANALOG INPUT (CH24) 
+  // P6.4 VMUX_OUT(4) SEL,ANALOG INPUT (VOP Voltage Sense) 
+  // P6.5 No Connect (STATIC OUTPUT LOW)
+  // P6.6 DAC Control CH24 (DAC12 Output)
+  // P6.7 No Connect (STATIC OUTPUT LOW)
+  P6SEL = 0x4F;
+d271 1
+a271 1
+  P6DIR = 0xE0; 
+d281 1
+a281 1
+  TACCR1=0x1F40;            // 1mS interrupt rate (8000*125nS) 
+d303 21
+d327 11
+a337 2
+  ADC12CTL0 = SHT11|SHT01|MSC|ADC12ON;                                     
+  ADC12CTL1 = SHP|CONSEQ_1; 
+d341 4
+a344 5
+  ADC12MCTL3 = EOS|SREF_2|INCH_3;
+  ADC12MEM0=0;
+  ADC12MEM1=1;
+  ADC12MEM2=2;
+  ADC12MEM3=3;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 45
+d288 2
+@

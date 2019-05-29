@@ -1,0 +1,148 @@
+head	1.2;
+access;
+symbols;
+locks
+	bhimebau:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2006.03.30.10.01.42;	author bhimebau;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2006.03.28.18.16.59;	author bhimebau;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@check-in for Ryan Varick
+@
+text
+@/* global.c --- 
+ * 
+ * Filename: global.c
+ * Description: 
+ * Author: Bryce Himebaugh
+ * Maintainer: 
+ * Created: Mon Mar 27 15:26:08 2006
+ * Version: 
+ * Last-Updated: 
+ *           By: 
+ *     Update #: 0
+ * Keywords: 
+ * Compatibility: 
+ * 
+ */
+
+/* Commentary: 
+ * 
+ * 
+ * 
+ */
+
+/* Change log:
+ * 
+ * 
+ */
+
+/* This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/* Code: */
+
+#include <stdio.h>
+#include "filter.h"
+#include "conversion.h"
+#include "ueac.h"
+#include "external_flash.h"
+
+ueac_t ueac_state;
+char command[100];
+channel_t pin_data[25];
+ueacval_t conversion_result;
+volatile int timer_tick;
+
+void init_pin_data_structure(void) {
+  int i;
+  for (i=0;i<25;i++) {
+    initialize_channel_structure(&pin_data[i]);
+  }
+}
+
+void init_ueac_state_structure(void) {
+  int i;
+  char ch; 
+  ueac_state.lla_input=0;
+  for (i=0;i<25;i++) {
+    ueac_state.pin_current[i]=0;
+    ueac_state.lla_table[i].in_pin=0xFF;
+    ueac_state.lla_table[i].out_pin=0xFF;
+    ueac_state.lla_table[i].function_num=0xFF;
+    ueac_state.lla_table[i].rate=0x0;
+  }
+
+  // Load calibration data from external flash
+  start_main_array_read(0,0); 
+  ch=send_spi_byte(0);
+  if (ch=='V') {
+    // valid calibration, proceed with load
+    for (i=0;i<25;i++) {
+      ueac_state.pin_cal[i].i_200uA_offset=(char)send_spi_byte(0);
+    }
+    for (i=0;i<25;i++) {
+      ueac_state.pin_cal[i].i_zero_offset=(char)send_spi_byte(0);
+    }
+  }
+  else {
+    // no cal, load defaults 
+    for (i=0;i<25;i++) {
+      ueac_state.pin_cal[i].i_200uA_offset=0x00;
+      ueac_state.pin_cal[i].i_zero_offset=0x00;
+    }
+  }
+  end_main_array_read();
+}
+
+void init_global_variables (void) {
+  init_pin_data_structure();   
+  init_ueac_state_structure();
+  timer_tick=0;
+}
+
+
+
+/* global.c ends here */
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d46 1
+d50 1
+d67 1
+d76 21
+@

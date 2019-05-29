@@ -1,0 +1,129 @@
+head	1.2;
+access;
+symbols;
+locks
+	bhimebau:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2006.03.30.10.02.24;	author bhimebau;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2006.03.28.18.10.12;	author bhimebau;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@check-in for Ryan Varick
+@
+text
+@/* timer.c --- 
+ * 
+ * Filename: timer.c
+ * Description: 
+ * Author: Bryce Himebaugh
+ * Maintainer: 
+ * Created: Fri Mar 24 15:38:38 2006
+ * Version: 
+ * Last-Updated: 
+ *           By: 
+ *     Update #: 0
+ * Keywords: 
+ * Compatibility: 
+ * 
+ */
+
+/* Commentary: 
+ * 
+ * 
+ * 
+ */
+
+/* Change log:
+ * 
+ * 
+ */
+
+/* This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/* Code: */
+#include <msp430x16x.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include "ueaclib.h"
+#include "ueac.h"
+#include "conversion.h"
+#include "filter.h"
+#include "global.h"
+
+/*! Timer A1 Interupt Handler
+ *
+ * Timer A is used as the time base for the scheduler. This interrupt occurs every 1.25mS. 
+ */
+#ifndef DOX_SKIP 
+interrupt (TIMERA0_VECTOR) 
+#endif 
+timer_a0_irq() {
+  static int chan_last=0;
+  static int chan_next=0;
+  TACCR0+=0x1200;                       // Increment the compare register for 4608 ticks into future (1.25mS)
+  chan_last=chan_next&0x07;
+  write_analog_mux(++chan_next);
+  update_a2d_data(&pin_data[chan_last],ADC12MEM0);
+  update_a2d_data(&pin_data[8+chan_last],ADC12MEM1);
+  update_a2d_data(&pin_data[16+chan_last],ADC12MEM2);
+  if (chan_last==0) {
+    update_a2d_data(&pin_data[24],ADC12MEM3);
+  }
+  start_a2d_converter();
+  timer_tick=1;
+}
+
+void delay_1_25mS(int count) {
+  int tick_counter=0;
+  while (tick_counter<count) {
+    if (timer_tick) {
+      tick_counter++;
+      timer_tick=0;
+    }
+  }
+}
+
+
+
+
+/* timer.c ends here */
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d77 14
+@

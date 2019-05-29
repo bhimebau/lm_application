@@ -1,0 +1,43 @@
+head	1.1;
+access;
+symbols;
+locks
+	bhimebau:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2006.02.28.15.21.02;	author bhimebau;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@CC = gcc
+OBJS = main.o interpreter.o
+OUT = ueac_interpreter
+CFLAGS = -Wall
+LIBS = 
+
+all: etags ${OUT} 
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+$(OUT): ${OBJS}
+	$(CC) -o $@@ ${OBJS} ${LIBS}
+clean: 
+	rm -f ${OUT} *.o
+
+etags: 
+	etags *.c *.h
+
+@

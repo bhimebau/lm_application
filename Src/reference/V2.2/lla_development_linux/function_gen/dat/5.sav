@@ -1,0 +1,8 @@
+set terminal jpeg
+set output "5.jpg"
+set data style lines
+set time
+set title "Function 5"
+set nokey
+set yrange [-25:225]  
+plot "5.dat"
