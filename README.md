@@ -22,4 +22,4 @@ This code has been developed to implement the light pollution sensor application
 
 ### Sensor Serial Commands 
 
-* [Command Language](Commands)
+* [Command Language](Commands.md)
