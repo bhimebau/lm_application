@@ -1,4 +1,34 @@
-* **Set date:** ds,*month*,*day*,*year*
+# IU Light Sensor Command Langage
+
+## Command Overview
+
+The light sensor will be using the LPUART for communication. The
+LPUART is special in that it can accept characters in the STOP modes.
+
+## Commands
+
+* **Attention:** This is a command is used to wake up the system
+  through the LPUART. The symbol is sent with the expectation of
+  receiving an "OK" when the system has recovered from STOP2.
+  * Format: @
+  * Successful Example: Wakes the system up from STOP2. Returns OK
+
+``` bash
+    @
+    OK
+    IULS>
+```
+  * Failed Example: Wrong character sent.  Will still wake up the
+    system but the system will immediately go back to sleep. Returns
+    NOK but no prompt - system goes back to sleep.
+
+``` bash
+    %
+    NOK
+```
+  
+* **Set date:** Commands to set the real-time clock date
+  * Format: ds,*month*,*day*,*year*
   * Successful Example: Sets date to 5/31/2019. Returns OK
 ``` bash
     IULS> ds,5,31,2019
