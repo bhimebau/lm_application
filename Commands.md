@@ -55,7 +55,7 @@ will be through a script or other programmatic interface.
     OK
     IULS>
 ```
-    * Failed Example: Out of range hour field. Returns NOK. 
+  * Failed Example: Out of range hour field. Returns NOK. 
 ``` bash
     IULS> ts,35,45,10
     NOK
