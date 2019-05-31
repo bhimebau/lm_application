@@ -19,16 +19,16 @@ will be through a script or other programmatic interface.
   * Format: @
   * Successful Example: Wakes the system up from STOP2. Returns OK
   ``` bash
-  @
-  OK
-  IULS>
+    @
+    OK
+    IULS>
   ```
   * Failed Example: Wrong character sent.  Will still wake up the
     system but the system will immediately go back to sleep. Returns
     NOK but no prompt - system goes back to sleep.
   ``` bash
-  %
-  NOK
+    %
+    NOK
   ```
   
 * **Set date:** Commands to set the real-time clock date
@@ -77,6 +77,6 @@ will be through a script or other programmatic interface.
 
 * **Report date:** dr
 * **Report temperature:** temp
-* **Report battery voltage:* batt
+* **Report battery voltage:** batt
 * **Report data:** data
 * **Erase flash:** ef,all
