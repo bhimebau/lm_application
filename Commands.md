@@ -68,7 +68,7 @@ will be through a script or other programmatic interface.
     OK
     IULS>
   ```
-  * Failed Example: Argument passed to the report time command. 
+  * Failed Example: Argument passed to the report time command which does not take a command. 
   ``` bash
     IULS> tr,23
     NOK
@@ -76,5 +76,7 @@ will be through a script or other programmatic interface.
   ```
 
 * **Report date:** dr
+* **Report temperature:** temp
+* **Report battery voltage:* batt
 * **Report data:** data
 * **Erase flash:** ef,all
