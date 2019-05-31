@@ -65,7 +65,7 @@
 #define UEAC_WRITE 4
 #define UEAC_LLA_ADD 5
 #define UEAC_LLA_DISABLE 6
-#define UEAC_LLA_ENABLE 7
+#define UEAC_LLA_ENABLE 7e
 #define UEAC_LLA_REPORT 8
 #define UEAC_RST 9
 #define UEAC_CAL 10
