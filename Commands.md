@@ -3,7 +3,13 @@
 ## Command Overview
 
 The light sensor will be using the LPUART for communication. The
-LPUART is special in that it can accept characters in the STOP modes.
+LPUART is special in that it can accept characters in the STOP
+modes. A command is a group of ASCII characters that are terminated
+with a newline (\n) or a newline/cr (\n\r). Arguments to a command are
+appended to the command in a comma delimited list. While space is
+ignored. Typical terminal functionality is not included (like
+backspace) because the typical mode of interacting with the system
+will be through a script or other programmatic interface.
 
 ## Commands
 
