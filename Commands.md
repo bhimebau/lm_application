@@ -18,18 +18,18 @@ will be through a script or other programmatic interface.
   receiving an "OK" when the system has recovered from STOP2.
   * Format: @
   * Successful Example: Wakes the system up from STOP2. Returns OK
-``` bash
-    @
-    OK
-    IULS>
-```
-    * Failed Example: Wrong character sent.  Will still wake up the
+  ``` bash
+  @
+  OK
+  IULS>
+  ```
+  * Failed Example: Wrong character sent.  Will still wake up the
     system but the system will immediately go back to sleep. Returns
     NOK but no prompt - system goes back to sleep.
-``` bash
-    %
-    NOK
-```
+  ``` bash
+  %
+  NOK
+  ```
   
 * **Set date:** Commands to set the real-time clock date
   * Format: ds,*month*,*day*,*year*
