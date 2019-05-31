@@ -23,7 +23,7 @@ will be through a script or other programmatic interface.
     OK
     IULS>
 ```
-  * Failed Example: Wrong character sent.  Will still wake up the
+    * Failed Example: Wrong character sent.  Will still wake up the
     system but the system will immediately go back to sleep. Returns
     NOK but no prompt - system goes back to sleep.
 ``` bash
