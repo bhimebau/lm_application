@@ -1,4 +1,4 @@
-# IU Light Sensor Command Langage
+# IU Light Sensor Command Language
 
 ## Command Overview
 
