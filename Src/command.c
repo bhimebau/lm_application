@@ -17,61 +17,61 @@
 
 extern UART_HandleTypeDef huart1;
 
-void att_command(char *arguments) {
+void __attribute__((weak)) att_command(char *arguments) {
   printf("Attention Command Processing\n\r");
   printf("Arguments = %s\n\r",arguments);
 }
 
-void ds_command(char *arguments) {
+void __attribute__((weak)) ds_command(char *arguments) {
   printf("DS Command Processing\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
 
-void ts_command(char *arguments) {
+void __attribute__((weak)) ts_command(char *arguments) {
   printf("TS Command Processing\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
 
-void dr_command(char *arguments) {
+void __attribute__((weak)) dr_command(char *arguments) {
   printf("DR Command Processing\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
 
-void tr_command(char *arguments) {
+void __attribute__((weak)) tr_command(char *arguments) {
   printf("TR Command Processing\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
 
-void temp_command(char *arguments) {
+void __attribute__((weak)) temp_command(char *arguments) {
   printf("Temp Command Processing\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
 
-void batt_command(char *arguments) {
-  printf("Temp Command Processing\n\r");
+void __attribute__((weak)) batt_command(char *arguments) {
+  printf("Batt Command Processing\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
 
-void data_command(char *arguments) {
+void __attribute__((weak)) data_command(char *arguments) {
   printf("Data Command Processing\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
 
-void erase_command(char *arguments) {
+void __attribute__((weak)) erase_command(char *arguments) {
   printf("Erase Command Processing\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
