@@ -178,10 +178,15 @@ int main(void)
     get_command(command);
     command_length = delspace(command);
     if (command_length != -1) {
-      printf("Here is the command %s %d\n\r",command,command_length);
+      if(execute_command(command)) {
+        printf("NOK\n\r");
+      }
+      else {
+        printf("OK\n\r");
+      }
     }
     else {
-      printf("Command Error = %d\n\r",command_length);
+      printf("NOK\n\r");
     }
   /* USER CODE END 3 */
   }

@@ -44,7 +44,16 @@
 /* } ueac_instruction_t; */
 #define MAX_COMMAND_LEN 50
 
+typedef struct command {
+  char * cmd_string;
+  void (*cmd_function)(char * arg);
+} command_t;
+
 int get_command(char *);
 int delspace(char *);
+int execute_command(char *);
+int parse_command (char *, char **, char **);
+
+
 
 
