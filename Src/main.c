@@ -50,6 +50,7 @@
 #include "flash.h"
 #include "rtc.h"
 #include "temperature.h"
+#include "battery.h"
 #include "command.h"
 
 /* USER CODE END Includes */
@@ -171,6 +172,7 @@ int main(void)
   write_log_data(&fs,"r-cold");
   report_flash_status(&fs);
   read_all_records(&fs);
+  printf("RTC Status = %d\n\r",HAL_RTC_GetState(&hrtc));
   while (1) {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
@@ -379,15 +381,20 @@ static void MX_RTC_Init(void)
 {
 
   /* USER CODE BEGIN RTC_Init 0 */
-
+  // Check to see if the clock is uninitialized
+  // If the RTC has been previously initialized,
+  // exit the setup. 
+   
   /* USER CODE END RTC_Init 0 */
 
   RTC_TimeTypeDef sTime = {0};
   RTC_DateTypeDef sDate = {0};
   RTC_AlarmTypeDef sAlarm = {0};
-
+  
   /* USER CODE BEGIN RTC_Init 1 */
-
+  RTC_TimeTypeDef current_time;
+  RTC_DateTypeDef current_date;
+  
   /* USER CODE END RTC_Init 1 */
   /** Initialize RTC Only 
   */
@@ -410,23 +417,27 @@ static void MX_RTC_Init(void)
 
   /** Initialize RTC and set the Time and Date 
   */
-  sTime.Hours = 0x15;
-  sTime.Minutes = 0x34;
-  sTime.Seconds = 0x0;
-  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-  sDate.Month = RTC_MONTH_APRIL;
-  sDate.Date = 0x22;
-  sDate.Year = 0x19;
-
-  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    Error_Handler();
+  HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
+  if (current_date.Year == 0) {
+    sTime.Hours = 0x15;
+    sTime.Minutes = 0x34;
+    sTime.Seconds = 0x0;
+    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+      {
+        Error_Handler();
+      }
+    sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+    sDate.Month = RTC_MONTH_APRIL;
+    sDate.Date = 0x22;
+    sDate.Year = 0x19;
+    
+    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+      {
+        Error_Handler();
+      }
   }
   /** Enable the Alarm A 
   */
