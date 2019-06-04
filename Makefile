@@ -15,6 +15,7 @@
 ######################################
 TARGET = lm_application
 
+GIT_VERSION := "$(shell git describe --dirty --always --tags)"
 
 ######################################
 # building variables
@@ -133,12 +134,10 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32L4xx/Include \
 -IDrivers/CMSIS/Include
 
-
-
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -DVERSION=\"$(GIT_VERSION)\"
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2

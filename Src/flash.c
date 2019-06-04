@@ -23,7 +23,6 @@ extern int __fini_array_end;
 extern RTC_HandleTypeDef hrtc;
 extern flash_status_t fs;
 
-
 void data_command(char * arguments) {
   if (arguments) {
     printf("NOK\n\r");
@@ -39,8 +38,6 @@ void log_command(char * arguments) {
   }
   read_all_records(&fs,LOG_RECORD);
 }
-
-
 
 int flash_write_init(flash_status_t * fs) {
   uint64_t *p = find_sentinel();

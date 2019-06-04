@@ -167,14 +167,16 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  printf("\n\rStarting the System ...\n\r");
+  printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
+  printf("Git Commit: %s\n\r",VERSION);
+  printf("************************\n\r"); 
   flash_write_init(&fs);
-  write_log_data(&fs,"r-cold");
-  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
-  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
-  report_flash_status(&fs);
-  read_all_records(&fs,ALL_RECORD);
-  printf("RTC Status = %d\n\r",HAL_RTC_GetState(&hrtc));
+  /* write_log_data(&fs,"r-cold"); */
+  /* write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1)); */
+  /* write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1)); */
+  /* report_flash_status(&fs); */
+  /* read_all_records(&fs,ALL_RECORD); */
+  /* printf("RTC Status = %d\n\r",HAL_RTC_GetState(&hrtc)); */
   while (1) {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
