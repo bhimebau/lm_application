@@ -11,6 +11,38 @@
 #include <stdio.h>
 #include "rtc.h"
 
+extern RTC_HandleTypeDef hrtc;
+
+void tr_command(char *arguments) {
+  RTC_TimeTypeDef current_time;
+  RTC_DateTypeDef current_date;
+  if (arguments) {
+    printf("NOK\n\r");
+  }
+  else {
+    HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
+    printf("tr,%02d,%02d,%02d\n\r",current_time.Hours,current_time.Minutes, current_time.Seconds);
+    printf("OK\n\r");
+  }
+}
+
+void dr_command(char *arguments) {
+  RTC_TimeTypeDef current_time;
+  RTC_DateTypeDef current_date;
+  if (arguments) {
+    printf("NOK\n\r");
+  }
+  else {
+    HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
+    printf("dr,%02d,%02d,20%02d\n\r",current_date.Month,current_date.Date,current_date.Year);
+    printf("OK\n\r");
+  }
+}
+
+
+
 uint32_t pack_time(RTC_TimeTypeDef *time, RTC_DateTypeDef *date) {
   uint32_t out = 0;
   uint32_t temp = 0;

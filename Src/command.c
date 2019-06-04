@@ -16,6 +16,17 @@
 #include "command.h"
 
 extern UART_HandleTypeDef huart1;
+extern RTC_HandleTypeDef hrtc;
+
+void prompt(void) {
+  RTC_TimeTypeDef current_time;
+  RTC_DateTypeDef current_date;
+  HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
+  printf("%02d/%02d/20%02d ",current_date.Month,current_date.Date,current_date.Year);
+  printf("%02d:%02d:%02d ",current_time.Hours,current_time.Minutes, current_time.Seconds);
+  printf("IULS> ");
+}
 
 void __attribute__((weak)) att_command(char *arguments) {
   printf("Attention Command Processing\n\r");

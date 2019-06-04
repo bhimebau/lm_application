@@ -174,7 +174,8 @@ int main(void)
   while (1) {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
-    printf("IULS> ");
+    //    printf("IULS> ");
+    prompt();
     get_command(command);
     command_length = delspace(command);
     if (command_length != -1) {

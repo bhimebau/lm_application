@@ -14,6 +14,8 @@
 #include <string.h>
 #include "flash.h"
 #include "rtc.h"
+#include "battery.h"
+#include "temperature.h"
 
 extern int _edata;
 extern int _sdata;

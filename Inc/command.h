@@ -53,6 +53,7 @@ int get_command(char *);
 int delspace(char *);
 int execute_command(char *);
 int parse_command (char *, char **, char **);
+void prompt(void);
 
 
 
