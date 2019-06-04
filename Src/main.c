@@ -48,7 +48,7 @@
 #include "tsl25911.h"
 #include "retarget.h"
 #include "flash.h"
- #include "rtc.h"
+#include "rtc.h"
 #include "temperature.h"
 #include "command.h"
 
@@ -180,9 +180,6 @@ int main(void)
     if (command_length != -1) {
       if(execute_command(command)) {
         printf("NOK\n\r");
-      }
-      else {
-        printf("OK\n\r");
       }
     }
     else {

@@ -9,4 +9,3 @@
  */
 
 uint32_t read_temp(void);
-uint32_t read_vrefint(void);

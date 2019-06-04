@@ -149,9 +149,18 @@ int parse_command (char *line, char **command, char **args) {
 int get_command(char *command_buf) {
   char ch;
   int counter=0;
+  char *start = command_buf;
   while(((ch=getchar())!='\n')&&(ch!='\r')&&(counter++<MAX_COMMAND_LEN)) {
-    putchar(ch);
-    *command_buf++=ch;
+    if (ch==0x7f) {               // backspace functionality
+      if (command_buf > start) { 
+        printf("\b \b");
+        command_buf--;
+      }
+    }
+    else {
+      putchar(ch);
+      *command_buf++=ch;
+    }
   }
   *command_buf=0;
   printf("\n\r");
