@@ -18,6 +18,7 @@
 
 #define DATA_RECORD 1
 #define LOG_RECORD 2
+#define ALL_RECORD 3
 
 typedef struct sensordata {
   uint8_t watermark;               // 0x01=populated, 0xFF=unpopulated 
@@ -55,7 +56,7 @@ typedef struct flash_status {
 uint64_t *find_sentinel(void);
 int flash_write_init(flash_status_t *);
 int write_record(flash_status_t *, void *);
-int read_all_records(flash_status_t * );
+int read_all_records(flash_status_t *, int);
 int write_sensor_data(flash_status_t *,uint16_t,uint16_t,float);
 int write_log_data(flash_status_t *, char *);
 int report_flash_status(flash_status_t *);

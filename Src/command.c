@@ -82,6 +82,14 @@ void __attribute__((weak)) data_command(char *arguments) {
   }
 }
 
+void __attribute__((weak)) log_command(char *arguments) {
+  printf("Log Command Processing\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+
 void __attribute__((weak)) erase_command(char *arguments) {
   printf("Erase Command Processing\n\r");
   if (arguments) {
@@ -98,6 +106,7 @@ command_t commands[] = {
   {"temp",temp_command},
   {"batt",batt_command},
   {"data",data_command},
+  {"log",log_command},
   {"ef",erase_command},
   {0,0}
 };

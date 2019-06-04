@@ -9,9 +9,127 @@
 
 #include "main.h"
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "rtc.h"
 
 extern RTC_HandleTypeDef hrtc;
+
+void ds_command(char *arguments) {
+  RTC_DateTypeDef current_date = {0};
+  char * argument;
+  int argument_count = 0;
+ 
+  if (!arguments) {
+    printf("NOK\n\r");
+    return;
+  }
+  argument = strtok(arguments,",");
+  if (!argument) {
+    printf("NOK\n\r");
+    return;
+  }
+  while (argument) {
+    switch (argument_count) {
+    case 0:
+      current_date.Month = (int) strtol(argument,NULL,10);
+      if ((current_date.Month<1)||(current_date.Month>12)) {
+        printf("NOK\n\r");
+        return;
+      }
+      break;
+    case 1:
+      current_date.Date = (int) strtol(argument,NULL,10);
+      if ((current_date.Date<1)||(current_date.Date>31)) {
+        printf("NOK\n\r");
+        return;
+      }
+      break;
+    case 2:
+      current_date.Year = (int) strtol(argument,NULL,10);
+      if ((current_date.Year<0)||(current_date.Year>99)) {
+        printf("NOK\n\r");
+        return;
+      }
+      break;
+    default:
+      printf("NOK\n\r");
+      break;
+    }
+    argument_count++;
+    argument=strtok(NULL,",");
+    
+  }
+  if (argument_count != 3) {
+    printf("NOK\n\r");
+    return;
+  }
+  if (HAL_RTC_SetDate(&hrtc, &current_date, RTC_FORMAT_BIN) != HAL_OK) {
+    printf("NOK\n\r");
+    return;
+  }
+  printf("OK\n\r");
+}
+
+void ts_command(char *arguments) {
+  RTC_TimeTypeDef current_time;
+  char * argument;
+  int argument_count = 0;
+  
+  if (!arguments) {
+    printf("NOK\n\r");
+    return;
+  }
+  argument = strtok(arguments,",");
+  if (!argument) {
+    printf("NOK\n\r");
+    return;
+  }
+  while (argument) {
+    switch (argument_count) {
+    case 0:
+      current_time.Hours = (int) strtol(argument,NULL,10);
+      if ((current_time.Hours<0)||(current_time.Hours>23)) {
+        printf("NOK\n\r");
+        return;
+      }
+      break;
+    case 1:
+      current_time.Minutes = (int) strtol(argument,NULL,10);
+      if ((current_time.Minutes<0)||(current_time.Minutes>59)) {
+        printf("NOK\n\r");
+        return;
+      }
+      break;
+    case 2:
+      current_time.Seconds = (int) strtol(argument,NULL,10);
+      if ((current_time.Seconds<0)||(current_time.Seconds>59)) {
+        printf("NOK\n\r");
+        return;
+      }
+      break;
+    default:
+      printf("NOK\n\r");
+      break;
+    }
+    argument_count++;
+    argument=strtok(NULL,",");
+    
+  }
+  if (argument_count != 3) {
+    printf("NOK\n\r");
+    return;
+  }
+  current_time.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  current_time.StoreOperation = RTC_STOREOPERATION_RESET;
+  if (HAL_RTC_SetTime(&hrtc, &current_time, RTC_FORMAT_BIN) != HAL_OK) {
+    printf("NOK\n\r");
+    return;
+  }
+  printf("OK\n\r");
+}
+
+
 
 void tr_command(char *arguments) {
   RTC_TimeTypeDef current_time;

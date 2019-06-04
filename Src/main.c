@@ -170,13 +170,14 @@ int main(void)
   printf("\n\rStarting the System ...\n\r");
   flash_write_init(&fs);
   write_log_data(&fs,"r-cold");
+  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
+  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
   report_flash_status(&fs);
-  read_all_records(&fs);
+  read_all_records(&fs,ALL_RECORD);
   printf("RTC Status = %d\n\r",HAL_RTC_GetState(&hrtc));
   while (1) {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
-    //    printf("IULS> ");
     prompt();
     get_command(command);
     command_length = delspace(command);
@@ -417,8 +418,8 @@ static void MX_RTC_Init(void)
 
   /** Initialize RTC and set the Time and Date 
   */
-  HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
-  HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
+  HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BCD);
+  HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BCD);
   if (current_date.Year == 0) {
     sTime.Hours = 0x15;
     sTime.Minutes = 0x34;

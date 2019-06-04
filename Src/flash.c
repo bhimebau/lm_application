@@ -21,6 +21,25 @@ extern int _edata;
 extern int _sdata;
 extern int __fini_array_end;
 extern RTC_HandleTypeDef hrtc;
+extern flash_status_t fs;
+
+
+void data_command(char * arguments) {
+  if (arguments) {
+    printf("NOK\n\r");
+    return;
+  }
+  read_all_records(&fs,DATA_RECORD);
+}
+
+void log_command(char * arguments) {
+  if (arguments) {
+    printf("NOK\n\r");
+    return;
+  }
+  read_all_records(&fs,LOG_RECORD);
+}
+
 
 
 int flash_write_init(flash_status_t * fs) {
@@ -102,14 +121,13 @@ int write_record(flash_status_t * fs, void * record) {
   return (0);
 }
 
-int read_all_records(flash_status_t * fs) {
+int read_all_records(flash_status_t * fs, int type) {
   sensordata_t * p = (sensordata_t *) fs->data_start;
   RTC_TimeTypeDef time;
   RTC_DateTypeDef date;
     
   
   if (p->watermark == 0xFF) {
-    printf("Data Storage is empty\n\r");
     return (0);
   }
   else {
@@ -117,27 +135,29 @@ int read_all_records(flash_status_t * fs) {
       unpack_time(p->timestamp,&time,&date);
       switch (p->status) {
       case DATA_RECORD:
-        printf("D,");
-        printf("%d,",p->record_number);
-        printf("%02d/%02d/20%02d,",date.Month,date.Date,date.Year);
-        printf("%02d:%02d:%02d,",time.Hours,time.Minutes,time.Seconds);
-        printf("%d.%03d,",(int) p->battery_voltage/1000,(int) p->battery_voltage%1000);
-        printf("%d,",p->temperature);
-        printf("%f\n\r",p->lux);
+        if ((type == DATA_RECORD) || (type == ALL_RECORD)) {
+          printf("D,");
+          printf("%02d/%02d/20%02d,",date.Month,date.Date,date.Year);
+          printf("%02d:%02d:%02d,",time.Hours,time.Minutes,time.Seconds);
+          printf("%d.%03d,",(int) p->battery_voltage/1000,(int) p->battery_voltage%1000);
+          printf("%d,",p->temperature);
+          printf("%f\n\r",p->lux);
+        }
         break;
       case LOG_RECORD:
-        printf("L,");
-        printf("%d,",p->record_number);
-        printf("%02d/%02d/20%02d,",date.Month,date.Date,date.Year);
-        printf("%02d:%02d:%02d,",time.Hours,time.Minutes,time.Seconds);
-        printf("%s\n\r",((logdata_t *)p)->msg);
+        if ((type == LOG_RECORD) || (type == ALL_RECORD)) {          
+          printf("L,");
+          printf("%02d/%02d/20%02d,",date.Month,date.Date,date.Year);
+          printf("%02d:%02d:%02d,",time.Hours,time.Minutes,time.Seconds);
+          printf("%s\n\r",((logdata_t *)p)->msg);
+        }
         break;
       default:
-        printf("Unknown Record Type\n\r");
+        printf("NOK\n\r");
       }
       p++;
     }
-    printf("End of records\n\r");
+    printf("OK\n\r");
   }
   return(0);
 }
