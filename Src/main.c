@@ -168,7 +168,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
-  printf("Git Commit: %s\n\r",VERSION);
+  printf("Version: %s\n\r",VERSION);
   printf("************************\n\r"); 
   flash_write_init(&fs);
   /* write_log_data(&fs,"r-cold"); */
