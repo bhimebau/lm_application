@@ -40,62 +40,213 @@ void log_command(char * arguments) {
 }
 
 int flash_write_init(flash_status_t * fs) {
-  uint64_t *p = find_sentinel();
-  sensordata_t *sd = 0;
-  uint16_t record_counter = 0;
-  raw_t sentinel = {SENTINEL_MARK,0};
-  if (p) {
-    // Previously Inialized Data Storage, Sentinel located. Point at first open data slot. 
-    p+=2;  // Point at first data location.
-    fs->data_start = p;
-    fs->max_possible_records = ((uint32_t)0x0803FFF0 - (uint32_t) p) >> 4;
-    sd = (sensordata_t *) p;
-    while (sd->watermark!=0xFF) {
-      record_counter++;
-      sd++;
+  /* sensordata_t *sd = 0; */
+  /* uint16_t record_counter = 0; */
+  raw_t sentinel_top = {SENTINEL_MARK_TOP,0};
+  raw_t sentinel_bottom = {SENTINEL_MARK_BOTTOM,0};
+
+  // Address of the end of the program
+  uint64_t *program_end = (uint64_t *) ((uint32_t )&__fini_array_end 
+                                        + (uint32_t)&_edata
+                                        - (uint32_t)&_sdata); 
+    
+  // Address of the top of flash, fixed based on microcontroller variant
+  uint64_t *top = (uint64_t *) FLASH_END;
+  
+  // Address of the bottom of flash available for records
+  uint64_t *bottom = (uint64_t *) (((uint32_t)program_end & ~0x7FF) + 0x800);   
+  
+  // Top Memory Pointer: Located at the very top of flash
+  uint64_t *pt = find_sentinel_top();
+ 
+  // Bottom Memory Pointer: Located at the first open page after the software.
+  uint64_t *pb = find_sentinel_bottom();
+
+  /* There are 4 cases for the top and bottom memory pointers.
+     1.) pt = 0, pb = 0: Memory Uninitialized
+     Action: Erase memory if needed, add top and bottom sentinels
+     2.) pt > 0, pb = 0: Lower sentinel has been corrupted, 
+     Action: restore lower sentinel. Accept that data may have been lost 
+     3.) pt = 0, pb > 0: Upper sentinel has been corrupted
+     Action: Erase memory, add top and bottom sentinels
+     4.) pt > 0, pb > 0: Memory is initialized
+     Action: No memory changes are necessary
+  */
+
+  printf("top = %p\n\r",top);
+  printf("bottom = %p\n\r",bottom);
+  printf("program_end = %p\n\r",program_end);
+  printf("pt = %p\n\r",pt);
+  printf("pb = %p\n\r",pb);
+  if ((!pt) && (!pb)) {
+    printf("Memory Uninitialized\n\r");
+    printf("Writing sentinels...");
+    if (write_sentinel(top,&sentinel_top)) {
+      printf("Could not write top sentinel\n\r");
+      return(-1);
+    } 
+    if (write_sentinel(bottom,&sentinel_bottom)) {
+      printf("Could not write top sentinel\n\r");
+      return(-1);
     }
-    fs->next_address = (uint64_t *) sd;
-    fs->next_record_number = record_counter;
-    fs->total_records = record_counter;
-    return(0);
+    printf("Done\n\r");
   }
-  else {
-    // The data storage area is uninitialized. Write the sentinel to the first data slot. 
-    p = (uint64_t *)&__fini_array_end + ((uint64_t *)&_edata - (uint64_t *)&_sdata); // Compute last address of the flashed program. 
-    p+=2;   // Increment pointer by 16. 
-    p = (uint64_t *) ((uintptr_t) p & ~(uintptr_t)0xF); // Align pointer on a 16 byte boundary
-    if (p) {
-      // write the sentinel mark to denote the start of the data area 
-      fs->next_address = p;
-      if (write_record(fs,(void *) &sentinel)) {
-        return (-1);
-      }
-      fs->next_record_number = 0; // Set the first record number to 0, the sentinel does not count. 
-      p+=2;
-      fs->data_start = p;  // The data will start at one location beyond the sentinel.
-      fs->max_possible_records = ((uint32_t)0x0803FFF0 - (uint32_t) p) >> 4;
-      fs->total_records = 0;
-      return (0);
+  else if ((pt) && (!pb)) {
+    printf("Lower Sentinel has been corrupted, likely from program download\n\r");
+    printf("Writing lower sentinel...");
+    if (write_sentinel(bottom,&sentinel_bottom)) {
+      printf("Could not write top sentinel\n\r");
+      return(-1);
     }
-    else {
-      // Flash data area needs to be erased. Cannot write any data
+    printf("Done\n\r");
+  }
+  else if ((!pt) && (pb)) {
+    printf("Memory corrupted, Erase not implemented for this stage.\n\r");
+    return (-1);
+  }
+  else if ((pt) && (pb)) {
+    printf("Memory initialized and ready to go.\n\r");
+    if (pb!=bottom) {
+      printf("Sentinel is not at the bottom of the lowest flash page\n\r");
       return (-1);
     }
   }
-}
+  else {
+    printf("Unknown memory condition\n\r");
+    return (-1);
+  }
+  //If the program make it this far, both sentinels are in place at top and bottom, respectively
+  //The next step is to load the flash data structure used for writing/reading records
 
-uint64_t * find_sentinel(void) {
+  fs->data_start = top - 2; // "top" is the sentinel, 1 below it is the first record address
+  fs->max_possible_records = (((uint32_t)top-(uint32_t)bottom)>>4)-2;
+
+  printf("data_start=%p\n\r",fs->data_start);
+  printf("max_possible_records=%d\n\r",(int) fs->max_possible_records);
+  
+  
+  return (0);
+}
+  
+  
+/*   // Data that will be written if the memory has not been initialized yet. */
+     
+/*   if (pt) { */
+/*     // Previously Inialized Data Storage, Sentinel located. */
+/*     pt-=2;               // Point at first data location. */
+/*     fs->data_start = p;  // Start of memory will be at the top of flash */
+/*     if (pb) { */
+/*       // bottom sentinel location was found. */
+/*       fs->max_possible_records = (pt-pb-(uint64_t *)2); // Compute the total slots */
+/*     } */
+/*     else { */
+/*       // the bottom sentinel mark is missing even though the top sentinel is found */
+/*       // This can occur when new code is loaded and the flash page gets erased. */
+/*       // A new bottom sentinel needs to be added. */
+
+/*       // Compute last address of the flashed program. */
+/*       pb = (uint64_t *)&__fini_array_end */
+/*         + ((uint64_t *)&_edata */
+/*            - (uint64_t *)&_sdata); */
+
+/*       // Compute the first address of the next flash page */
+/*       // This is necessary because subsequent code downloads will erase up to the end of the page. */
+/*       // This will reduce the number of times the bottom sentinel will get erased. */
+/*       // However, this will not stop the sentinel from getting erased by a large code change. */
+/*       pb = (pb & ~((uint64_t *) 0x7FF)) + 1; */
+      
+/*       pb+=2;   // Increment pointer by 16. */
+/*       pb = (uint64_t *) ((uintptr_t) p & ~(uintptr_t)0xF); // Align pointer on a 16 byte boundary */
+
+
+      
+/*       // write the sentinel mark to denote the start of the data area */
+/*       fs->next_address = p; */
+/*       if (write_record(fs,(void *) &sentinel)) { */
+/*         return (-1); */
+/*       } */
+/*       fs->next_record_number = 0; // Set the first record number to 0, the sentinel does not count. */
+/*       p+=2; */
+/*       fs->data_start = p;  // The data will start at one location beyond the sentinel. */
+/*       fs->max_possible_records = ((uint32_t)0x0803FFF0 - (uint32_t) p) >> 4; */
+/*       fs->total_records = 0; */
+/*       return (0); */
+/*     } */
+/*     fs->max_possible_records = ((uint32_t)0x0803FFF0 - (uint32_t) p) >> 4; */
+/*     sd = (sensordata_t *) p; */
+/*     while (sd->watermark!=0xFF) { */
+/*       record_counter++; */
+/*       sd++; */
+/*     } */
+/*     fs->next_address = (uint64_t *) sd; */
+/*     fs->next_record_number = record_counter; */
+/*     fs->total_records = record_counter; */
+/*     return(0); */
+/*   } */
+/*   else { */
+/*     // The data storage area is uninitialized. Write the sentinel to the first data slot. */
+/*     p = (uint64_t *)&__fini_array_end + ((uint64_t *)&_edata - (uint64_t *)&_sdata); // Compute last address of the flashed program. */
+/*     p+=2;   // Increment pointer by 16. */
+/*     p = (uint64_t *) ((uintptr_t) p & ~(uintptr_t)0xF); // Align pointer on a 16 byte boundary */
+/*     if (p) { */
+/*       // write the sentinel mark to denote the start of the data area */
+/*       fs->next_address = p; */
+/*       if (write_record(fs,(void *) &sentinel)) { */
+/*         return (-1); */
+/*       } */
+/*       fs->next_record_number = 0; // Set the first record number to 0, the sentinel does not count. */
+/*       p+=2; */
+/*       fs->data_start = p;  // The data will start at one location beyond the sentinel. */
+/*       fs->max_possible_records = ((uint32_t)0x0803FFF0 - (uint32_t) p) >> 4; */
+/*       fs->total_records = 0; */
+/*       return (0); */
+/*     } */
+/*     else { */
+/*       // Flash data area needs to be erased. Cannot write any data */
+/*       return (-1); */
+/*     } */
+/*   } */
+/* } */
+
+uint64_t * find_sentinel_bottom(void) {
   uint64_t *p = (uint64_t *)&__fini_array_end + ((uint64_t *)&_edata - (uint64_t *)&_sdata); // Compute last address of the flashed program. 
   p+=2;   // Increment pointer by 16. 
   p = (uint64_t *) ((uintptr_t) p & ~(uintptr_t)0xF); // Align pointer on a 16 byte boundary
   while (p<=((uint64_t*)FLASH_END)) {
-    if (*p==SENTINEL_MARK) {
+    if (*p==SENTINEL_MARK_BOTTOM) {
       return(p);                 // Return the address of the sentinel
     }
-    p++;
+    p+=2;                        // Move pointer by 16 bytes on each iteration
   }
-  return (0);                    // If the sentinel was note located, return a null pointer
+  return (0);                    // If the sentinel was not located, return a null pointer
 } 
+
+uint64_t * find_sentinel_top(void) {
+  uint64_t *p = (uint64_t *) FLASH_END;
+  if (*p==SENTINEL_MARK_TOP) {
+    return(p);                 // Return the address of the sentinel
+  }
+  else {
+    return (0);                // If the sentinel was note located, return a null pointer
+  }
+} 
+
+int write_sentinel(uint64_t * location, raw_t * sentinel) {
+  if ((!location) || (!sentinel)) {
+    return(-1);
+  }
+  HAL_FLASH_Unlock();
+  if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) location++, sentinel->data0)) {
+    HAL_FLASH_Lock();
+    return (-1);
+  }
+  if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) location, sentinel->data1)) {
+    HAL_FLASH_Lock();
+    return (-1);
+  }
+  HAL_FLASH_Lock();
+  return (0);
+}
 
 int write_record(flash_status_t * fs, void * record) {
   raw_t * write_data;

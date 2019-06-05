@@ -13,8 +13,10 @@
 
 // STM32L432 Flash Starts at 0x8000000 and ends at 0x803FFFFF. 
 #define FLASH_START        0x08000000
-#define FLASH_END          0x0803FFF8
-#define SENTINEL_MARK      0xDEADBEEFA5A5A5A5
+// Last 16 byte word in the memory is 0x0803FFF0 
+#define FLASH_END          0x0803FFF0
+#define SENTINEL_MARK_BOTTOM      0xDEADBEEFA5A5A5A5
+#define SENTINEL_MARK_TOP         0xFEEDC0DE5A5A5A5A
 
 #define DATA_RECORD 1
 #define LOG_RECORD 2
@@ -53,7 +55,9 @@ typedef struct flash_status {
  
 #endif
 
-uint64_t *find_sentinel(void);
+uint64_t *find_sentinel_bottom(void);
+uint64_t *find_sentinel_top(void);
+int write_sentinel(uint64_t *, raw_t *);
 int flash_write_init(flash_status_t *);
 int write_record(flash_status_t *, void *);
 int read_all_records(flash_status_t *, int);
