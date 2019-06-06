@@ -39,6 +39,21 @@ void log_command(char * arguments) {
   read_all_records(&fs,LOG_RECORD);
 }
 
+void erase_command(char *arguments) {
+  if (!arguments) {
+    printf("NOK\n\r");
+    return;
+  }
+  if (!strcmp("all",arguments)) {
+    if (flash_reset(&fs)) {
+      printf("NOK\n\r");
+      return;
+    }
+  }
+  printf("OK\n\r");
+}
+
+
 int flash_write_init(flash_status_t * fs) {
   sensordata_t *sd = 0;
   uint16_t record_counter = 0;
@@ -73,46 +88,46 @@ int flash_write_init(flash_status_t * fs) {
      Action: No memory changes are necessary
   */
 
-  printf("top = %p\n\r",top);
-  printf("bottom = %p\n\r",bottom);
-  printf("program_end = %p\n\r",program_end);
-  printf("pt = %p\n\r",pt);
-  printf("pb = %p\n\r",pb);
+  /* printf("top = %p\n\r",top); */
+  /* printf("bottom = %p\n\r",bottom); */
+  /* printf("program_end = %p\n\r",program_end); */
+  /* printf("pt = %p\n\r",pt); */
+  /* printf("pb = %p\n\r",pb); */
   if ((!pt) && (!pb)) {
-    printf("Memory Uninitialized\n\r");
-    printf("Writing sentinels...");
+    /* printf("Memory Uninitialized\n\r"); */
+    /* printf("Writing sentinels..."); */
     if (write_sentinel(top,&sentinel_top)) {
-      printf("Could not write top sentinel\n\r");
+      /* printf("Could not write top sentinel\n\r"); */
       return(-1);
     } 
     if (write_sentinel(bottom,&sentinel_bottom)) {
-      printf("Could not write top sentinel\n\r");
+      /* printf("Could not write top sentinel\n\r"); */
       return(-1);
     }
-    printf("Done\n\r");
+    /* printf("Done\n\r"); */
   }
   else if ((pt) && (!pb)) {
-    printf("Lower Sentinel has been corrupted, likely from program download\n\r");
-    printf("Writing lower sentinel...");
+    /* printf("Lower Sentinel has been corrupted, likely from program download\n\r"); */
+    /* printf("Writing lower sentinel..."); */
     if (write_sentinel(bottom,&sentinel_bottom)) {
-      printf("Could not write top sentinel\n\r");
+      /* printf("Could not write top sentinel\n\r"); */
       return(-1);
     }
-    printf("Done\n\r");
+    /* printf("Done\n\r"); */
   }
   else if ((!pt) && (pb)) {
-    printf("Memory corrupted, Erase not implemented for this stage.\n\r");
+    /* printf("Memory corrupted, Erase not implemented for this stage.\n\r"); */
     return (-1);
   }
   else if ((pt) && (pb)) {
-    printf("Memory initialized and ready to go.\n\r");
+    /* printf("Memory initialized and ready to go.\n\r"); */
     if (pb!=bottom) {
-      printf("Sentinel is not at the bottom of the lowest flash page\n\r");
+      /* printf("Sentinel is not at the bottom of the lowest flash page\n\r"); */
       return (-1);
     }
   }
   else {
-    printf("Unknown memory condition\n\r");
+    /* printf("Unknown memory condition\n\r"); */
     return (-1);
   }
   //If the program make it this far, both sentinels are in place at top and bottom, respectively
@@ -128,15 +143,84 @@ int flash_write_init(flash_status_t * fs) {
   fs->next_record_number = record_counter;
   fs->total_records = record_counter;
   fs->next_address = (uint64_t *) sd;  
-  printf("data_start=%p\n\r",fs->data_start);
-  printf("max_possible_records=%d\n\r",(int) fs->max_possible_records);
-  printf("next_record_number=%d\n\r",(int) fs->next_record_number);
-  printf("total_records=%d\n\r",(int) fs->total_records);
-  printf("next_adddress=%p\n\r",fs->next_address);
+  /* printf("data_start=%p\n\r",fs->data_start); */
+  /* printf("max_possible_records=%d\n\r",(int) fs->max_possible_records); */
+  /* printf("next_record_number=%d\n\r",(int) fs->next_record_number); */
+  /* printf("total_records=%d\n\r",(int) fs->total_records); */
+  /* printf("next_adddress=%p\n\r",fs->next_address); */
   return (0);
 }
   
+static uint32_t GetPage(uint32_t Addr) {
+  uint32_t page = 0;
   
+  if (Addr < (FLASH_BASE + FLASH_BANK_SIZE))
+  {
+    /* Bank 1 */
+    page = (Addr - FLASH_BASE) / FLASH_PAGE_SIZE;
+  }
+  else
+  {
+    /* Bank 2 */
+    page = (Addr - (FLASH_BASE + FLASH_BANK_SIZE)) / FLASH_PAGE_SIZE;
+  }
+  
+  return page;
+}
+
+static uint32_t GetBank(uint32_t Addr) {
+  return FLASH_BANK_1;
+}
+
+int flash_erase(void) {
+  uint32_t FirstPage = 0, NbOfPages = 0, BankNumber = 0;
+  uint32_t PAGEError = 0;
+  /* __IO uint32_t data32 = 0 , MemoryProgramStatus = 0; */
+
+  static FLASH_EraseInitTypeDef EraseInitStruct;
+  uint32_t program_end = ((uint32_t )&__fini_array_end 
+                  + (uint32_t)&_edata
+                  - (uint32_t)&_sdata); 
+  uint32_t bottom  = (((uint32_t)program_end & ~0x7FF) + 0x800);
+  uint32_t top = FLASH_END;
+  
+  HAL_FLASH_Unlock();
+  /* Clear OPTVERR bit set on virgin samples */
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR); 
+  /* Get the 1st page to erase */
+  FirstPage = GetPage(bottom);
+  /* Get the number of pages to erase from 1st page */
+  NbOfPages = GetPage(top) - FirstPage + 1;
+  /* Get the bank */
+  BankNumber = GetBank(bottom);
+  /* Fill EraseInit structure*/
+  EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+  EraseInitStruct.Banks       = BankNumber;
+  EraseInitStruct.Page        = FirstPage;
+  EraseInitStruct.NbPages     = NbOfPages;
+
+  /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
+     you have to make sure that these data are rewritten before they are accessed during code
+     execution. If this cannot be done safely, it is recommended to flush the caches by setting the
+     DCRST and ICRST bits in the FLASH_CR register. */
+  if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK) {
+    HAL_FLASH_Lock();
+    return (-1);
+  }
+  HAL_FLASH_Lock();
+  return(0);
+} 
+
+int flash_reset(flash_status_t * fs) {
+  if (flash_erase()) {
+    return (-1);
+  }
+  if (flash_write_init(fs)) {
+    return (-1);
+  }
+  return(0);
+}
+
 /*   // Data that will be written if the memory has not been initialized yet. */
      
 /*   if (pt) { */

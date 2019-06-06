@@ -64,3 +64,4 @@ int read_all_records(flash_status_t *, int);
 int write_sensor_data(flash_status_t *,uint16_t,uint16_t,float);
 int write_log_data(flash_status_t *, char *);
 int report_flash_status(flash_status_t *);
+int flash_reset(flash_status_t *);

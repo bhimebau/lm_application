@@ -89,7 +89,6 @@ void __attribute__((weak)) log_command(char *arguments) {
   }
 }
 
-
 void __attribute__((weak)) erase_command(char *arguments) {
   printf("Erase Command Processing\n\r");
   if (arguments) {

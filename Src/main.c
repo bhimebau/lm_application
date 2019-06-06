@@ -172,7 +172,7 @@ int main(void)
   printf("************************\n\r"); 
   flash_write_init(&fs);
    /* write_log_data(&fs,"r-cold"); */
-  /* while (!write_log_data(&fs,"M1")); */
+  while (!write_log_data(&fs,"M1"));
   
   //  write_log_data(&fs,"M2");
   /* write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1)); */
@@ -180,6 +180,12 @@ int main(void)
   /* report_flash_status(&fs); */
   /* read_all_records(&fs,ALL_RECORD); */
   /* printf("RTC Status = %d\n\r",HAL_RTC_GetState(&hrtc)); */
+  /* if (flash_reset(&fs)) { */
+  /*   printf("Flash Erase Failed\n\r"); */
+  /* } */
+  /* else { */
+  /*   printf("Flash Erase Success\n\r"); */
+  /* } */
   while (1) {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
