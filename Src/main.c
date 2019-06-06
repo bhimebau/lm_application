@@ -171,7 +171,10 @@ int main(void)
   printf("Version: %s\n\r",VERSION);
   printf("************************\n\r"); 
   flash_write_init(&fs);
-  /* write_log_data(&fs,"r-cold"); */
+   /* write_log_data(&fs,"r-cold"); */
+  /* while (!write_log_data(&fs,"M1")); */
+  
+  //  write_log_data(&fs,"M2");
   /* write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1)); */
   /* write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1)); */
   /* report_flash_status(&fs); */

@@ -40,8 +40,8 @@ void log_command(char * arguments) {
 }
 
 int flash_write_init(flash_status_t * fs) {
-  /* sensordata_t *sd = 0; */
-  /* uint16_t record_counter = 0; */
+  sensordata_t *sd = 0;
+  uint16_t record_counter = 0;
   raw_t sentinel_top = {SENTINEL_MARK_TOP,0};
   raw_t sentinel_bottom = {SENTINEL_MARK_BOTTOM,0};
 
@@ -117,14 +117,22 @@ int flash_write_init(flash_status_t * fs) {
   }
   //If the program make it this far, both sentinels are in place at top and bottom, respectively
   //The next step is to load the flash data structure used for writing/reading records
-
   fs->data_start = top - 2; // "top" is the sentinel, 1 below it is the first record address
-  fs->max_possible_records = (((uint32_t)top-(uint32_t)bottom)>>4)-2;
-
+  fs->max_possible_records = (((uint32_t)top-(uint32_t)bottom)>>4)-1;
+  sd = (sensordata_t *) top; // sd is not pointing at the top sentinel.
+  sd--; // Pointing at the first data record
+  while ((sd->watermark!=0xFF)&&(sd->watermark!=0xa5)) {
+    record_counter++;
+    sd--;
+  }
+  fs->next_record_number = record_counter;
+  fs->total_records = record_counter;
+  fs->next_address = (uint64_t *) sd;  
   printf("data_start=%p\n\r",fs->data_start);
   printf("max_possible_records=%d\n\r",(int) fs->max_possible_records);
-  
-  
+  printf("next_record_number=%d\n\r",(int) fs->next_record_number);
+  printf("total_records=%d\n\r",(int) fs->total_records);
+  printf("next_adddress=%p\n\r",fs->next_address);
   return (0);
 }
   
@@ -252,6 +260,15 @@ int write_record(flash_status_t * fs, void * record) {
   raw_t * write_data;
   HAL_StatusTypeDef status = 0;
 
+  if ((!fs) || (!record)) {
+    return (-1);
+  }
+
+  if (fs->total_records >= fs->max_possible_records) {
+    printf("flash full\n\r");
+    return (-1);
+  }
+   
   write_data = (raw_t *) record;
   
   HAL_FLASH_Unlock();
@@ -259,11 +276,12 @@ int write_record(flash_status_t * fs, void * record) {
     HAL_FLASH_Lock();
     return (-1);
   }
-  if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) fs->next_address++, write_data->data1))) {
+  if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) fs->next_address, write_data->data1))) {
     HAL_FLASH_Lock();
     return (-1);
   }
   HAL_FLASH_Lock();
+  fs->next_address-=3;
   fs->next_record_number++;
   fs->total_records++;
   return (0);
@@ -279,12 +297,13 @@ int read_all_records(flash_status_t * fs, int type) {
     return (0);
   }
   else {
-    while (p->watermark!=0xFF) {
+    while ((p->watermark!=0xFF)&&(p->watermark!=0xa5)) {
       unpack_time(p->timestamp,&time,&date);
       switch (p->status) {
       case DATA_RECORD:
         if ((type == DATA_RECORD) || (type == ALL_RECORD)) {
           printf("D,");
+          printf("%d,",p->record_number);
           printf("%02d/%02d/20%02d,",date.Month,date.Date,date.Year);
           printf("%02d:%02d:%02d,",time.Hours,time.Minutes,time.Seconds);
           printf("%d.%03d,",(int) p->battery_voltage/1000,(int) p->battery_voltage%1000);
@@ -295,6 +314,7 @@ int read_all_records(flash_status_t * fs, int type) {
       case LOG_RECORD:
         if ((type == LOG_RECORD) || (type == ALL_RECORD)) {          
           printf("L,");
+          printf("%d,",p->record_number);
           printf("%02d/%02d/20%02d,",date.Month,date.Date,date.Year);
           printf("%02d:%02d:%02d,",time.Hours,time.Minutes,time.Seconds);
           printf("%s\n\r",((logdata_t *)p)->msg);
@@ -303,7 +323,7 @@ int read_all_records(flash_status_t * fs, int type) {
       default:
         printf("NOK\n\r");
       }
-      p++;
+      p--;
     }
     printf("OK\n\r");
   }
@@ -328,7 +348,9 @@ int write_sensor_data(flash_status_t *fs,
                     temperature,
                     lux
   };
-  write_record(fs,&p);
+  if (write_record(fs,&p)) {
+    return (-1); // Write failed
+  }
   return(0);
 }
 
@@ -349,7 +371,9 @@ int write_log_data(flash_status_t *fs,
   };
   strncpy((char *) p.msg,write_string,7);  // Copy the first 7 characters of the string
                                   // NULL character is provided by the initialization of p 
-  write_record(fs,&p);
+  if (write_record(fs,&p)) {
+    return (-1); // write failed
+  }
   return(0);
 }
 
