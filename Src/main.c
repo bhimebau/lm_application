@@ -88,7 +88,6 @@ RTC_TimeTypeDef current_time;
 RTC_DateTypeDef current_date;
 uint32_t rtc_counter = 0;
 flash_status_t fs;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,6 +104,17 @@ void collect_data(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+void collect_data(void) {
+  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
+  HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations
+  SystemClock_Config(); // Restore the clock settings after STOP2, exiting STOP2 does not restore them implicitly.
+  SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling again 
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+}
+
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
   rtc_counter++;
   if (!led_state) {
@@ -115,9 +125,6 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
   }
   led_state^=1;
 }
-
-// ADC_CHANNEL_TEMPSENSOR
-
 /* USER CODE END 0 */
 
 /**
@@ -140,8 +147,6 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  // AL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations
-  //HAL_PWR_EnterSTOPMode
   HAL_Init();
 
   /* USER CODE BEGIN Init */
@@ -173,20 +178,6 @@ int main(void)
   printf("************************\n\r"); 
   flash_write_init(&fs);
   write_log_data(&fs,"r-cold");
-  //   while (!write_log_data(&fs,"M1"));
-  
-  //  write_log_data(&fs,"M2");
-  /* write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1)); */
-  /* write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1)); */
-  /* report_flash_status(&fs); */
-  /* read_all_records(&fs,ALL_RECORD); */
-  /* printf("RTC Status = %d\n\r",HAL_RTC_GetState(&hrtc)); */
-  /* if (flash_reset(&fs)) { */
-  /*   printf("Flash Erase Failed\n\r"); */
-  /* } */
-  /* else { */
-  /*   printf("Flash Erase Success\n\r"); */
-  /* } */
   while (1) {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
@@ -203,20 +194,6 @@ int main(void)
     }
   /* USER CODE END 3 */
   }
-}
-
-
-/* Read voltage, temperature, light */
-/* Write the date to the flash */
-
-void collect_data(void) {
-  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
-  HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations
-  SystemClock_Config(); // Restore the clock settings after STOP2, exiting STOP2 does not restore them implicitly.
-  SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling again 
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
 }
 
 
