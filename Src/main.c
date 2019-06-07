@@ -102,6 +102,7 @@ static void MX_USART1_UART_Init(void);
 void collect_data(void);
 /* USER CODE END PFP */
 
+
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
