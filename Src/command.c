@@ -27,6 +27,34 @@ void prompt(void) {
   printf("%02d:%02d:%02d ",current_time.Hours,current_time.Minutes, current_time.Seconds);
   printf("IULS> ");
 }
+void att_command(char *);
+void ds_command(char *);           
+void ts_command(char *);
+void dr_command(char *);
+void tr_command(char *);
+void temp_command(char *);
+void batt_command(char *);
+void data_command(char *);
+void log_command(char *);  
+void erase_command(char *);
+void light_command(char *);
+void help_command(char *);
+  
+command_t commands[] = {
+  {"@",att_command},
+  {"ds",ds_command},
+  {"ts",ts_command},
+  {"tr",tr_command},
+  {"dr",dr_command},
+  {"temp",temp_command},
+  {"batt",batt_command},
+  {"data",data_command},
+  {"log",log_command},
+  {"ef",erase_command},
+  {"help",help_command},
+  {"ls",light_command},
+  {0,0}
+};
 
 void __attribute__((weak)) att_command(char *arguments) {
   printf("Attention Command Processing\n\r");
@@ -96,19 +124,37 @@ void __attribute__((weak)) erase_command(char *arguments) {
   }
 }
 
-command_t commands[] = {
-  {"@",att_command},
-  {"ds",ds_command},
-  {"ts",ts_command},
-  {"tr",tr_command},
-  {"dr",dr_command},
-  {"temp",temp_command},
-  {"batt",batt_command},
-  {"data",data_command},
-  {"log",log_command},
-  {"ef",erase_command},
-  {0,0}
-};
+void __attribute__((weak)) light_command(char *arguments) {
+  printf("Light Sensor Command Processing\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) help_command(char *arguments) {
+  command_t * p = commands;
+  printf("Available Commands:\n\r");
+  while (p->cmd_string) {
+    printf("%s\n\r",p->cmd_string);
+    p++;
+  }
+  printf("OK\n\r");
+}
+
+/* command_t commands[] = { */
+/*   {"@",att_command}, */
+/*   {"ds",ds_command}, */
+/*   {"ts",ts_command}, */
+/*   {"tr",tr_command}, */
+/*   {"dr",dr_command}, */
+/*   {"temp",temp_command}, */
+/*   {"batt",batt_command}, */
+/*   {"data",data_command}, */
+/*   {"log",log_command}, */
+/*   {"ef",erase_command}, */
+/*   {"help",help_command}, */
+/*   {0,0} */
+/* }; */
 
 int execute_command(char * line) {
   char *cmd;

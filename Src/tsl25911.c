@@ -11,8 +11,17 @@
 #include <stdio.h>
 #include "tsl25911.h"
 
-// The power supply VSW must be enabled through the SW_MODE pin before the TSL25911 will be
-// powered.
+extern I2C_HandleTypeDef hi2c1;
+
+void light_command(char *arguments) {
+  if (arguments) {
+    printf("NOK\n\r");
+  }
+  else {
+    printf("%4.3f\n\r",tsl25911_readsensor(&hi2c1));
+    printf("OK\n\r");
+  }
+}
 
 int tsl25911_writereg(I2C_HandleTypeDef *hi2c1, uint8_t addr, uint8_t * data, uint16_t size) {
   HAL_StatusTypeDef status;
