@@ -78,14 +78,24 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define rtc_EVI_Pin GPIO_PIN_5
+#define rtc_EVI_GPIO_Port GPIOA
+#define rtc_nINT_Pin GPIO_PIN_6
+#define rtc_nINT_GPIO_Port GPIOA
+#define rtc_nINT_EXTI_IRQn EXTI9_5_IRQn
+#define rtc_clock_Pin GPIO_PIN_7
+#define rtc_clock_GPIO_Port GPIOA
 #define led_out_Pin GPIO_PIN_0
 #define led_out_GPIO_Port GPIOB
+#define sensor_int_Pin GPIO_PIN_8
+#define sensor_int_GPIO_Port GPIOA
+#define sensor_int_EXTI_IRQn EXTI9_5_IRQn
 #define sensor_clock_Pin GPIO_PIN_9
 #define sensor_clock_GPIO_Port GPIOA
 #define sensor_data_Pin GPIO_PIN_10
 #define sensor_data_GPIO_Port GPIOA
-#define SW_MODE_Pin GPIO_PIN_5
-#define SW_MODE_GPIO_Port GPIOB
+#define rtc_data_Pin GPIO_PIN_4
+#define rtc_data_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 #define SENSOR_POWER_ON  HAL_GPIO_WritePin(GPIOB, SW_MODE_Pin, GPIO_PIN_SET);

@@ -2,6 +2,7 @@
 #define _RETARGET_H__
 
 #include "stm32l4xx_hal.h"
+#include "stm32l4xx_hal.h" 
 #include <sys/stat.h>
 
 void RetargetInit(UART_HandleTypeDef *huart);
