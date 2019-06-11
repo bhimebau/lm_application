@@ -215,6 +215,11 @@ int get_command(char *command_buf) {
   char ch;
   int counter=0;
   char *start = command_buf;
+  /* if(HAL_UART_Receive_IT(&UartHandle, (uint8_t *)aRxBuffer, RXBUFFERSIZE) != HAL_OK) */
+  /* { */
+  /*   Error_Handler(); */
+  /* } */
+
   while(((ch=getchar())!='\n')&&(ch!='\r')&&(counter++<MAX_COMMAND_LEN)) {
     if (ch==0x7f) {               // backspace functionality
       if (command_buf > start) { 
