@@ -65,6 +65,8 @@
 #define TICK_FREQ_HZ 100
 #define LIGHT_SENSOR_ADDRESS (0x29<<1)
 #define DELAY_1S 100
+#define WU_UART 0x01
+#define WU_RTC 0x02
 
 /* USER CODE END PD */
 
@@ -89,6 +91,7 @@ RTC_TimeTypeDef current_time;
 RTC_DateTypeDef current_date;
 uint32_t rtc_counter = 0;
 flash_status_t fs;
+uint32_t wu_flags = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -125,16 +128,11 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
   /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); */
   /* } */
   /* led_state^=1; */
+  wu_flags |= WU_RTC; // Notify the main loop that an RTC interrupt occured
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-  if (!led_state) {
-    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
-  }
-  else {
-    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
-  }
-  led_state^=1;
+  wu_flags |= WU_UART; // Notify the main loop that a character was received 
 }
 
 
@@ -153,6 +151,7 @@ int main(void)
   /* uint8_t state = OFF; */
   char command[MAX_COMMAND_LEN];
   int command_length = 0;
+  uint8_t ch;
   /* uint32_t ptime; */
  
   /* USER CODE END 1 */
@@ -193,22 +192,44 @@ int main(void)
   printf("************************\n\r"); 
   flash_write_init(&fs);
   write_log_data(&fs,"r-cold");
+  // Initial interrup to prime the pump
+  if(HAL_UART_Receive_IT(&hlpuart1, &ch, 1) != HAL_OK) {
+    Error_Handler();
+  }
+
   while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    prompt();
-    get_command(command);
-    command_length = delspace(command);
-    if (command_length != -1) {
-      if(execute_command(command)) {
-        printf("NOK\n\r");
+
+    // Set up to sleep
+    if (wu_flags & WU_UART) {
+      wu_flags &= ~WU_UART; // Clear the flag
+      // Start a new transaction 
+      if(HAL_UART_Receive_IT(&hlpuart1, &ch, 1) != HAL_OK) {
+        Error_Handler();
       }
     }
-    else {
-      printf("NOK\n\r");
-    }
+    /* HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations */
+    /* SystemClock_Config(); // Restore the clock settings after STOP2, exiting STOP2 does not restore them implicitly. */
+    /* SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling again  */
+    /* __HAL_RCC_GPIOC_CLK_ENABLE(); */
+    /* __HAL_RCC_GPIOB_CLK_ENABLE(); */
+    /* __HAL_RCC_GPIOA_CLK_ENABLE(); */
+    //  printf("%c\n\r",ch);
   }
+  /*   prompt(); */
+  /*   get_command(command); */
+  /*   command_length = delspace(command); */
+  /*   if (command_length != -1) { */
+  /*     if(execute_command(command)) { */
+  /*       printf("NOK\n\r"); */
+  /*     } */
+  /*   } */
+  /*   else { */
+  /*     printf("NOK\n\r"); */
+  /*   } */
+  /* } */
   /* USER CODE END 3 */
 }
 
@@ -458,9 +479,8 @@ static void MX_LPUART1_UART_Init(void)
   /* while(__HAL_UART_GET_FLAG(&hlpuart1, USART_ISR_BUSY) == SET); */
   /* while(__HAL_UART_GET_FLAG(&hlpuart1, USART_ISR_REACK) == RESET); */
   /* WakeUpSelection.WakeUpEvent = UART_WAKEUP_ON_READDATA_NONEMPTY; */
-  /* if (HAL_UARTEx_StopModeWakeUpSourceConfig(&hlpuart1, WakeUpSelection)!= HAL_OK) */
-  /* { */
-  /*   Error_Handler();  */
+  /* if (HAL_UARTEx_StopModeWakeUpSourceConfig(&hlpuart1, WakeUpSelection)!= HAL_OK) { */
+  /*   Error_Handler(); */
   /* } */
   /* __HAL_UART_ENABLE_IT(&hlpuart1, UART_IT_WUF); */
   /* HAL_UARTEx_EnableStopMode(&hlpuart1); */
