@@ -52,6 +52,7 @@
 #include "temperature.h"
 #include "battery.h"
 #include "command.h"
+#include <stm32l4xx_ll_lpuart.h>
 
 /* USER CODE END Includes */
 
@@ -128,12 +129,12 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
   /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); */
   /* } */
   /* led_state^=1; */
-  wu_flags |= WU_RTC; // Notify the main loop that an RTC interrupt occured
+  /* wu_flags |= WU_RTC; // Notify the main loop that an RTC interrupt occured */
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-  wu_flags |= WU_UART; // Notify the main loop that a character was received 
-}
+/* void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) { */
+/*   wu_flags |= WU_UART; // Notify the main loop that a character was received  */
+/* } */
 
 
 /* USER CODE END 0 */
@@ -149,8 +150,8 @@ int main(void)
   /* uint8_t ch; */
   enum {ON, OFF};  
   /* uint8_t state = OFF; */
-  char command[MAX_COMMAND_LEN];
-  int command_length = 0;
+  /* char command[MAX_COMMAND_LEN]; */
+  /* int command_length = 0; */
   uint8_t ch;
   /* uint32_t ptime; */
  
@@ -203,13 +204,14 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     // Set up to sleep
-    if (wu_flags & WU_UART) {
-      wu_flags &= ~WU_UART; // Clear the flag
-      // Start a new transaction 
-      if(HAL_UART_Receive_IT(&hlpuart1, &ch, 1) != HAL_OK) {
-        Error_Handler();
-      }
-    }
+    /* if (wu_flags & WU_UART) { */
+    /*   wu_flags &= ~WU_UART; // Clear the flag */
+    /*   // Start a new transaction  */
+    /*   if(HAL_UART_Receive_IT(&hlpuart1, &ch, 1) != HAL_OK) { */
+    /*     Error_Handler(); */
+    /*   } */
+    /* } */
+
     /* HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations */
     /* SystemClock_Config(); // Restore the clock settings after STOP2, exiting STOP2 does not restore them implicitly. */
     /* SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling again  */
@@ -455,7 +457,7 @@ static void MX_LPUART1_UART_Init(void)
 {
 
   /* USER CODE BEGIN LPUART1_Init 0 */
-  UART_WakeUpTypeDef WakeUpSelection; 
+  /* UART_WakeUpTypeDef WakeUpSelection;  */
   
   /* USER CODE END LPUART1_Init 0 */
 
@@ -476,6 +478,15 @@ static void MX_LPUART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN LPUART1_Init 2 */
+  LL_LPUART_EnableIT_RXNE(LPUART1);
+  //uint8_t LL_LPUART_ReceiveData8 (USART_TypeDef * LPUARTx)
+  //LL_LPUART_TransmitData8(USART_TypeDef * LPUARTx, uint8_t Value)
+  //void LL_LPUART_EnableInStopMode (USART_TypeDef * LPUARTx)
+  // void LL_LPUART_SetWakeUpMethod (USART_TypeDef * LPUARTx, uint32_t Method)
+  //  void LL_LPUART_SetWakeUpMethod (USART_TypeDef * LPUARTx, uint32_t Method)
+  //  LL_LPUART_WAKEUP_ON_ADDRESS
+  //  LL_LPUART_WAKEUP_ON_STARTBIT
+  //  LL_LPUART_WAKEUP_ON_RXNE
   /* while(__HAL_UART_GET_FLAG(&hlpuart1, USART_ISR_BUSY) == SET); */
   /* while(__HAL_UART_GET_FLAG(&hlpuart1, USART_ISR_REACK) == RESET); */
   /* WakeUpSelection.WakeUpEvent = UART_WAKEUP_ON_READDATA_NONEMPTY; */
@@ -589,9 +600,24 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOH_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PC15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PA0 PA1 PA4 PA11 
+                           PA12 PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_11 
+                          |GPIO_PIN_12|GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : rtc_EVI_Pin */
   GPIO_InitStruct.Pin = rtc_EVI_Pin;
@@ -611,6 +637,18 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(led_out_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB1 PB5 PB6 PB7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PH3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
