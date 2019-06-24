@@ -14,9 +14,12 @@
 #include <string.h>
 #include "strategy.h"
 #include "command.h"
+#include "queue.h"
+#include "interrupt.h"
 
 extern UART_HandleTypeDef huart1;
 extern RTC_HandleTypeDef hrtc;
+extern queue_t rx_queue;
 
 void prompt(void) {
   RTC_TimeTypeDef current_time;
@@ -159,9 +162,9 @@ void __attribute__((weak)) help_command(char *arguments) {
 /*   {0,0} */
 /* }; */
 
-int execute_command(char * line) {
-  char *cmd;
-  char *arg;
+int execute_command(uint8_t * line) {
+  uint8_t *cmd;
+  uint8_t *arg;
   command_t *p = commands;
   int success = 0;
 
@@ -173,11 +176,11 @@ int execute_command(char * line) {
     return (-1);
   }
   while (p->cmd_string) {
-    if (!strcmp(p->cmd_string,cmd)) {
+    if (!strcmp(p->cmd_string,(char *) cmd)) {
       if (!p->cmd_function) {
         return (-1);
       }
-      (*p->cmd_function)(arg);            // Run the command with the passed arguments
+      (*p->cmd_function)((char *)arg);            // Run the command with the passed arguments
       success = 1;
       break;
     }
@@ -191,9 +194,9 @@ int execute_command(char * line) {
   }
 }
 
-int parse_command (char *line, char **command, char **args) {
+int parse_command (uint8_t *line, uint8_t **command, uint8_t **args) {
   // looks for the first comma, places a NULL and captures the remainder as the arguments
-  char *p; 
+  uint8_t *p; 
   
   if((!line) ||
      (!command) ||
@@ -214,44 +217,70 @@ int parse_command (char *line, char **command, char **args) {
   return (0);
 }
 
-int get_command(char *command_buf) {
-  char ch;
-  int counter=0;
-  char *start = command_buf;
-  while(((ch=getchar())!='\n')&&(ch!='\r')&&(counter++<MAX_COMMAND_LEN)) {
-    if (ch==0x7f) {               // backspace functionality
-      if (command_buf > start) { 
-        printf("\b \b");
-        command_buf--;
+int get_command(uint8_t *command_buf) {
+  static uint8_t buf[QUEUE_SIZE];
+  static uint32_t counter=0;
+  
+  uint8_t ch = 0;;
+  uint32_t mask;
+  uint32_t command_complete = 0;
+  
+  ch=dequeue(&rx_queue);
+  while (ch!=0) {
+      if ((ch!='\n')&&(ch!='\r')) {
+        if (ch==0x7f) {               // backspace functionality
+          if (counter > 0) { 
+            printf("\b \b");
+            counter--;
+          }
+        }
+        else {
+          putchar(ch);
+          buf[counter++]=ch;
+          if (counter>=(QUEUE_SIZE-2)) {
+            command_complete = 1;
+            break;
+          }
+        }
       }
-    }
-    else {
-      putchar(ch);
-      *command_buf++=ch;
-    }
+      else {
+        command_complete = 1;
+        break;
+      }
+      mask = disable();
+      ch=dequeue(&rx_queue);
+      restore(mask);  
   }
-  *command_buf=0;
-  printf("\n\r");
-  return (counter);
-}    
+  if (command_complete) {
+    buf[counter] = 0;
+    strcpy((char *)command_buf,(char *)buf);
+    printf("\n\r");
+    counter = 0;
+    return (1);
+  }
+  else {
+    return (0);
+  }
+}
+    
 
-int delspace(char *instr) {
+int delspace(uint8_t *instr) {
   int length;
-  char temp[MAX_COMMAND_LEN];
-  char *src;
-  char *dest;
+  uint8_t temp[MAX_COMMAND_LEN];
+  uint8_t *src;
+  uint8_t *dest;
   int count = 0;
   
   if (!instr) {
     return (-1); // if passed a null pointer, bail out 
   } 
-  if (!(length=strnlen(instr,MAX_COMMAND_LEN))) {
+  if (!(length=strnlen((char *)instr,MAX_COMMAND_LEN))) {
     return (-1); // if the passed string length is 0
   }
   if (length == MAX_COMMAND_LEN) {
     return (-1); // no null was found in the passed string. 
   }
-  strcpy(temp, instr);
+  strcpy((char *)temp, (char *)instr);
   src = temp;                 // point at the beginning of the temp string (copy of instr)
   dest = instr;
   while(isspace(*src)) src++; // Skip leading whitespace

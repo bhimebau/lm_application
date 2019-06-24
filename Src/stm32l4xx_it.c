@@ -36,9 +36,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32l4xx_it.h"
-#include <stm32l4xx_ll_lpuart.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stm32l4xx_ll_lpuart.h>
+#include "command.h"
+#include "interrupt.h"
+#include "queue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -76,6 +79,10 @@ uint8_t led_state = 0;
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef hlpuart1;
 extern RTC_HandleTypeDef hrtc;
+/* extern char command[MAX_COMMAND_LEN]; */
+/* extern int lpuart_rx_flag; */
+extern queue_t rx_queue;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -265,6 +272,11 @@ void RTC_Alarm_IRQHandler(void)
 void LPUART1_IRQHandler(void)
 {
   /* USER CODE BEGIN LPUART1_IRQn 0 */
+  /* static uint8_t cmdbuf[MAX_COMMAND_LEN]; */
+  /* static uint8_t char_count = 0; */
+  /* uint8_t ch; */
+  uint8_t ch;
+  
   if (!led_state) {
     HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
   }
@@ -272,8 +284,22 @@ void LPUART1_IRQHandler(void)
     HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
   }
   led_state^=1;
-
-  LL_LPUART_ReceiveData8 (LPUART1);
+  ch = LL_LPUART_ReceiveData8(LPUART1);
+  if (enqueue(&rx_queue,ch)) {
+      // queue is full
+      dequeue(&rx_queue);     // remove the oldest item to make space
+      enqueue(&rx_queue, ch); //write the new data to the queue
+  }
+ 
+  /* ch = LL_LPUART_ReceiveData8 (LPUART1); */
+  /* if ((ch=='\n') || (ch=='\r')) { */
+  /*   strncpy( */
+  /* } */
+  
+  /* if (char_count<(MAX_COMMAND_LEN-2)) { */
+  /*   cmd_buf[MAX_CMD_LEN] = ch; */
+  /* } */
+  
   /* USER CODE END LPUART1_IRQn 0 */
   //  HAL_UART_IRQHandler(&hlpuart1);
   

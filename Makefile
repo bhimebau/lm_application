@@ -71,7 +71,10 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc_ex.c \
 Src/stm32l4xx_it.c \
-Src/stm32l4xx_hal_msp.c
+Src/stm32l4xx_hal_msp.c \
+Src/interrupt.c \
+Src/queue.c \
+Src/power.c
 
 # ASM sources
 ASM_SOURCES =  \

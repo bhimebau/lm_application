@@ -53,6 +53,8 @@
 #include "battery.h"
 #include "command.h"
 #include <stm32l4xx_ll_lpuart.h>
+#include "queue.h"
+#include "power.h"
 
 /* USER CODE END Includes */
 
@@ -63,7 +65,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TICK_FREQ_HZ 100
+/* #define TICK_FREQ_HZ 100 */
 #define LIGHT_SENSOR_ADDRESS (0x29<<1)
 #define DELAY_1S 100
 #define WU_UART 0x01
@@ -92,7 +94,11 @@ RTC_TimeTypeDef current_time;
 RTC_DateTypeDef current_date;
 uint32_t rtc_counter = 0;
 flash_status_t fs;
-uint32_t wu_flags = 0;
+/* char command[MAX_COMMAND_LEN]; */
+/* int lpuart_rx_flag = 0; */
+queue_t rx_queue;
+
+/* uint32_t wu_flags = 0; */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -148,11 +154,11 @@ int main(void)
   /* USER CODE BEGIN 1 */
   /* HAL_StatusTypeDef status; */
   /* uint8_t ch; */
-  enum {ON, OFF};  
+  enum {ON, OFF};
+  uint8_t command[MAX_COMMAND_LEN];
   /* uint8_t state = OFF; */
-  /* char command[MAX_COMMAND_LEN]; */
-  /* int command_length = 0; */
-  uint8_t ch;
+  int command_length = 0;
+  /* uint8_t ch; */
   /* uint32_t ptime; */
  
   /* USER CODE END 1 */
@@ -164,6 +170,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
+  init_queue(&rx_queue);
   
   /* USER CODE END Init */
 
@@ -193,16 +200,21 @@ int main(void)
   printf("************************\n\r"); 
   flash_write_init(&fs);
   write_log_data(&fs,"r-cold");
+  prompt();
+
   // Initial interrup to prime the pump
-  if(HAL_UART_Receive_IT(&hlpuart1, &ch, 1) != HAL_OK) {
-    Error_Handler();
-  }
+  /* if(HAL_UART_Receive_IT(&hlpuart1, &ch, 1) != HAL_OK) { */
+  /*   Error_Handler(); */
+  /* } */
 
   while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
+    /* if (lpuart_rx_flag > 0) { */
+    /*   enable(); */
+    /*   __enable_irq(); */
     // Set up to sleep
     /* if (wu_flags & WU_UART) { */
     /*   wu_flags &= ~WU_UART; // Clear the flag */
@@ -218,20 +230,21 @@ int main(void)
     /* __HAL_RCC_GPIOC_CLK_ENABLE(); */
     /* __HAL_RCC_GPIOB_CLK_ENABLE(); */
     /* __HAL_RCC_GPIOA_CLK_ENABLE(); */
-    //  printf("%c\n\r",ch);
+    //  printf("%c\n\r",ch);x
+    if (get_command(command)) {
+      command_length = delspace(command);
+      if (command_length != -1) {
+        if(execute_command(command)) {
+          printf("NOK\n\r");
+        }
+      }
+      else {
+        printf("NOK\n\r");
+      }
+      prompt();
+    }
+    lp_stop_wfi();
   }
-  /*   prompt(); */
-  /*   get_command(command); */
-  /*   command_length = delspace(command); */
-  /*   if (command_length != -1) { */
-  /*     if(execute_command(command)) { */
-  /*       printf("NOK\n\r"); */
-  /*     } */
-  /*   } */
-  /*   else { */
-  /*     printf("NOK\n\r"); */
-  /*   } */
-  /* } */
   /* USER CODE END 3 */
 }
 
@@ -478,6 +491,8 @@ static void MX_LPUART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN LPUART1_Init 2 */
+  /* LL_LPUART_SetRXFIFOThreshold(LPUART1,LL_LPUART_FIFOTHRESHOLD_1_8); */
+  /* LL_LPUART_EnableFIFO(LPUART1); */
   LL_LPUART_EnableIT_RXNE(LPUART1);
   //uint8_t LL_LPUART_ReceiveData8 (USART_TypeDef * LPUARTx)
   //LL_LPUART_TransmitData8(USART_TypeDef * LPUARTx, uint8_t Value)

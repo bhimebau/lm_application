@@ -23,3 +23,10 @@ This code has been developed to implement the light pollution sensor application
 ### Sensor Serial Commands 
 
 * [Command Language](Commands.md)
+
+### Low Power Application Notes
+* [L4 LPUART](docs/L4-LPUART-Appnote.pdf)
+* [L4 Low Power Overview](docs/L4-Low-Power-Appnote.pdf)
+* [L4 Power Optimization](L4-Optimizing-Power-Appnote.pdf)
+* [L4 Switch Mode Power Supply](L4-Switch-Mode-Power-Appnote.pdf)
+
