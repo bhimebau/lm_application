@@ -71,7 +71,7 @@
 #define DELAY_1S 100
 #define WU_UART 0x01
 #define WU_RTC 0x02
-#define COMMAND_TIMEOUT 60
+#define COMMAND_TIMEOUT 20
 
 /* USER CODE END PD */
 
@@ -116,7 +116,7 @@ static void MX_I2C1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_LPUART1_UART_Init(void);
-static void MX_I2C3_Init(void);
+/* static void MX_I2C3_Init(void); */
 /* USER CODE BEGIN PFP */
 void collect_data(void);
 /* USER CODE END PFP */
@@ -125,7 +125,14 @@ void collect_data(void);
 /* USER CODE BEGIN 0 */
 
 void collect_data(void) {
+  //  HAL_UART_Init(&hlpuart1);
+  HAL_ADC_Init(&hadc1);
+  HAL_I2C_MspInit(&hi2c1);
+  MX_I2C1_Init();
   write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
+  HAL_I2C_DeInit(&hi2c1);
+  HAL_ADC_DeInit(&hadc1);
+  HAL_I2C_MspDeInit(&hi2c1);
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
@@ -154,6 +161,7 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+
   /* HAL_StatusTypeDef status; */
   /* uint8_t ch; */
   enum {ON, OFF};
@@ -163,7 +171,8 @@ int main(void)
 
   /* uint8_t ch; */
   /* uint32_t ptime; */
- 
+
+  
   /* USER CODE END 1 */
   
 
@@ -190,11 +199,11 @@ int main(void)
   MX_RTC_Init();
   MX_ADC1_Init();
   MX_LPUART1_UART_Init();
-  MX_I2C3_Init();
+  //  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
   RetargetInit(&hlpuart1);                          // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
-  HAL_DBGMCU_EnableDBGStopMode();
+  /* HAL_DBGMCU_EnableDBGStopMode(); */
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -230,6 +239,8 @@ int main(void)
       }
       if (mode_flag) {
         printf("\n\rEntering Sampling Mode, Command Interpreter Disabled\n\r");
+        HAL_UART_DeInit(&hlpuart1);
+        collect_data();
         mode = SAMPLE;
       }
       break;
@@ -420,46 +431,46 @@ static void MX_I2C1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_I2C3_Init(void)
-{
+/* static void MX_I2C3_Init(void) */
+/* { */
 
-  /* USER CODE BEGIN I2C3_Init 0 */
+/*   /\* USER CODE BEGIN I2C3_Init 0 *\/ */
 
-  /* USER CODE END I2C3_Init 0 */
+/*   /\* USER CODE END I2C3_Init 0 *\/ */
 
-  /* USER CODE BEGIN I2C3_Init 1 */
+/*   /\* USER CODE BEGIN I2C3_Init 1 *\/ */
 
-  /* USER CODE END I2C3_Init 1 */
-  hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x00000E14;
-  hi2c3.Init.OwnAddress1 = 0;
-  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c3.Init.OwnAddress2 = 0;
-  hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Analogue filter 
-  */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Digital filter 
-  */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C3_Init 2 */
+/*   /\* USER CODE END I2C3_Init 1 *\/ */
+/*   hi2c3.Instance = I2C3; */
+/*   hi2c3.Init.Timing = 0x00000E14; */
+/*   hi2c3.Init.OwnAddress1 = 0; */
+/*   hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT; */
+/*   hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE; */
+/*   hi2c3.Init.OwnAddress2 = 0; */
+/*   hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK; */
+/*   hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE; */
+/*   hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE; */
+/*   if (HAL_I2C_Init(&hi2c3) != HAL_OK) */
+/*   { */
+/*     Error_Handler(); */
+/*   } */
+/*   /\** Configure Analogue filter  */
+/*   *\/ */
+/*   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK) */
+/*   { */
+/*     Error_Handler(); */
+/*   } */
+/*   /\** Configure Digital filter  */
+/*   *\/ */
+/*   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK) */
+/*   { */
+/*     Error_Handler(); */
+/*   } */
+/*   /\* USER CODE BEGIN I2C3_Init 2 *\/ */
 
-  /* USER CODE END I2C3_Init 2 */
+/*   /\* USER CODE END I2C3_Init 2 *\/ */
 
-}
+/* } */
 
 /**
   * @brief LPUART1 Initialization Function
@@ -619,16 +630,16 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : rtc_EVI_Pin */
-  GPIO_InitStruct.Pin = rtc_EVI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(rtc_EVI_GPIO_Port, &GPIO_InitStruct);
+  /* GPIO_InitStruct.Pin = rtc_EVI_Pin; */
+  /* GPIO_InitStruct.Mode = GPIO_MODE_INPUT; */
+  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
+  /* HAL_GPIO_Init(rtc_EVI_GPIO_Port, &GPIO_InitStruct); */
 
   /*Configure GPIO pins : rtc_nINT_Pin sensor_int_Pin */
-  GPIO_InitStruct.Pin = rtc_nINT_Pin|sensor_int_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  /* GPIO_InitStruct.Pin = rtc_nINT_Pin|sensor_int_Pin; */
+  /* GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING; */
+  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
+  /* HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); */
 
   /*Configure GPIO pin : led_out_Pin */
   GPIO_InitStruct.Pin = led_out_Pin;
@@ -650,8 +661,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+  /* HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0); */
+  /* HAL_NVIC_EnableIRQ(EXTI9_5_IRQn); */
 
 }
 
