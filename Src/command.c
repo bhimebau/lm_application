@@ -16,6 +16,8 @@
 #include "command.h"
 #include "queue.h"
 #include "interrupt.h"
+#include <stm32l4xx_ll_lpuart.h>
+
 
 extern UART_HandleTypeDef huart1;
 extern RTC_HandleTypeDef hrtc;
@@ -235,7 +237,8 @@ int get_command(uint8_t *command_buf) {
           }
         }
         else {
-          putchar(ch);
+          putchar(ch); // send the character
+          while (!LL_LPUART_IsActiveFlag_TXE(LPUART1)); // wait until the character has been sent.      
           buf[counter++]=ch;
           if (counter>=(QUEUE_SIZE-2)) {
             command_complete = 1;

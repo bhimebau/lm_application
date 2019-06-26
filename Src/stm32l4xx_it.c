@@ -277,13 +277,6 @@ void LPUART1_IRQHandler(void)
   /* uint8_t ch; */
   uint8_t ch;
   
-  if (!led_state) {
-    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
-  }
-  else {
-    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
-  }
-  led_state^=1;
   ch = LL_LPUART_ReceiveData8(LPUART1);
   if (enqueue(&rx_queue,ch)) {
       // queue is full
