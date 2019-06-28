@@ -98,6 +98,8 @@ typedef struct tsl25911_shadow {
 
 #endif
 
+void tsl25911_vdd_on(void);
+void tsl25911_vdd_off(void);
 uint8_t tsl25911_readID(tsl25911_shadow_t *);
 uint8_t tsl25911_readControl(tsl25911_shadow_t *);
 int tsl25911_init(tsl25911_shadow_t *,

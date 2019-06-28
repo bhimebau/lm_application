@@ -35,6 +35,7 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 ******************************************************************************
+
 */
 /* USER CODE END Header */
 
@@ -126,6 +127,7 @@ void collect_data(void);
 
 void collect_data(void) {
   //  HAL_UART_Init(&hlpuart1);
+  tsl25911_vdd_on();
   HAL_ADC_Init(&hadc1);
   HAL_I2C_MspInit(&hi2c1);
   MX_I2C1_Init();
@@ -133,16 +135,19 @@ void collect_data(void) {
   HAL_I2C_DeInit(&hi2c1);
   HAL_ADC_DeInit(&hadc1);
   HAL_I2C_MspDeInit(&hi2c1);
+  tsl25911_vdd_off();
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
-  if (rtc_counter++>=59) {
-    rtc_counter = 0;
-    collect_data_flag = 1;
-  }
-  if (mode_counter++ >= COMMAND_TIMEOUT) {
-    mode_flag = 1;
-  }
+  collect_data_flag = 1;
+  mode_flag = 1;
+  /* if (rtc_counter++>=59) { */
+  /*   rtc_counter = 0; */
+  /*   collect_data_flag = 1; */
+  /* } */
+  /* if (mode_counter++ >= COMMAND_TIMEOUT) { */
+  /*   mode_flag = 1; */
+  /* } */
   /* if (!led_state) { */
   /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET); */
   /* } */
@@ -582,7 +587,8 @@ static void MX_RTC_Init(void)
   sAlarm.AlarmTime.SubSeconds = 0x0;
   sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  sAlarm.AlarmMask = RTC_ALARMMASK_ALL;
+  sAlarm.AlarmMask =  RTC_ALARMMASK_DATEWEEKDAY|RTC_ALARMMASK_HOURS|RTC_ALARMMASK_MINUTES; 
+  //   sAlarm.AlarmMask = RTC_ALARMMASK_ALL;
   sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
   sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
   sAlarm.AlarmDateWeekDay = 0x1;
@@ -629,18 +635,26 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : rtc_EVI_Pin */
-  /* GPIO_InitStruct.Pin = rtc_EVI_Pin; */
-  /* GPIO_InitStruct.Mode = GPIO_MODE_INPUT; */
-  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
-  /* HAL_GPIO_Init(rtc_EVI_GPIO_Port, &GPIO_InitStruct); */
+  /* Configure GPIO pin : rtc_EVI_Pin */
+  GPIO_InitStruct.Pin = rtc_EVI_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(rtc_EVI_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : rtc_nINT_Pin sensor_int_Pin */
-  /* GPIO_InitStruct.Pin = rtc_nINT_Pin|sensor_int_Pin; */
-  /* GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING; */
-  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
-  /* HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); */
+  /* Configure GPIO pins : rtc_nINT_Pin sensor_int_Pin */
+  GPIO_InitStruct.Pin = rtc_nINT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  // Configure Sensor Power Pin
+  HAL_GPIO_WritePin(GPIOA, sensor_int_Pin, GPIO_PIN_SET);
+  GPIO_InitStruct.Pin = sensor_int_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  
   /*Configure GPIO pin : led_out_Pin */
   GPIO_InitStruct.Pin = led_out_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
