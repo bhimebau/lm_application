@@ -90,6 +90,7 @@ int tsl25911_init(tsl25911_shadow_t *shadow,
   shadow->i2c_port = port;
   shadow->gain = gain;
   shadow->integration = integration;
+	printf("TSL ID: %x\n\r", tsl25911_readID(shadow));
   if (tsl25911_readID(shadow) != 0x50) {
     return (-1);
   }
@@ -180,7 +181,7 @@ void tsl25911_getALS(tsl25911_shadow_t *shadow) {
   default:
     end_time = start_time + 60;
   }
-  tsl25911_enable(shadow);
+ tsl25911_enable(shadow);
   while (uwTick <= (end_time+5)); 
   tsl25911_readreg(shadow->i2c_port,TSL25911_REG_CHAN0_L,sensor_data,4);
   tsl25911_disable(shadow);
@@ -251,6 +252,7 @@ float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
   tsl25911_init(&s,i2c_port,TSL25911_GAIN_MAX,TSL25911_INTT_100MS);
   tsl25911_getALS(&s);
   tsl25911_calcLux(&s);
+/*
 	if(s.saturated){
   	tsl25911_init(&s,i2c_port,TSL25911_GAIN_HIGH,TSL25911_INTT_100MS);
   	tsl25911_getALS(&s);
@@ -283,7 +285,7 @@ float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
   	tsl25911_getALS(&s);
   	tsl25911_calcLux(&s);
 	}
-/*
+*/
   while (s.saturated) {
     switch (s.gain) {
     case TSL25911_GAIN_MAX:
@@ -306,6 +308,6 @@ float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
       break;
     }
   }
-*/
+
   return s.lux;
 }
