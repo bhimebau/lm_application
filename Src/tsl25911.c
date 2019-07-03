@@ -248,9 +248,33 @@ void tsl25911_calcLux(tsl25911_shadow_t *shadow) {
 
 float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
   tsl25911_shadow_t s;
-  tsl25911_init(&s,i2c_port,TSL25911_GAIN_MAX,TSL25911_INTT_600MS);
+  tsl25911_init(&s,i2c_port,TSL25911_GAIN_MAX,TSL25911_INTT_100MS);
   tsl25911_getALS(&s);
   tsl25911_calcLux(&s);
+	if(s.saturated){
+  	tsl25911_init(&s,i2c_port,TSL25911_GAIN_HIGH,TSL25911_INTT_100MS);
+  	tsl25911_getALS(&s);
+  	tsl25911_calcLux(&s);
+		if(s.saturated){	
+  		tsl25911_init(&s,i2c_port,TSL25911_GAIN_MED,TSL25911_INTT_100MS);
+  		tsl25911_getALS(&s);
+  		tsl25911_calcLux(&s);
+			if(s.saturated){
+
+			}
+		}
+		else{
+  		tsl25911_init(&s,i2c_port,TSL25911_GAIN_HIGH,TSL25911_INTT_600MS);
+  		tsl25911_getALS(&s);
+  		tsl25911_calcLux(&s);
+		}
+	}
+	else{
+  	tsl25911_init(&s,i2c_port,TSL25911_GAIN_MAX,TSL25911_INTT_600MS);
+  	tsl25911_getALS(&s);
+  	tsl25911_calcLux(&s);
+	}
+/*
   while (s.saturated) {
     switch (s.gain) {
     case TSL25911_GAIN_MAX:
@@ -273,5 +297,6 @@ float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
       break;
     }
   }
+*/
   return s.lux;
 }
