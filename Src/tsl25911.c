@@ -258,7 +258,7 @@ float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
   	tsl25911_getALS(&s);
   	tsl25911_calcLux(&s);
 		if(s.saturated){	
-  		tsl25911_init(&s,i2c_port,TSL25911_GAIN_MED,TSL25911_INTT_200MS);
+  		tsl25911_init(&s,i2c_port,TSL25911_GAIN_MED,TSL25911_INTT_300MS);
   		tsl25911_getALS(&s);
   		tsl25911_calcLux(&s);
 			if(s.saturated){
@@ -266,7 +266,7 @@ float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
   			tsl25911_getALS(&s);
   			tsl25911_calcLux(&s);
 				if(s.saturated)
-					return (-1);
+					return (20000);
 			}
 			else{
   			tsl25911_init(&s,i2c_port,TSL25911_GAIN_MED,TSL25911_INTT_600MS);
