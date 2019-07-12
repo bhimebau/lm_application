@@ -44,7 +44,7 @@ void log_command(char *);
 void erase_command(char *);
 void light_command(char *);
 void help_command(char *);
-void sample_command(char *);
+void collect_data(char *);
   
 command_t commands[] = {
   {"@",att_command},
@@ -59,7 +59,7 @@ command_t commands[] = {
   {"ef",erase_command},
   {"help",help_command},
   {"ls",light_command},
-	{"sample", sample_command},
+	{"sample", collect_data},
   {0,0}
 };
 
@@ -151,8 +151,8 @@ void __attribute__((weak)) help_command(char *arguments) {
   printf("OK\n\r");
 }
 
-void __attribute__((weak)) sample_command(char *arguments){
-	printf("Sample Command Processing\n\r");
+void __attribute__((weak)) collect_data(char *arguments){
+	printf("Collecting Data:\n\r");
 	if (arguments){
 		printf("Arguments = %s\n\r", arguments);
 	}
