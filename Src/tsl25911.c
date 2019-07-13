@@ -90,7 +90,7 @@ int tsl25911_init(tsl25911_shadow_t *shadow,
   shadow->i2c_port = port;
   shadow->gain = gain;
   shadow->integration = integration;
-	printf("TSL ID: %x\n\r", tsl25911_readID(shadow));
+	//printf("TSL ID: %x\n\r", tsl25911_readID(shadow));
   if (tsl25911_readID(shadow) != 0x50) {
     return (-1);
   }
