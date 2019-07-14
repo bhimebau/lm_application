@@ -249,9 +249,41 @@ void tsl25911_calcLux(tsl25911_shadow_t *shadow) {
 
 float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
   tsl25911_shadow_t s;
-  tsl25911_init(&s,i2c_port,TSL25911_GAIN_MAX,TSL25911_INTT_100MS);
+  tsl25911_init(&s,i2c_port,TSL25911_GAIN_MAX,TSL25911_INTT_400MS);
   tsl25911_getALS(&s);
   tsl25911_calcLux(&s);
+  while (s.saturated) {
+    switch (s.gain) {
+    case TSL25911_GAIN_MAX:
+      tsl25911_init(&s,i2c_port,TSL25911_GAIN_HIGH,TSL25911_INTT_400MS);
+      tsl25911_getALS(&s);
+      tsl25911_calcLux(&s);
+			printf("Check 3");
+      break;
+    case TSL25911_GAIN_HIGH:
+      tsl25911_init(&s,i2c_port,TSL25911_GAIN_MED,TSL25911_INTT_400MS);
+      tsl25911_getALS(&s);
+      tsl25911_calcLux(&s);
+			printf("Check 2");
+			break;
+    case TSL25911_GAIN_MED:
+      tsl25911_init(&s,i2c_port,TSL25911_GAIN_LOW,TSL25911_INTT_400MS);
+      tsl25911_getALS(&s);
+      tsl25911_calcLux(&s);
+			printf("Check 1");
+			break;
+    case TSL25911_GAIN_LOW:
+      return (20000);
+			printf("Check");
+			break;
+    }
+  }
+	
+	printf("Gain = %x\n\r", s.gain);
+  tsl25911_init(&s,i2c_port,s.gain,TSL25911_INTT_600MS);
+  tsl25911_getALS(&s);
+  tsl25911_calcLux(&s);
+  
 /*
 	if(s.saturated){
   	tsl25911_init(&s,i2c_port,TSL25911_GAIN_HIGH,TSL25911_INTT_300MS);
@@ -293,37 +325,5 @@ float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
 	}
 */
 
-  while (s.saturated) {
-    switch (s.gain) {
-    case TSL25911_GAIN_MAX:
-      tsl25911_init(&s,i2c_port,TSL25911_GAIN_HIGH,TSL25911_INTT_100MS);
-      tsl25911_getALS(&s);
-      tsl25911_calcLux(&s);
-			printf("Check 3");
-      break;
-    case TSL25911_GAIN_HIGH:
-      tsl25911_init(&s,i2c_port,TSL25911_GAIN_MED,TSL25911_INTT_100MS);
-      tsl25911_getALS(&s);
-      tsl25911_calcLux(&s);
-			printf("Check 2");
-			break;
-    case TSL25911_GAIN_MED:
-      tsl25911_init(&s,i2c_port,TSL25911_GAIN_LOW,TSL25911_INTT_100MS);
-      tsl25911_getALS(&s);
-      tsl25911_calcLux(&s);
-			printf("Check 1");
-			break;
-    case TSL25911_GAIN_LOW:
-      return (-1);
-			printf("Check");
-			break;
-    }
-  }
-	
-	printf("Gain = %x\n\r", s.gain);
-  tsl25911_init(&s,i2c_port,s.gain,TSL25911_INTT_600MS);
-  tsl25911_getALS(&s);
-  tsl25911_calcLux(&s);
-  
 	return s.lux;
 }
