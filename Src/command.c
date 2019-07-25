@@ -10,6 +10,7 @@
 
 #include "main.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include "strategy.h"
@@ -44,8 +45,9 @@ void log_command(char *);
 void erase_command(char *);
 void light_command(char *);
 void help_command(char *);
-void collect_data(char *);
-  
+void sample_command(char *);
+void collect_data(void);
+ 
 command_t commands[] = {
   {"@",att_command},
   {"ds",ds_command},
@@ -59,7 +61,7 @@ command_t commands[] = {
   {"ef",erase_command},
   {"help",help_command},
   {"ls",light_command},
-	{"sample", collect_data},
+	{"sample", sample_command},
   {0,0}
 };
 
@@ -151,10 +153,20 @@ void __attribute__((weak)) help_command(char *arguments) {
   printf("OK\n\r");
 }
 
-void __attribute__((weak)) collect_data(char *arguments){
-	printf("Collecting Data:\n\r");
+void __attribute__((weak)) sample_command(char *arguments){
+	
 	if (arguments){
-		printf("Arguments = %s\n\r", arguments);
+		//printf("Arguments = %s\n\r", arguments);
+		int a = atoi(arguments);
+		for(int i = 0; i < a; i++){
+			printf("Collecting Data: %d\n\r", (i+1));
+			collect_data();
+		}
+		printf("OK\n\r");
+	}
+	else{
+		collect_data();
+		printf("OK\n\r");
 	}
 }
 
