@@ -10,12 +10,15 @@
 
 #include "main.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include "strategy.h"
 #include "command.h"
 #include "queue.h"
 #include "interrupt.h"
+#include <stm32l4xx_ll_lpuart.h>
+
 
 extern UART_HandleTypeDef huart1;
 extern RTC_HandleTypeDef hrtc;
@@ -42,7 +45,9 @@ void log_command(char *);
 void erase_command(char *);
 void light_command(char *);
 void help_command(char *);
-  
+void sample_command(char *);
+void collect_data(void);
+ 
 command_t commands[] = {
   {"@",att_command},
   {"ds",ds_command},
@@ -56,6 +61,7 @@ command_t commands[] = {
   {"ef",erase_command},
   {"help",help_command},
   {"ls",light_command},
+	{"sample", sample_command},
   {0,0}
 };
 
@@ -147,6 +153,23 @@ void __attribute__((weak)) help_command(char *arguments) {
   printf("OK\n\r");
 }
 
+void __attribute__((weak)) sample_command(char *arguments){
+	
+	if (arguments){
+		//printf("Arguments = %s\n\r", arguments);
+		int a = atoi(arguments);
+		for(int i = 0; i < a; i++){
+			printf("Collecting Data: %d\n\r", (i+1));
+			collect_data();
+		}
+		printf("OK\n\r");
+	}
+	else{
+		collect_data();
+		printf("OK\n\r");
+	}
+}
+
 /* command_t commands[] = { */
 /*   {"@",att_command}, */
 /*   {"ds",ds_command}, */
@@ -235,7 +258,8 @@ int get_command(uint8_t *command_buf) {
           }
         }
         else {
-          putchar(ch);
+          putchar(ch); // send the character
+          while (!LL_LPUART_IsActiveFlag_TXE(LPUART1)); // wait until the character has been sent.      
           buf[counter++]=ch;
           if (counter>=(QUEUE_SIZE-2)) {
             command_complete = 1;

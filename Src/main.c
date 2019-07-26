@@ -35,6 +35,7 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 ******************************************************************************
+
 */
 /* USER CODE END Header */
 
@@ -53,6 +54,7 @@
 #include "battery.h"
 #include "command.h"
 #include <stm32l4xx_ll_lpuart.h>
+#include <stm32l4xx_ll_bus.h>
 #include "queue.h"
 #include "power.h"
 
@@ -70,6 +72,7 @@
 #define DELAY_1S 100
 #define WU_UART 0x01
 #define WU_RTC 0x02
+#define COMMAND_TIMEOUT 20
 
 /* USER CODE END PD */
 
@@ -94,9 +97,15 @@ RTC_TimeTypeDef current_time;
 RTC_DateTypeDef current_date;
 uint32_t rtc_counter = 0;
 flash_status_t fs;
+uint32_t collect_data_flag = 0;
+uint32_t sample_interval = 0;
 /* char command[MAX_COMMAND_LEN]; */
 /* int lpuart_rx_flag = 0; */
 queue_t rx_queue;
+enum {COMMAND, SAMPLE};
+uint32_t mode = COMMAND;
+uint32_t mode_counter = 0;
+uint32_t mode_flag = 0;
 
 /* uint32_t wu_flags = 0; */
 /* USER CODE END PV */
@@ -108,7 +117,7 @@ static void MX_I2C1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_LPUART1_UART_Init(void);
-static void MX_I2C3_Init(void);
+/* static void MX_I2C3_Init(void); */
 /* USER CODE BEGIN PFP */
 void collect_data(void);
 /* USER CODE END PFP */
@@ -117,17 +126,28 @@ void collect_data(void);
 /* USER CODE BEGIN 0 */
 
 void collect_data(void) {
+  //  HAL_UART_Init(&hlpuart1);
+  tsl25911_vdd_on();
+  HAL_ADC_Init(&hadc1);
+  HAL_I2C_MspInit(&hi2c1);
+  MX_I2C1_Init();
   write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
-  HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations
-  SystemClock_Config(); // Restore the clock settings after STOP2, exiting STOP2 does not restore them implicitly.
-  SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling again 
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
+  HAL_I2C_DeInit(&hi2c1);
+  HAL_ADC_DeInit(&hadc1);
+  HAL_I2C_MspDeInit(&hi2c1);
+  tsl25911_vdd_off();
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
-  rtc_counter++;
+  collect_data_flag = 1;
+  mode_flag = 1;
+  /* if (rtc_counter++>=59) { */
+  /*   rtc_counter = 0; */
+  /*   collect_data_flag = 1; */
+  /* } */
+  /* if (mode_counter++ >= COMMAND_TIMEOUT) { */
+  /*   mode_flag = 1; */
+  /* } */
   /* if (!led_state) { */
   /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET); */
   /* } */
@@ -135,13 +155,7 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
   /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); */
   /* } */
   /* led_state^=1; */
-  /* wu_flags |= WU_RTC; // Notify the main loop that an RTC interrupt occured */
 }
-
-/* void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) { */
-/*   wu_flags |= WU_UART; // Notify the main loop that a character was received  */
-/* } */
-
 
 /* USER CODE END 0 */
 
@@ -152,15 +166,18 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+
   /* HAL_StatusTypeDef status; */
   /* uint8_t ch; */
   enum {ON, OFF};
   uint8_t command[MAX_COMMAND_LEN];
   /* uint8_t state = OFF; */
   int command_length = 0;
+
   /* uint8_t ch; */
   /* uint32_t ptime; */
- 
+
+  
   /* USER CODE END 1 */
   
 
@@ -187,13 +204,15 @@ int main(void)
   MX_RTC_Init();
   MX_ADC1_Init();
   MX_LPUART1_UART_Init();
-  MX_I2C3_Init();
+  //  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
   RetargetInit(&hlpuart1);                          // Allow printf to work properly
-  SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling 
+  SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
+  /* HAL_DBGMCU_EnableDBGStopMode(); */
   /* USER CODE END 2 */
 
   /* Infinite loop */
+
   /* USER CODE BEGIN WHILE */
   printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
   printf("Version: %s\n\r",VERSION);
@@ -202,48 +221,45 @@ int main(void)
   write_log_data(&fs,"r-cold");
   prompt();
 
-  // Initial interrup to prime the pump
-  /* if(HAL_UART_Receive_IT(&hlpuart1, &ch, 1) != HAL_OK) { */
-  /*   Error_Handler(); */
-  /* } */
-
   while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-    /* if (lpuart_rx_flag > 0) { */
-    /*   enable(); */
-    /*   __enable_irq(); */
-    // Set up to sleep
-    /* if (wu_flags & WU_UART) { */
-    /*   wu_flags &= ~WU_UART; // Clear the flag */
-    /*   // Start a new transaction  */
-    /*   if(HAL_UART_Receive_IT(&hlpuart1, &ch, 1) != HAL_OK) { */
-    /*     Error_Handler(); */
-    /*   } */
-    /* } */
-
-    /* HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations */
-    /* SystemClock_Config(); // Restore the clock settings after STOP2, exiting STOP2 does not restore them implicitly. */
-    /* SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling again  */
-    /* __HAL_RCC_GPIOC_CLK_ENABLE(); */
-    /* __HAL_RCC_GPIOB_CLK_ENABLE(); */
-    /* __HAL_RCC_GPIOA_CLK_ENABLE(); */
-    //  printf("%c\n\r",ch);x
-    if (get_command(command)) {
-      command_length = delspace(command);
-      if (command_length != -1) {
-        if(execute_command(command)) {
+    switch(mode) {
+    case COMMAND:
+      HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); 
+      if (get_command(command)) {
+        command_length = delspace(command);
+        if (command_length != -1) {
+          if(execute_command(command)) {
+            printf("command = %s\n\r",command);
+            printf("NOK\n\r");
+          }
+        }
+        else {
           printf("NOK\n\r");
         }
+        mode_counter = 0;
+        prompt();
       }
-      else {
-        printf("NOK\n\r");
+      if (mode_flag) {
+        printf("\n\rEntering Sampling Mode, Command Interpreter Disabled\n\r");
+        HAL_UART_DeInit(&hlpuart1);
+        collect_data();
+        mode = SAMPLE;
       }
-      prompt();
+      break;
+    case SAMPLE:
+      HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
+      lp_stop_wfi();  
+      break;
+    default:
+      mode = SAMPLE;
     }
-    lp_stop_wfi();
+    if (collect_data_flag) {
+      collect_data();
+      collect_data_flag = 0;
+    }
   }
   /* USER CODE END 3 */
 }
@@ -420,46 +436,46 @@ static void MX_I2C1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_I2C3_Init(void)
-{
+/* static void MX_I2C3_Init(void) */
+/* { */
 
-  /* USER CODE BEGIN I2C3_Init 0 */
+/*   /\* USER CODE BEGIN I2C3_Init 0 *\/ */
 
-  /* USER CODE END I2C3_Init 0 */
+/*   /\* USER CODE END I2C3_Init 0 *\/ */
 
-  /* USER CODE BEGIN I2C3_Init 1 */
+/*   /\* USER CODE BEGIN I2C3_Init 1 *\/ */
 
-  /* USER CODE END I2C3_Init 1 */
-  hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x00000E14;
-  hi2c3.Init.OwnAddress1 = 0;
-  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c3.Init.OwnAddress2 = 0;
-  hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Analogue filter 
-  */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Digital filter 
-  */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C3_Init 2 */
+/*   /\* USER CODE END I2C3_Init 1 *\/ */
+/*   hi2c3.Instance = I2C3; */
+/*   hi2c3.Init.Timing = 0x00000E14; */
+/*   hi2c3.Init.OwnAddress1 = 0; */
+/*   hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT; */
+/*   hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE; */
+/*   hi2c3.Init.OwnAddress2 = 0; */
+/*   hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK; */
+/*   hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE; */
+/*   hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE; */
+/*   if (HAL_I2C_Init(&hi2c3) != HAL_OK) */
+/*   { */
+/*     Error_Handler(); */
+/*   } */
+/*   /\** Configure Analogue filter  */
+/*   *\/ */
+/*   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK) */
+/*   { */
+/*     Error_Handler(); */
+/*   } */
+/*   /\** Configure Digital filter  */
+/*   *\/ */
+/*   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK) */
+/*   { */
+/*     Error_Handler(); */
+/*   } */
+/*   /\* USER CODE BEGIN I2C3_Init 2 *\/ */
 
-  /* USER CODE END I2C3_Init 2 */
+/*   /\* USER CODE END I2C3_Init 2 *\/ */
 
-}
+/* } */
 
 /**
   * @brief LPUART1 Initialization Function
@@ -470,7 +486,7 @@ static void MX_LPUART1_UART_Init(void)
 {
 
   /* USER CODE BEGIN LPUART1_Init 0 */
-  /* UART_WakeUpTypeDef WakeUpSelection;  */
+  /* UART_WakeUpTypeDef WakeUpSelection; */
   
   /* USER CODE END LPUART1_Init 0 */
 
@@ -491,26 +507,10 @@ static void MX_LPUART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN LPUART1_Init 2 */
-  /* LL_LPUART_SetRXFIFOThreshold(LPUART1,LL_LPUART_FIFOTHRESHOLD_1_8); */
-  /* LL_LPUART_EnableFIFO(LPUART1); */
+  LL_APB1_GRP1_EnableClockStopSleep(LL_APB1_GRP2_PERIPH_LPUART1);
+  LL_LPUART_SetWakeUpMethod (LPUART1, LL_LPUART_WAKEUP_ON_RXNE);
+  LL_LPUART_EnableInStopMode (LPUART1);
   LL_LPUART_EnableIT_RXNE(LPUART1);
-  //uint8_t LL_LPUART_ReceiveData8 (USART_TypeDef * LPUARTx)
-  //LL_LPUART_TransmitData8(USART_TypeDef * LPUARTx, uint8_t Value)
-  //void LL_LPUART_EnableInStopMode (USART_TypeDef * LPUARTx)
-  // void LL_LPUART_SetWakeUpMethod (USART_TypeDef * LPUARTx, uint32_t Method)
-  //  void LL_LPUART_SetWakeUpMethod (USART_TypeDef * LPUARTx, uint32_t Method)
-  //  LL_LPUART_WAKEUP_ON_ADDRESS
-  //  LL_LPUART_WAKEUP_ON_STARTBIT
-  //  LL_LPUART_WAKEUP_ON_RXNE
-  /* while(__HAL_UART_GET_FLAG(&hlpuart1, USART_ISR_BUSY) == SET); */
-  /* while(__HAL_UART_GET_FLAG(&hlpuart1, USART_ISR_REACK) == RESET); */
-  /* WakeUpSelection.WakeUpEvent = UART_WAKEUP_ON_READDATA_NONEMPTY; */
-  /* if (HAL_UARTEx_StopModeWakeUpSourceConfig(&hlpuart1, WakeUpSelection)!= HAL_OK) { */
-  /*   Error_Handler(); */
-  /* } */
-  /* __HAL_UART_ENABLE_IT(&hlpuart1, UART_IT_WUF); */
-  /* HAL_UARTEx_EnableStopMode(&hlpuart1); */
-  /* USER CODE END LPUART1_Init 2 */
 
 }
 
@@ -587,7 +587,8 @@ static void MX_RTC_Init(void)
   sAlarm.AlarmTime.SubSeconds = 0x0;
   sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  sAlarm.AlarmMask = RTC_ALARMMASK_SECONDS;
+  sAlarm.AlarmMask =  RTC_ALARMMASK_DATEWEEKDAY|RTC_ALARMMASK_HOURS|RTC_ALARMMASK_MINUTES; 
+  //   sAlarm.AlarmMask = RTC_ALARMMASK_ALL;
   sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
   sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
   sAlarm.AlarmDateWeekDay = 0x1;
@@ -634,18 +635,26 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : rtc_EVI_Pin */
+  /* Configure GPIO pin : rtc_EVI_Pin */
   GPIO_InitStruct.Pin = rtc_EVI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(rtc_EVI_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : rtc_nINT_Pin sensor_int_Pin */
-  GPIO_InitStruct.Pin = rtc_nINT_Pin|sensor_int_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  /* Configure GPIO pins : rtc_nINT_Pin sensor_int_Pin */
+  GPIO_InitStruct.Pin = rtc_nINT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  // Configure Sensor Power Pin
+  HAL_GPIO_WritePin(GPIOA, sensor_int_Pin, GPIO_PIN_SET);
+  GPIO_InitStruct.Pin = sensor_int_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  
   /*Configure GPIO pin : led_out_Pin */
   GPIO_InitStruct.Pin = led_out_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -666,8 +675,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+  /* HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0); */
+  /* HAL_NVIC_EnableIRQ(EXTI9_5_IRQn); */
 
 }
 

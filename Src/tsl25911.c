@@ -13,12 +13,43 @@
 
 extern I2C_HandleTypeDef hi2c1;
 
+void tsl25911_vdd_on(void) {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitStruct.Pin = sensor_int_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+  
+void tsl25911_vdd_off(void) {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitStruct.Pin = sensor_int_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
+
 void light_command(char *arguments) {
+  uint8_t rxbuf;
+
   if (arguments) {
     printf("NOK\n\r");
   }
   else {
     printf("%4.3f\n\r",tsl25911_readsensor(&hi2c1));
+    HAL_I2C_Mem_Read(&hi2c1,
+                     (TSL25911_ADDR<<1),
+                     0xA0|TSL25911_REG_ENABLE,
+                     1,
+                     &rxbuf,
+                     1,
+                     HAL_MAX_DELAY
+                     );
+    
+    printf("Light Sensor Control Reg = 0x%02x\n\r",rxbuf);
     printf("OK\n\r");
   }
 }
