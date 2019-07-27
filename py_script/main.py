@@ -2,6 +2,7 @@ import serial
 import io
 import time
 import csv
+import math
 import pandas as pd
 import matplotlib
 matplotlib.use('agg')
@@ -58,6 +59,13 @@ def print_serial(serial):
 	for line in serial.readlines() : print(line.decode('utf-8'))
 
 
+def lux_to_mag(lux):
+	cdm2 = lux / 3.14159
+	mags = (math.log10(cdm2 / 108000)) / -0.4
+	
+	return mags
+
+
 def clean_data(serial, dirty_data):
 	"""
 	UNFINISHED
@@ -65,10 +73,19 @@ def clean_data(serial, dirty_data):
 	use in a pandas dataframe. Currently unfinished.
 	"""
 	clean_data = [line for line in dirty_data if "D" in line[1]]
-	clean_data = [line[3:-1] for line in clean_data] 
-	clean_data = [line.split(",") for line in clean_data]	
+	clean_data = [line[3:-1] for line in clean_data]
+	clean_data_2D = [line.split(",") for line in clean_data]
 
-	return clean_data
+	for line in clean_data_2D:
+		line[5] = float(line[5])
+		line[0] = int(line[0])
+		line[3] = float(line[3])
+		line[4] = int(line[4])
+		lux = line[5]
+		mag = lux_to_mag(lux)
+		line.append(mag)
+
+	return clean_data_2D
 
 
 def log_dump(serial):
@@ -179,8 +196,5 @@ print("Reading Data")
 dirty_data = read_data(ser)
 
 clean_data = clean_data(ser, dirty_data)
-
 for line in clean_data:
 	print(line)
-
-
