@@ -227,7 +227,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
     switch(mode) {
     case COMMAND:
-      HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); 
+      //HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); 
       if (get_command(command)) {
         command_length = delspace(command);
         if (command_length != -1) {
@@ -242,12 +242,14 @@ int main(void)
         mode_counter = 0;
         prompt();
       }
+			/*
       if (mode_flag) {
         printf("\n\rEntering Sampling Mode, Command Interpreter Disabled\n\r");
         HAL_UART_DeInit(&hlpuart1);
         collect_data();
         mode = SAMPLE;
       }
+			*/
       break;
     case SAMPLE:
       HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
@@ -256,10 +258,12 @@ int main(void)
     default:
       mode = SAMPLE;
     }
+		/*
     if (collect_data_flag) {
       collect_data();
       collect_data_flag = 0;
     }
+		*/
   }
   /* USER CODE END 3 */
 }

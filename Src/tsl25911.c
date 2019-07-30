@@ -23,12 +23,14 @@ void tsl25911_vdd_on(void) {
 }
   
 void tsl25911_vdd_off(void) {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  /*
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
   GPIO_InitStruct.Pin = sensor_int_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	*/
 }
 
 
@@ -251,7 +253,8 @@ float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
   tsl25911_init(&s,i2c_port,TSL25911_GAIN_MAX,TSL25911_INTT_600MS);
   tsl25911_getALS(&s);
   tsl25911_calcLux(&s);
-  while (s.saturated) {
+  /*
+	while (s.saturated) {
     switch (s.gain) {
     case TSL25911_GAIN_MAX:
       tsl25911_init(&s,i2c_port,TSL25911_GAIN_HIGH,TSL25911_INTT_600MS);
@@ -273,5 +276,8 @@ float tsl25911_readsensor(I2C_HandleTypeDef *i2c_port) {
       break;
     }
   }
+	*/
+	if(s.saturated)
+		return (-1);
   return s.lux;
 }
