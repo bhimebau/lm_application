@@ -60,8 +60,11 @@ def lux_to_mag(lux):
 	"""
 	Converts from lux to mags/arcsec2
 	"""
-	cdm2 = lux / 3.14159
-	mags = round( ((math.log10(cdm2 / 108000)) / -0.4), 3)
+	if lux > 0:
+		cdm2 = float(lux) / 3.14159
+		mags = round( ((math.log10(cdm2 / 108000)) / -0.4), 3)
+	else:
+		return -1
 	
 	return mags
 
