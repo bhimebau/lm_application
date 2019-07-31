@@ -1,0 +1,10 @@
+063019 - performed using sensor 4 in the ISE fab lab widow sill. This
+test was to make sure that data collection was working.
+
+070119 - performed using sensor 4 and sensor 5. The sensors were
+placed on the deck table of Bryce. This test was performed to get a
+baseline for temperature of the board and battery.
+
+070219 - repeated the test from 07-01-19. The afternoon high was 95
+which should be a good indication of the max temp that the battery
+will experience.

@@ -44,6 +44,7 @@ void log_command(char *);
 void erase_command(char *);
 void light_command(char *);
 void help_command(char *);
+void version_command(char *);
   
 command_t commands[] = {
   {"@",att_command},
@@ -58,6 +59,7 @@ command_t commands[] = {
   {"ef",erase_command},
   {"help",help_command},
   {"ls",light_command},
+  {"ver",version_command},
   {0,0}
 };
 
@@ -134,6 +136,13 @@ void __attribute__((weak)) erase_command(char *arguments) {
 
 void __attribute__((weak)) light_command(char *arguments) {
   printf("Light Sensor Command Processing\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) version_command(char *arguments) {
+  printf("Software Version Command Processing\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }

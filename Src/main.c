@@ -72,7 +72,7 @@
 #define DELAY_1S 100
 #define WU_UART 0x01
 #define WU_RTC 0x02
-#define COMMAND_TIMEOUT 20
+#define COMMAND_TIMEOUT 2
 
 /* USER CODE END PD */
 
@@ -102,7 +102,6 @@ uint32_t sample_interval = 0;
 /* char command[MAX_COMMAND_LEN]; */
 /* int lpuart_rx_flag = 0; */
 queue_t rx_queue;
-enum {COMMAND, SAMPLE};
 uint32_t mode = COMMAND;
 uint32_t mode_counter = 0;
 uint32_t mode_flag = 0;
@@ -133,20 +132,22 @@ void collect_data(void) {
   MX_I2C1_Init();
   write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
   HAL_I2C_DeInit(&hi2c1);
-  HAL_ADC_DeInit(&hadc1);
   HAL_I2C_MspDeInit(&hi2c1);
+  HAL_ADC_DeInit(&hadc1);
   tsl25911_vdd_off();
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
   collect_data_flag = 1;
-  mode_flag = 1;
+  if (mode_counter >= COMMAND_TIMEOUT) {
+    mode_flag = 1;
+  }
+  else {
+    mode_counter++;
+  }
   /* if (rtc_counter++>=59) { */
   /*   rtc_counter = 0; */
   /*   collect_data_flag = 1; */
-  /* } */
-  /* if (mode_counter++ >= COMMAND_TIMEOUT) { */
-  /*   mode_flag = 1; */
   /* } */
   /* if (!led_state) { */
   /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET); */
@@ -208,7 +209,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   RetargetInit(&hlpuart1);                          // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
-  /* HAL_DBGMCU_EnableDBGStopMode(); */
+  //  HAL_DBGMCU_EnableDBGStopMode();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -232,7 +233,7 @@ int main(void)
         command_length = delspace(command);
         if (command_length != -1) {
           if(execute_command(command)) {
-            printf("command = %s\n\r",command);
+            /* printf("command = %s\n\r",command); */
             printf("NOK\n\r");
           }
         }
@@ -243,8 +244,9 @@ int main(void)
         prompt();
       }
       if (mode_flag) {
-        printf("\n\rEntering Sampling Mode, Command Interpreter Disabled\n\r");
-        HAL_UART_DeInit(&hlpuart1);
+        printf("\n\r\n\rEnter Low Power Sampling Mode, Hit Enter to Return to Command Mode\n\r");
+        prompt();
+        //  HAL_UART_DeInit(&hlpuart1);
         collect_data();
         mode = SAMPLE;
       }
@@ -257,7 +259,9 @@ int main(void)
       mode = SAMPLE;
     }
     if (collect_data_flag) {
-      collect_data();
+      if (mode == SAMPLE) {
+        collect_data();
+      }
       collect_data_flag = 0;
     }
   }
@@ -555,6 +559,22 @@ static void MX_RTC_Init(void)
   HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BCD);
   HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BCD);
   if (current_date.Year != 0) {
+    sAlarm.AlarmTime.Hours = 0x0;
+    sAlarm.AlarmTime.Minutes = 0x0;
+    sAlarm.AlarmTime.Seconds = 0x0;
+    sAlarm.AlarmTime.SubSeconds = 0x0;
+    sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    sAlarm.AlarmMask =  RTC_ALARMMASK_DATEWEEKDAY|RTC_ALARMMASK_HOURS|RTC_ALARMMASK_MINUTES; 
+    // sAlarm.AlarmMask = RTC_ALARMMASK_ALL;
+    sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
+    sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
+    sAlarm.AlarmDateWeekDay = 0x1;
+    sAlarm.Alarm = RTC_ALARM_A;
+    if (HAL_RTC_SetAlarm_IT(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK)
+      {
+        Error_Handler();
+      }
     return;  // Clock is already initialized 
   }
   /* USER CODE END Check_RTC_BKUP */
@@ -648,8 +668,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   // Configure Sensor Power Pin
-  HAL_GPIO_WritePin(GPIOA, sensor_int_Pin, GPIO_PIN_SET);
-  GPIO_InitStruct.Pin = sensor_int_Pin;
+  HAL_GPIO_WritePin(GPIOA, sensor_power_Pin, GPIO_PIN_SET);
+  GPIO_InitStruct.Pin = sensor_power_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;

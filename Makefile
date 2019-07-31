@@ -74,7 +74,8 @@ Src/stm32l4xx_it.c \
 Src/stm32l4xx_hal_msp.c \
 Src/interrupt.c \
 Src/queue.c \
-Src/power.c
+Src/ver.c \
+Src/power.c 
 
 # ASM sources
 ASM_SOURCES =  \

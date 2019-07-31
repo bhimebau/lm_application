@@ -283,7 +283,10 @@ void LPUART1_IRQHandler(void)
       dequeue(&rx_queue);     // remove the oldest item to make space
       enqueue(&rx_queue, ch); //write the new data to the queue
   }
- 
+  mode = COMMAND;
+  mode_flag = 0;
+  mode_counter = 0;
+   
   /* ch = LL_LPUART_ReceiveData8 (LPUART1); */
   /* if ((ch=='\n') || (ch=='\r')) { */
   /*   strncpy( */

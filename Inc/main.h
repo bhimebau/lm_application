@@ -62,7 +62,10 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
+enum {COMMAND, SAMPLE};
+extern uint32_t mode;
+extern uint32_t mode_counter;
+extern uint32_t mode_flag;
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -98,6 +101,9 @@ void Error_Handler(void);
 #define rtc_data_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
+#define sensor_power_Pin GPIO_PIN_11
+#define sensor_power_GPIO_Port GPIOA
+  
 #define SENSOR_POWER_ON  HAL_GPIO_WritePin(GPIOB, SW_MODE_Pin, GPIO_PIN_SET);
 #define SENSOR_POWER_OFF  HAL_GPIO_WritePin(GPIOB, SW_MODE_Pin, GPIO_PIN_RESET);
 #define TICK_FREQ_HZ 100

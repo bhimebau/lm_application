@@ -15,7 +15,7 @@ extern I2C_HandleTypeDef hi2c1;
 
 void tsl25911_vdd_on(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  GPIO_InitStruct.Pin = sensor_int_Pin;
+  GPIO_InitStruct.Pin = sensor_power_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -24,7 +24,7 @@ void tsl25911_vdd_on(void) {
   
 void tsl25911_vdd_off(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  GPIO_InitStruct.Pin = sensor_int_Pin;
+  GPIO_InitStruct.Pin = sensor_power_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -49,7 +49,7 @@ void light_command(char *arguments) {
                      HAL_MAX_DELAY
                      );
     
-    printf("Light Sensor Control Reg = 0x%02x\n\r",rxbuf);
+    /* printf("Light Sensor Control Reg = 0x%02x\n\r",rxbuf); */
     printf("OK\n\r");
   }
 }

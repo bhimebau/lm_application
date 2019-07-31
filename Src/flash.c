@@ -44,7 +44,7 @@ void erase_command(char *arguments) {
     printf("NOK\n\r");
     return;
   }
-  printf("Arguments = %s\n\r",arguments);
+  /* printf("Arguments = %s\n\r",arguments); */
   if (!strcmp("all",arguments)) {
     if (flash_reset(&fs)) {
       printf("NOK\n\r");
