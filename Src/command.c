@@ -45,7 +45,8 @@ void erase_command(char *);
 void light_command(char *);
 void help_command(char *);
 void version_command(char *);
-  
+void stop_command(char *);
+
 command_t commands[] = {
   {"@",att_command},
   {"ds",ds_command},
@@ -60,6 +61,7 @@ command_t commands[] = {
   {"help",help_command},
   {"ls",light_command},
   {"ver",version_command},
+  {"stop",stop_command}, 
   {0,0}
 };
 
@@ -157,6 +159,14 @@ void __attribute__((weak)) help_command(char *arguments) {
   }
   printf("OK\n\r");
 }
+
+void __attribute__((weak)) stop_command(char *arguments) {
+  printf("Enter lpstop mode\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
 
 /* command_t commands[] = { */
 /*   {"@",att_command}, */

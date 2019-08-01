@@ -8,8 +8,21 @@
  *
  */
 #include "main.h"
+#include <stdio.h>
 
 void SystemClock_Config(void);
+void lp_stop_wfi();
+
+void power_command(char *arguments) {
+  if (arguments) {
+    printf("NOK\n\r");
+  }
+  else {
+    printf("Entering STOP2\n\r");
+    lp_stop_wfi();
+    printf("Returning from STOP2\n\r");
+  }
+}
 
 void i2c_pin_configure(void) {
   // Configure the I2C1 and I2C3 pins as analog input with a pullup. 
