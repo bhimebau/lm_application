@@ -97,6 +97,8 @@ void Error_Handler(void);
 #define sensor_clock_GPIO_Port GPIOA
 #define sensor_data_Pin GPIO_PIN_10
 #define sensor_data_GPIO_Port GPIOA
+#define sensor_power_Pin GPIO_PIN_11
+#define sensor_power_GPIO_Port GPIOA
 #define rtc_data_Pin GPIO_PIN_4
 #define rtc_data_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */

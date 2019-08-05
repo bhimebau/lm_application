@@ -79,11 +79,8 @@ uint8_t led_state = 0;
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef hlpuart1;
 extern RTC_HandleTypeDef hrtc;
-/* extern char command[MAX_COMMAND_LEN]; */
-/* extern int lpuart_rx_flag; */
-extern queue_t rx_queue;
-
 /* USER CODE BEGIN EV */
+extern queue_t rx_queue;
 
 /* USER CODE END EV */
 
@@ -297,8 +294,7 @@ void LPUART1_IRQHandler(void)
   /* } */
   
   /* USER CODE END LPUART1_IRQn 0 */
-  //  HAL_UART_IRQHandler(&hlpuart1);
-  
+  HAL_UART_IRQHandler(&hlpuart1);
   /* USER CODE BEGIN LPUART1_IRQn 1 */
 
   /* USER CODE END LPUART1_IRQn 1 */

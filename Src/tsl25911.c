@@ -31,6 +31,67 @@ void tsl25911_vdd_off(void) {
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
+void raw_command(char *arguments) {
+  tsl25911_shadow_t s;
+
+  if (arguments) {
+    printf("NOK\n\r");
+  }
+  else {
+    tsl25911_init(&s,&hi2c1,TSL25911_GAIN_MAX,TSL25911_INTT_600MS);
+    tsl25911_getALS(&s);
+    tsl25911_calcLux(&s);
+    while (s.saturated) {
+      switch (s.gain) {
+      case TSL25911_GAIN_MAX:
+        tsl25911_init(&s,&hi2c1,TSL25911_GAIN_HIGH,TSL25911_INTT_600MS);
+        tsl25911_getALS(&s);
+        tsl25911_calcLux(&s);
+        break;
+      case TSL25911_GAIN_HIGH:
+        tsl25911_init(&s,&hi2c1,TSL25911_GAIN_MED,TSL25911_INTT_600MS);
+        tsl25911_getALS(&s);
+        tsl25911_calcLux(&s);
+        break;
+      case TSL25911_GAIN_MED:
+        tsl25911_init(&s,&hi2c1,TSL25911_GAIN_LOW,TSL25911_INTT_600MS);
+        tsl25911_getALS(&s);
+        tsl25911_calcLux(&s);
+        break;
+      case TSL25911_GAIN_LOW:
+        break;
+      }
+    }
+    printf("----------------------------------\n\r");
+    if (!s.saturated) {
+      switch (s.gain) {
+      case TSL25911_GAIN_MAX:
+        printf("Gain:    MAX\n\r");
+        break;
+      case TSL25911_GAIN_HIGH:
+        printf("Gain:    HIGH\n\r");
+        break;
+      case TSL25911_GAIN_MED:
+        printf("Gain:    MED\n\r");
+        break;
+      case TSL25911_GAIN_LOW:
+        printf("Gain:   LOW\n\r");
+        break;
+      default:
+        printf("Error:     Gain value unknown, %d\n\r",s.gain);
+      }
+    }
+    printf("lux:     %4.4f\n\r",s.lux);
+    printf("rawALS:  0x%08x (hex), %u (base10)\n\r",(unsigned int) s.rawALS, (unsigned int) s.rawALS);
+    printf("full:    0x%08x (hex), %u (base10)\n\r",(unsigned int) s.full, (unsigned int) s.full);
+    printf("ir:      0x%08x (hex), %u (base10)\n\r",(unsigned int) s.ir, (unsigned int) s.ir);
+    printf("visible: 0x%08x (hex), %u (base10)\n\r",(unsigned int) s.visible, (unsigned int) s.visible);
+    printf("----------------------------------\n\r");
+    printf("OK\n\r");
+  }
+}
+
+
 
 void light_command(char *arguments) {
   uint8_t rxbuf;

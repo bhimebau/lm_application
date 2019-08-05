@@ -72,7 +72,7 @@
 #define DELAY_1S 100
 #define WU_UART 0x01
 #define WU_RTC 0x02
-#define COMMAND_TIMEOUT 2
+#define COMMAND_TIMEOUT 1000
 
 /* USER CODE END PD */
 
@@ -116,7 +116,7 @@ static void MX_I2C1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_LPUART1_UART_Init(void);
-/* static void MX_I2C3_Init(void); */
+static void MX_I2C3_Init(void);
 /* USER CODE BEGIN PFP */
 void collect_data(void);
 /* USER CODE END PFP */
@@ -205,7 +205,7 @@ int main(void)
   MX_RTC_Init();
   MX_ADC1_Init();
   MX_LPUART1_UART_Init();
-  //  MX_I2C3_Init();
+  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
   RetargetInit(&hlpuart1);                          // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
@@ -213,7 +213,6 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Infinite loop */
-
   /* USER CODE BEGIN WHILE */
   printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
   printf("Version: %s\n\r",VERSION);
@@ -221,14 +220,14 @@ int main(void)
   flash_write_init(&fs);
   write_log_data(&fs,"r-cold");
   prompt();
-
+  HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); 
+  
   while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
     switch(mode) {
     case COMMAND:
-      HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); 
       if (get_command(command)) {
         command_length = delspace(command);
         if (command_length != -1) {
@@ -440,46 +439,46 @@ static void MX_I2C1_Init(void)
   * @param None
   * @retval None
   */
-/* static void MX_I2C3_Init(void) */
-/* { */
+static void MX_I2C3_Init(void)
+{
 
-/*   /\* USER CODE BEGIN I2C3_Init 0 *\/ */
+  /* USER CODE BEGIN I2C3_Init 0 */
 
-/*   /\* USER CODE END I2C3_Init 0 *\/ */
+  /* USER CODE END I2C3_Init 0 */
 
-/*   /\* USER CODE BEGIN I2C3_Init 1 *\/ */
+  /* USER CODE BEGIN I2C3_Init 1 */
 
-/*   /\* USER CODE END I2C3_Init 1 *\/ */
-/*   hi2c3.Instance = I2C3; */
-/*   hi2c3.Init.Timing = 0x00000E14; */
-/*   hi2c3.Init.OwnAddress1 = 0; */
-/*   hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT; */
-/*   hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE; */
-/*   hi2c3.Init.OwnAddress2 = 0; */
-/*   hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK; */
-/*   hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE; */
-/*   hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE; */
-/*   if (HAL_I2C_Init(&hi2c3) != HAL_OK) */
-/*   { */
-/*     Error_Handler(); */
-/*   } */
-/*   /\** Configure Analogue filter  */
-/*   *\/ */
-/*   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK) */
-/*   { */
-/*     Error_Handler(); */
-/*   } */
-/*   /\** Configure Digital filter  */
-/*   *\/ */
-/*   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK) */
-/*   { */
-/*     Error_Handler(); */
-/*   } */
-/*   /\* USER CODE BEGIN I2C3_Init 2 *\/ */
+  /* USER CODE END I2C3_Init 1 */
+  hi2c3.Instance = I2C3;
+  hi2c3.Init.Timing = 0x00000E14;
+  hi2c3.Init.OwnAddress1 = 0;
+  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c3.Init.OwnAddress2 = 0;
+  hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Analogue filter 
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Digital filter 
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C3_Init 2 */
 
-/*   /\* USER CODE END I2C3_Init 2 *\/ */
+  /* USER CODE END I2C3_Init 2 */
 
-/* } */
+}
 
 /**
   * @brief LPUART1 Initialization Function
@@ -515,6 +514,7 @@ static void MX_LPUART1_UART_Init(void)
   LL_LPUART_SetWakeUpMethod (LPUART1, LL_LPUART_WAKEUP_ON_RXNE);
   LL_LPUART_EnableInStopMode (LPUART1);
   LL_LPUART_EnableIT_RXNE(LPUART1);
+  /* USER CODE END LPUART1_Init 2 */
 
 }
 
@@ -607,8 +607,8 @@ static void MX_RTC_Init(void)
   sAlarm.AlarmTime.SubSeconds = 0x0;
   sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  sAlarm.AlarmMask =  RTC_ALARMMASK_DATEWEEKDAY|RTC_ALARMMASK_HOURS|RTC_ALARMMASK_MINUTES; 
-  //   sAlarm.AlarmMask = RTC_ALARMMASK_ALL;
+  sAlarm.AlarmMask = RTC_ALARMMASK_DATEWEEKDAY|RTC_ALARMMASK_HOURS
+                              |RTC_ALARMMASK_MINUTES;
   sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
   sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
   sAlarm.AlarmDateWeekDay = 0x1;
@@ -641,40 +641,35 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(sensor_power_GPIO_Port, sensor_power_Pin, GPIO_PIN_SET);
+
   /*Configure GPIO pin : PC15 */
   GPIO_InitStruct.Pin = GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA0 PA1 PA4 PA11 
-                           PA12 PA15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_11 
-                          |GPIO_PIN_12|GPIO_PIN_15;
+  /*Configure GPIO pins : PA0 PA1 PA4 PA12 
+                           PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_12 
+                          |GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* Configure GPIO pin : rtc_EVI_Pin */
+  /*Configure GPIO pin : rtc_EVI_Pin */
   GPIO_InitStruct.Pin = rtc_EVI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(rtc_EVI_GPIO_Port, &GPIO_InitStruct);
 
-  /* Configure GPIO pins : rtc_nINT_Pin sensor_int_Pin */
-  GPIO_InitStruct.Pin = rtc_nINT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  /*Configure GPIO pins : rtc_nINT_Pin sensor_int_Pin */
+  GPIO_InitStruct.Pin = rtc_nINT_Pin|sensor_int_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  // Configure Sensor Power Pin
-  HAL_GPIO_WritePin(GPIOA, sensor_power_Pin, GPIO_PIN_SET);
-  GPIO_InitStruct.Pin = sensor_power_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  
   /*Configure GPIO pin : led_out_Pin */
   GPIO_InitStruct.Pin = led_out_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -688,6 +683,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : sensor_power_Pin */
+  GPIO_InitStruct.Pin = sensor_power_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(sensor_power_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : PH3 */
   GPIO_InitStruct.Pin = GPIO_PIN_3;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -695,8 +697,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  /* HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0); */
-  /* HAL_NVIC_EnableIRQ(EXTI9_5_IRQn); */
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 

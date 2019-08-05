@@ -46,6 +46,9 @@ void light_command(char *);
 void help_command(char *);
 void version_command(char *);
 void stop_command(char *);
+void lof_command(char *);
+void lon_command(char *);
+void raw_command(char *);
 
 command_t commands[] = {
   {"@",att_command},
@@ -61,7 +64,10 @@ command_t commands[] = {
   {"help",help_command},
   {"ls",light_command},
   {"ver",version_command},
-  {"stop",stop_command}, 
+  {"stop",stop_command},
+  {"lof",lof_command},
+  {"lon",lon_command},
+  {"raw",raw_command},
   {0,0}
 };
 
@@ -161,12 +167,32 @@ void __attribute__((weak)) help_command(char *arguments) {
 }
 
 void __attribute__((weak)) stop_command(char *arguments) {
+  printf("Led Off Default Command\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) lof_command(char *arguments) {
+  printf("Led On Default Command\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) lon_command(char *arguments) {
   printf("Enter lpstop mode\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
 
+void __attribute__((weak)) raw_command(char *arguments) {
+  printf("Display raw values for light sensor\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
 
 /* command_t commands[] = { */
 /*   {"@",att_command}, */
