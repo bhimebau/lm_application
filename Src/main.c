@@ -106,7 +106,7 @@ enum {COMMAND, SAMPLE};
 uint32_t mode = COMMAND;
 uint32_t mode_counter = 0;
 uint32_t mode_flag = 0;
-uint32_t sample_counter = 0; //This is in reference to the period command
+int period = 1;
 /* uint32_t wu_flags = 0; */
 /* USER CODE END PV */
 
@@ -139,9 +139,14 @@ void collect_data(void) {
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
-  collect_data_flag = 1;
+  static int period_counter = 0;
   mode_flag = 1;
-  /* if (rtc_counter++>=59) { */
+  period_counter++;
+	if(period_counter == period){
+		period_counter = 0;
+		collect_data_flag = 1;
+	}
+	/* if (rtc_counter++>=59) { */
   /*   rtc_counter = 0; */
   /*   collect_data_flag = 1; */
   /* } */

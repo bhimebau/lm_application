@@ -57,7 +57,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-int period;
+extern int period;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
