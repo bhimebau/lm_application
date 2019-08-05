@@ -106,7 +106,7 @@ enum {COMMAND, SAMPLE};
 uint32_t mode = COMMAND;
 uint32_t mode_counter = 0;
 uint32_t mode_flag = 0;
-
+uint32_t sample_counter = 0; //This is in reference to the period command
 /* uint32_t wu_flags = 0; */
 /* USER CODE END PV */
 

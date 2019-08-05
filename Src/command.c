@@ -47,6 +47,7 @@ void light_command(char *);
 void help_command(char *);
 void sample_command(char *);
 void collect_data(void);
+void period_command(char *);
  
 command_t commands[] = {
   {"@",att_command},
@@ -62,6 +63,7 @@ command_t commands[] = {
   {"help",help_command},
   {"ls",light_command},
 	{"sample", sample_command},
+	{"period", period_command},
   {0,0}
 };
 
@@ -153,7 +155,8 @@ void __attribute__((weak)) help_command(char *arguments) {
   printf("OK\n\r");
 }
 
-void __attribute__((weak)) sample_command(char *arguments){
+/* Sample command to sample data and store in flash, arguments are real positive numbers used to determine how many samples to take*/
+void __attribute__((weak)) sample_command(char *arguments) {
 	
 	if (arguments){
 		//printf("Arguments = %s\n\r", arguments);
@@ -167,6 +170,18 @@ void __attribute__((weak)) sample_command(char *arguments){
 	else{
 		collect_data();
 		printf("OK\n\r");
+	}
+}
+
+/* Period command takes a real positive number and change how often the sensor will collect data while in sampling mode */
+void __attribute__((weak)) period_command(char *arguments) {
+
+	if (arguments){
+		period = atoi(arguments);
+		printf("OK\n\r");		
+	}
+	else{
+		printf("NOK\n\r");
 	}
 }
 
