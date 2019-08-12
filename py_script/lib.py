@@ -75,7 +75,7 @@ def clean_data(serial, dirty_data):
 	and cleans it for use in a pandas dataframe / csv file.
 	"""
 
-	title = ["sample_num", "date", "voltage", "temp", "lux", "magarc2"]
+	title = ["sample_num", "date", "time", "voltage", "temp", "lux", "magarc2"]
 
 	# This should probably be combined into one for loop for speed.
 	clean_data = [line for line in dirty_data if "D" in line[1]]
