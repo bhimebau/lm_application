@@ -140,10 +140,11 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
-int main(void) {
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
   /* USER CODE BEGIN 1 */
   /* HAL_StatusTypeDef status; */
   /* uint8_t ch; */
@@ -160,17 +161,17 @@ int main(void) {
   
   /* USER CODE END 1 */
   
-  
+
   /* MCU Configuration--------------------------------------------------------*/
-  
+
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-  
+
   /* USER CODE BEGIN Init */
   init_queue(&rx_queue);
 
   /* USER CODE END Init */
-  
+
   /* Configure the system clock */
   SystemClock_Config();
 
@@ -187,7 +188,7 @@ int main(void) {
   MX_I2C3_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  //  rv8803_set_1khz_clkout(&hi2c3);                 // Cause the clkout of the rtc    
+  //  rv8803_set_1khz_clkout(&hi2c3);              // Cause the clkout of the rtc    
   rv8803_set_32khz_clkout(&hi2c3);                 // Cause the clkout of the rtc    
   
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
@@ -200,30 +201,30 @@ int main(void) {
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* USER CODE END WHILE */
-    
+
     /* USER CODE BEGIN 3 */
     printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
     printf("Version: %s\n\r",VERSION);
     printf("************************\n\r"); 
     flash_write_init(&fs);
     write_log_data(&fs,"r-cold");
-    ts.second = 34;
-    ts.minute = 15;
-    ts.hour = 14;
-    ts.weekdate = 4;
-    ts.day = 5;
-    ts.month = 9;
-    ts.year = 19;
+    /* ts.second = 34; */
+    /* ts.minute = 15; */
+    /* ts.hour = 14; */
+    /* ts.weekdate = 4; */
+    /* ts.day = 5; */
+    /* ts.month = 9; */
+    /* ts.year = 19; */
     //    rv8803_write_time(&hi2c3,&ts);
-    printf("%d\n\r",ts.second); 
-    printf("DEC %d\n\r",num);
-    num = dec2bcd(num);
-    printf("BCD 0x%0x\n\r",num);
-    num = bcd2dec(num);
-    printf("DEC %d\n\r",num);
-    rv8803_read_time(&hi2c3,&ts);
-    printf("%02d/%02d/20%02d %02d:%02d:%02d\n\r",ts.day,ts.month,ts.year,ts.hour,ts.minute,ts.second);
-    
+    /* printf("%d\n\r",ts.second);  */
+    /* printf("DEC %d\n\r",num); */
+    /* num = dec2bcd(num); */
+    /* printf("BCD 0x%0x\n\r",num); */
+    /* num = bcd2dec(num); */
+    /* printf("DEC %d\n\r",num); */
+    /* rv8803_read_time(&hi2c3,&ts); */
+    /* printf("%02d/%02d/20%02d %02d:%02d:%02d\n\r",ts.day,ts.month,ts.year,ts.hour,ts.minute,ts.second); */
+    /* printf("MSIPLLEN=%d\n\r",(int) READ_BIT(RCC->CR,RCC_CR_MSIPLLEN)); */
 
     /* while (1) { */
     /*   ret_val = rv8803_writereg(&hi2c3,0x07,&rv8803_write_data,1); */
@@ -278,9 +279,10 @@ int main(void) {
         collect_data_flag = 0;
       }
     }
-    /* USER CODE END 3 */
   }
+  /* USER CODE END 3 */
 }
+
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -298,7 +300,13 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
+  RCC_OscInitStruct.PLL.PLLM = 1;
+  RCC_OscInitStruct.PLL.PLLN = 40;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -307,12 +315,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
     Error_Handler();
   }
@@ -326,7 +334,7 @@ void SystemClock_Config(void)
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
   PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
-  PeriphClkInit.PLLSAI1.PLLSAI1N = 24;
+  PeriphClkInit.PLLSAI1.PLLSAI1N = 16;
   PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
   PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
   PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
@@ -351,7 +359,8 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-void MX_ADC1_Init(void) {
+void MX_ADC1_Init(void)
+{
 
   /* USER CODE BEGIN ADC1_Init 0 */
 
@@ -406,7 +415,8 @@ void MX_ADC1_Init(void) {
   * @param None
   * @retval None
   */
-void MX_I2C1_Init(void) {
+void MX_I2C1_Init(void)
+{
 
   /* USER CODE BEGIN I2C1_Init 0 */
 
@@ -416,7 +426,7 @@ void MX_I2C1_Init(void) {
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x00000E14;
+  hi2c1.Init.Timing = 0x10909CEC;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -451,7 +461,7 @@ void MX_I2C1_Init(void) {
   * @param None
   * @retval None
   */
-void MX_I2C3_Init(void)
+ void MX_I2C3_Init(void)
 {
 
   /* USER CODE BEGIN I2C3_Init 0 */
@@ -462,7 +472,7 @@ void MX_I2C3_Init(void)
 
   /* USER CODE END I2C3_Init 1 */
   hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x00000E14;
+  hi2c3.Init.Timing = 0x10909CEC;
   hi2c3.Init.OwnAddress1 = 0;
   hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -497,7 +507,7 @@ void MX_I2C3_Init(void)
   * @param None
   * @retval None
   */
-void MX_LPUART1_UART_Init(void)
+ void MX_LPUART1_UART_Init(void)
 {
 
   /* USER CODE BEGIN LPUART1_Init 0 */
@@ -534,7 +544,7 @@ void MX_LPUART1_UART_Init(void)
   * @param None
   * @retval None
   */
-void MX_RTC_Init(void)
+ void MX_RTC_Init(void)
 {
 
   /* USER CODE BEGIN RTC_Init 0 */
@@ -638,7 +648,7 @@ void MX_RTC_Init(void)
   * @param None
   * @retval None
   */
-void MX_TIM2_Init(void)
+ void MX_TIM2_Init(void)
 {
 
   /* USER CODE BEGIN TIM2_Init 0 */
