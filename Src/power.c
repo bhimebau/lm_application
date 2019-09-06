@@ -43,7 +43,7 @@ void i2c_pin_configure(void) {
 }
 
 void lp_stop_wfi(void) {
-  i2c_pin_configure();
+  // i2c_pin_configure();
   SysTick->CTRL = 0;
   __HAL_RCC_GPIOC_CLK_DISABLE();
   __HAL_RCC_GPIOA_CLK_DISABLE();
