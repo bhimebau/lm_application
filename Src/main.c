@@ -184,21 +184,9 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  /* HAL_StatusTypeDef status; */
-  /* uint8_t ch; */
-  /* int i; */
   enum {ON, OFF};
   uint8_t command[MAX_COMMAND_LEN];
-  /* uint8_t state = OFF; */
   int command_length = 0;
-
-  //  rv8803_time_date_t ts;g
-  //  uint8_t num = 59;
-  
-  /* uint8_t ch; */
-  /* uint32_t ptime; */
-  
-  
   /* USER CODE END 1 */
   
 
@@ -229,14 +217,11 @@ int main(void)
   MX_I2C3_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  //  rv8803_set_1khz_clkout(&hi2c3);              // Cause the clkout of the rtc    
   rv8803_set_32khz_clkout(&hi2c3);                 // Cause the clkout of the rtc    
-  
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
-  //  HAL_DBGMCU_EnableDBGStopMode();
-
-  
+  HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
+  tsl237_vdd_on();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -250,60 +235,8 @@ int main(void)
     printf("************************\n\r"); 
     flash_write_init(&fs);
     write_log_data(&fs,"r-cold");
-    /* ts.second = 34; */
-    /* ts.minute = 15; */
-    /* ts.hour = 14; */
-    /* ts.weekdate = 4; */
-    /* ts.day = 5; */
-    /* ts.month = 9; */
-    /* ts.year = 19; */
-    //    rv8803_write_time(&hi2c3,&ts);
-    /* printf("%d\n\r",ts.second);  */
-    /* printf("DEC %d\n\r",num); */
-    /* num = dec2bcd(num); */
-    /* printf("BCD 0x%0x\n\r",num); */
-    /* num = bcd2dec(num); */
-    /* printf("DEC %d\n\r",num); */
-    /* rv8803_read_time(&hi2c3,&ts); */
-    /* printf("%02d/%02d/20%02d %02d:%02d:%02d\n\r",ts.day,ts.month,ts.year,ts.hour,ts.minute,ts.second); */
-    /* printf("MSIPLLEN=%d\n\r",(int) READ_BIT(RCC->CR,RCC_CR_MSIPLLEN)); */
-
-    /* while (1) { */
-    /*   ret_val = rv8803_writereg(&hi2c3,0x07,&rv8803_write_data,1); */
-    /*   ret_val = rv8803_readreg(&hi2c3,0x07,&rv8803_read_data,1); */
-    /*   printf("Return Status = %d, RV8803 RAM Value = 0x%02x\n\r",ret_val, rv8803_read_data); */
-    /*   rv8803_write_data++; */
-    /* } */
     prompt();
-    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); 
-    HAL_GPIO_WritePin(GPIOA, sm_237t_pwr_Pin|tsl237_pwr_Pin, GPIO_PIN_SET);
-
-    /* for (i=0;i<10;i++) { */
-    /*   captureDone = 0; */
-    /*   HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, (uint32_t*) captures, 2); */
-    /*   /\* HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_2, (uint32_t*) captures, 2); *\/ */
-    /*   while (1) { */
-    /*     if (captureDone != 0) { */
-    /*       if (captures[1] >= captures[0]) { */
-    /*         diffCapture = captures[1] - captures[0]; */
-    /*       } */
-    /*       else { */
-    /*         diffCapture = (htim2.Instance->ARR - captures[0]) + captures[1]; */
-    /*       } */
-    /*       /\* printf("%d captures[0]=0x%08x captures[1]=0x%08x, difference=0x%x\n\r",i,(unsigned int) captures[0],(unsigned int) captures[1],(unsigned int) diffCapture); *\/ */
-    /*       frequency = (float) HAL_RCC_GetHCLKFreq() / diffCapture; */
-    /*       /\* printf("%ld\n\r",HAL_RCC_GetHCLKFreq()); *\/ */
-    /*       printf("Capture frequency: %.3f\r\n", frequency); */
-
-    /*       break; */
-    /*       /\* frequency = HAL_RCC_GetHCLKFreq() / (htim2.Instance->PSC + 1); *\/ */
-    /*       /\* frequency = (float) frequency / diffCapture; *\/ */
-    /*       /\* printf("Input frequency: %.3f\r\n", frequency); *\/ */
-    /*     } */
-    /*   } */
-    /* } */
-    /* while(1); */
-    
+   
     while (1) {
       /* USER CODE END WHILE */
       
