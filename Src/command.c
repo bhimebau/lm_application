@@ -19,6 +19,7 @@
 #include <stm32l4xx_ll_lpuart.h>
 
 
+
 extern UART_HandleTypeDef huart1;
 extern RTC_HandleTypeDef hrtc;
 extern queue_t rx_queue;
@@ -49,6 +50,9 @@ void stop_command(char *);
 void lof_command(char *);
 void lon_command(char *);
 void raw_command(char *);
+void tsl237_command(char *);
+void tsl237t_command(char *);
+
 
 command_t commands[] = {
   {"@",att_command},
@@ -68,6 +72,8 @@ command_t commands[] = {
   {"lof",lof_command},
   {"lon",lon_command},
   {"raw",raw_command},
+  {"tsl237",tsl237_command},
+  {"tsl237t",tsl237t_command},
   {0,0}
 };
 
@@ -193,6 +199,22 @@ void __attribute__((weak)) raw_command(char *arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
+
+void __attribute__((weak)) tsl237_command(char *arguments) {
+  printf("Display tsl237 data\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) tsl237_t_command(char *arguments) {
+  printf("Display tsl237t data\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+
 
 /* command_t commands[] = { */
 /*   {"@",att_command}, */

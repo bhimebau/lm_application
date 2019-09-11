@@ -37,7 +37,6 @@
 #include "queue.h"
 #include "power.h"
 #include "rv8803.h"
-#include "tsl237.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -71,8 +70,6 @@ UART_HandleTypeDef hlpuart1;
 RTC_HandleTypeDef hrtc;
 
 TIM_HandleTypeDef htim2;
-DMA_HandleTypeDef hdma_tim2_ch1;
-DMA_HandleTypeDef hdma_tim2_ch2_ch4;
 
 /* USER CODE BEGIN PV */
 
@@ -80,14 +77,13 @@ DMA_HandleTypeDef hdma_tim2_ch2_ch4;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
-static void MX_I2C1_Init(void);
-static void MX_RTC_Init(void);
-static void MX_ADC1_Init(void);
-static void MX_LPUART1_UART_Init(void);
-static void MX_I2C3_Init(void);
-static void MX_TIM2_Init(void);
+void MX_GPIO_Init(void);
+void MX_I2C1_Init(void);
+void MX_RTC_Init(void);
+void MX_ADC1_Init(void);
+void MX_LPUART1_UART_Init(void);
+void MX_I2C3_Init(void);
+void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 extern uint8_t led_state;
 RTC_TimeTypeDef current_time;
@@ -102,11 +98,6 @@ queue_t rx_queue;
 uint32_t mode = COMMAND;
 uint32_t mode_counter = 0;
 uint32_t mode_flag = 0;
-
-uint32_t captures[2];
-volatile uint8_t captureDone = 0;
-float frequency = 0;
-uint32_t diffCapture = 0;
 
 /* USER CODE END PFP */
 
@@ -123,35 +114,6 @@ void collect_data(void) {
   HAL_I2C_MspDeInit(&hi2c1);
   HAL_ADC_DeInit(&hadc1);
   tsl25911_vdd_off();
-}
-
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
-  switch(htim->Channel) {
-  case HAL_TIM_ACTIVE_CHANNEL_1:
-    //    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
-    captureDone = 1;
-    tsl237_done = 1;
-    // Handle Channel 1 Capture Event
-    break;
-  case HAL_TIM_ACTIVE_CHANNEL_2:
-    /* HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); */
-    captureDone = 1;
-    tsl237t_done = 1;
-    // Handle Channel 1 Capture Event
-    break;
-  default:
-    // Unhandled Capture Event 
-    break;
-  }
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-  // This callback is automatically called by the HAL on the UEV event
-  if(htim->Instance == TIM2) {
-    // Handle the timer overflow
-    // This could be important for longer periods. 
-    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
-  }
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
@@ -178,22 +140,19 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
+ * @brief  The application entry point.
+ * @retval int
+ */
+int main(void) {
   /* USER CODE BEGIN 1 */
   /* HAL_StatusTypeDef status; */
   /* uint8_t ch; */
-  /* int i; */
   enum {ON, OFF};
   uint8_t command[MAX_COMMAND_LEN];
   /* uint8_t state = OFF; */
   int command_length = 0;
-
-  //  rv8803_time_date_t ts;g
-  //  uint8_t num = 59;
+  rv8803_time_date_t ts;
+  uint8_t num = 59;
   
   /* uint8_t ch; */
   /* uint32_t ptime; */
@@ -201,17 +160,17 @@ int main(void)
   
   /* USER CODE END 1 */
   
-
+  
   /* MCU Configuration--------------------------------------------------------*/
-
+  
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
+  
   /* USER CODE BEGIN Init */
   init_queue(&rx_queue);
 
   /* USER CODE END Init */
-
+  
   /* Configure the system clock */
   SystemClock_Config();
 
@@ -221,7 +180,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_I2C1_Init();
   MX_RTC_Init();
   MX_ADC1_Init();
@@ -229,44 +187,43 @@ int main(void)
   MX_I2C3_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  //  rv8803_set_1khz_clkout(&hi2c3);              // Cause the clkout of the rtc    
+  //  rv8803_set_1khz_clkout(&hi2c3);                 // Cause the clkout of the rtc    
   rv8803_set_32khz_clkout(&hi2c3);                 // Cause the clkout of the rtc    
   
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
   //  HAL_DBGMCU_EnableDBGStopMode();
-
-  
+   
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* USER CODE END WHILE */
-
+    
     /* USER CODE BEGIN 3 */
     printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
     printf("Version: %s\n\r",VERSION);
     printf("************************\n\r"); 
     flash_write_init(&fs);
     write_log_data(&fs,"r-cold");
-    /* ts.second = 34; */
-    /* ts.minute = 15; */
-    /* ts.hour = 14; */
-    /* ts.weekdate = 4; */
-    /* ts.day = 5; */
-    /* ts.month = 9; */
-    /* ts.year = 19; */
+    ts.second = 34;
+    ts.minute = 15;
+    ts.hour = 14;
+    ts.weekdate = 4;
+    ts.day = 5;
+    ts.month = 9;
+    ts.year = 19;
     //    rv8803_write_time(&hi2c3,&ts);
-    /* printf("%d\n\r",ts.second);  */
-    /* printf("DEC %d\n\r",num); */
-    /* num = dec2bcd(num); */
-    /* printf("BCD 0x%0x\n\r",num); */
-    /* num = bcd2dec(num); */
-    /* printf("DEC %d\n\r",num); */
-    /* rv8803_read_time(&hi2c3,&ts); */
-    /* printf("%02d/%02d/20%02d %02d:%02d:%02d\n\r",ts.day,ts.month,ts.year,ts.hour,ts.minute,ts.second); */
-    /* printf("MSIPLLEN=%d\n\r",(int) READ_BIT(RCC->CR,RCC_CR_MSIPLLEN)); */
+    printf("%d\n\r",ts.second); 
+    printf("DEC %d\n\r",num);
+    num = dec2bcd(num);
+    printf("BCD 0x%0x\n\r",num);
+    num = bcd2dec(num);
+    printf("DEC %d\n\r",num);
+    rv8803_read_time(&hi2c3,&ts);
+    printf("%02d/%02d/20%02d %02d:%02d:%02d\n\r",ts.day,ts.month,ts.year,ts.hour,ts.minute,ts.second);
+    
 
     /* while (1) { */
     /*   ret_val = rv8803_writereg(&hi2c3,0x07,&rv8803_write_data,1); */
@@ -278,32 +235,7 @@ int main(void)
     HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); 
     HAL_GPIO_WritePin(GPIOA, sm_237t_pwr_Pin|tsl237_pwr_Pin, GPIO_PIN_SET);
 
-    /* for (i=0;i<10;i++) { */
-    /*   captureDone = 0; */
-    /*   HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, (uint32_t*) captures, 2); */
-    /*   /\* HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_2, (uint32_t*) captures, 2); *\/ */
-    /*   while (1) { */
-    /*     if (captureDone != 0) { */
-    /*       if (captures[1] >= captures[0]) { */
-    /*         diffCapture = captures[1] - captures[0]; */
-    /*       } */
-    /*       else { */
-    /*         diffCapture = (htim2.Instance->ARR - captures[0]) + captures[1]; */
-    /*       } */
-    /*       /\* printf("%d captures[0]=0x%08x captures[1]=0x%08x, difference=0x%x\n\r",i,(unsigned int) captures[0],(unsigned int) captures[1],(unsigned int) diffCapture); *\/ */
-    /*       frequency = (float) HAL_RCC_GetHCLKFreq() / diffCapture; */
-    /*       /\* printf("%ld\n\r",HAL_RCC_GetHCLKFreq()); *\/ */
-    /*       printf("Capture frequency: %.3f\r\n", frequency); */
-
-    /*       break; */
-    /*       /\* frequency = HAL_RCC_GetHCLKFreq() / (htim2.Instance->PSC + 1); *\/ */
-    /*       /\* frequency = (float) frequency / diffCapture; *\/ */
-    /*       /\* printf("Input frequency: %.3f\r\n", frequency); *\/ */
-    /*     } */
-    /*   } */
-    /* } */
-    /* while(1); */
-    
+   
     while (1) {
       /* USER CODE END WHILE */
       
@@ -346,10 +278,9 @@ int main(void)
         collect_data_flag = 0;
       }
     }
+    /* USER CODE END 3 */
   }
-  /* USER CODE END 3 */
 }
-
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -367,13 +298,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
-  RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 40;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -382,12 +307,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -401,7 +326,7 @@ void SystemClock_Config(void)
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
   PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
-  PeriphClkInit.PLLSAI1.PLLSAI1N = 16;
+  PeriphClkInit.PLLSAI1.PLLSAI1N = 24;
   PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
   PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
   PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
@@ -426,8 +351,7 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_ADC1_Init(void)
-{
+void MX_ADC1_Init(void) {
 
   /* USER CODE BEGIN ADC1_Init 0 */
 
@@ -482,8 +406,7 @@ static void MX_ADC1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_I2C1_Init(void)
-{
+void MX_I2C1_Init(void) {
 
   /* USER CODE BEGIN I2C1_Init 0 */
 
@@ -493,7 +416,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x10909CEC;
+  hi2c1.Init.Timing = 0x00000E14;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -528,7 +451,7 @@ static void MX_I2C1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_I2C3_Init(void)
+void MX_I2C3_Init(void)
 {
 
   /* USER CODE BEGIN I2C3_Init 0 */
@@ -539,7 +462,7 @@ static void MX_I2C3_Init(void)
 
   /* USER CODE END I2C3_Init 1 */
   hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x10909CEC;
+  hi2c3.Init.Timing = 0x00000E14;
   hi2c3.Init.OwnAddress1 = 0;
   hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -574,7 +497,7 @@ static void MX_I2C3_Init(void)
   * @param None
   * @retval None
   */
-static void MX_LPUART1_UART_Init(void)
+void MX_LPUART1_UART_Init(void)
 {
 
   /* USER CODE BEGIN LPUART1_Init 0 */
@@ -611,7 +534,7 @@ static void MX_LPUART1_UART_Init(void)
   * @param None
   * @retval None
   */
-static void MX_RTC_Init(void)
+void MX_RTC_Init(void)
 {
 
   /* USER CODE BEGIN RTC_Init 0 */
@@ -715,7 +638,7 @@ static void MX_RTC_Init(void)
   * @param None
   * @retval None
   */
-static void MX_TIM2_Init(void)
+void MX_TIM2_Init(void)
 {
 
   /* USER CODE BEGIN TIM2_Init 0 */
@@ -732,9 +655,9 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 0xffffffff;
+  htim2.Init.Period = 0;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  //  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
     Error_Handler();
@@ -767,31 +690,8 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM2_Init 2 */
-  /* HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0); //Set the priority of the timer to highest (0) */
-  /* HAL_NVIC_EnableIRQ(TIM2_IRQn);  // Enable the IRQ in the NVIC */
-  /* HAL_TIM_Base_Start_IT(&htim2);   // Turn on the IRQ in the timer */
-  /* HAL_TIM_IC_Start_IT(&htim2,TIM_CHANNEL_1); // Turn on the IRQ for CH1 input capture */
-  /* HAL_TIM_IC_Start_IT(&htim2,TIM_CHANNEL_2); // Turn on the IRQ for CH2 input capture  */
+
   /* USER CODE END TIM2_Init 2 */
-
-}
-
-/** 
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void) 
-{
-
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA1_Channel5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
-  /* DMA1_Channel7_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
 
 }
 
@@ -800,7 +700,7 @@ static void MX_DMA_Init(void)
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void)
+void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
