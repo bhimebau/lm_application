@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -34,7 +35,7 @@
 #include "command.h"
 #include <stm32l4xx_ll_lpuart.h>
 #include <stm32l4xx_ll_bus.h>
-#include "queue.h"
+#include "pqueue.h"
 #include "power.h"
 #include "rv8803.h"
 #include "tsl237.h"
@@ -63,17 +64,31 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 
-I2C_HandleTypeDef hi2c1;
-I2C_HandleTypeDef hi2c3;
-
 UART_HandleTypeDef hlpuart1;
 
 RTC_HandleTypeDef hrtc;
 
 TIM_HandleTypeDef htim2;
 DMA_HandleTypeDef hdma_tim2_ch1;
-DMA_HandleTypeDef hdma_tim2_ch2_ch4;
 
+typedef StaticTask_t osStaticThreadDef_t;
+typedef StaticTimer_t osStaticTimerDef_t;
+typedef StaticSemaphore_t osStaticMutexDef_t;
+typedef StaticSemaphore_t osStaticSemaphoreDef_t;
+osThreadId_t defaultTaskHandle;
+osThreadId_t blinkerHandle;
+uint32_t blinkerBuffer[ 128 ];
+osStaticThreadDef_t blinkerControlBlock;
+osTimerId_t myTimer01Handle;
+osStaticTimerDef_t myTimer01ControlBlock;
+osMutexId_t myMutex01Handle;
+osStaticMutexDef_t myMutex01ControlBlock;
+osMutexId_t myMutex02Handle;
+osStaticMutexDef_t myMutex02ControlBlock;
+osSemaphoreId_t myBinarySem01Handle;
+osStaticSemaphoreDef_t myBinarySem01ControlBlock;
+osSemaphoreId_t myCountingSem01Handle;
+osStaticSemaphoreDef_t myCountingSem01ControlBlock;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -81,13 +96,15 @@ DMA_HandleTypeDef hdma_tim2_ch2_ch4;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_LPUART1_UART_Init(void);
-static void MX_I2C3_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_DMA_Init(void);
+void StartDefaultTask(void *argument);
+void StartTask02(void *argument);
+void Callback01(void *argument);
+
 /* USER CODE BEGIN PFP */
 extern uint8_t led_state;
 RTC_TimeTypeDef current_time;
@@ -98,7 +115,7 @@ uint32_t collect_data_flag = 0;
 uint32_t sample_interval = 0;
 /* char command[MAX_COMMAND_LEN]; */
 /* int lpuart_rx_flag = 0; */
-queue_t rx_queue;
+pqueue_t rx_queue; 
 uint32_t mode = COMMAND;
 uint32_t mode_counter = 0;
 uint32_t mode_flag = 0;
@@ -114,15 +131,16 @@ uint32_t diffCapture = 0;
 /* USER CODE BEGIN 0 */
 void collect_data(void) {
   //  HAL_UART_Init(&hlpuart1);
-  tsl25911_vdd_on();
+  // tsl25911_vdd_on();
   HAL_ADC_Init(&hadc1);
-  HAL_I2C_MspInit(&hi2c1);
-  MX_I2C1_Init();
-  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
-  HAL_I2C_DeInit(&hi2c1);
-  HAL_I2C_MspDeInit(&hi2c1);
+  /* HAL_I2C_MspInit(&hi2c1); */
+  /* MX_I2C1_Init(); */
+  // write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
+  write_sensor_data(&fs,read_vrefint(),read_temp(),0xFF);
+  /* HAL_I2C_DeInit(&hi2c1); */
+  /* HAL_I2C_MspDeInit(&hi2c1); */
   HAL_ADC_DeInit(&hadc1);
-  tsl25911_vdd_off();
+  //  tsl25911_vdd_off();
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
@@ -145,14 +163,14 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
   }
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-  // This callback is automatically called by the HAL on the UEV event
-  if(htim->Instance == TIM2) {
-    // Handle the timer overflow
-    // This could be important for longer periods. 
-    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
-  }
-}
+/* void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) { */
+/*   // This callback is automatically called by the HAL on the UEV event */
+/*   if(htim->Instance == TIM2) { */
+/*     // Handle the timer overflow */
+/*     // This could be important for longer periods.  */
+/*     HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); */
+/*   } */
+/* } */
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
   collect_data_flag = 1;
@@ -196,7 +214,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  init_queue(&rx_queue);
+  init_pqueue(&rx_queue);
 
   /* USER CODE END Init */
 
@@ -209,20 +227,108 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_I2C1_Init();
   MX_RTC_Init();
   MX_ADC1_Init();
   MX_LPUART1_UART_Init();
-  MX_I2C3_Init();
   MX_TIM2_Init();
+  MX_DMA_Init();
   /* USER CODE BEGIN 2 */
-  rv8803_set_32khz_clkout(&hi2c3);                 // Cause the clkout of the rtc    
+  /* rv8803_set_32khz_clkout(&hi2c3);                 // Cause the clkout of the rtc     */
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
   tsl237_vdd_on();
   /* USER CODE END 2 */
+
+  osKernelInitialize();
+
+  /* Create the mutex(es) */
+  /* definition and creation of myMutex01 */
+  const osMutexAttr_t myMutex01_attributes = {
+    .name = "myMutex01",
+    .cb_mem = &myMutex01ControlBlock,
+    .cb_size = sizeof(myMutex01ControlBlock),
+  };
+  myMutex01Handle = osMutexNew(&myMutex01_attributes);
+
+  /* definition and creation of myMutex02 */
+  const osMutexAttr_t myMutex02_attributes = {
+    .name = "myMutex02",
+    .cb_mem = &myMutex02ControlBlock,
+    .cb_size = sizeof(myMutex02ControlBlock),
+  };
+  myMutex02Handle = osMutexNew(&myMutex02_attributes);
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* Create the semaphores(s) */
+  /* definition and creation of myBinarySem01 */
+  const osSemaphoreAttr_t myBinarySem01_attributes = {
+    .name = "myBinarySem01",
+    .cb_mem = &myBinarySem01ControlBlock,
+    .cb_size = sizeof(myBinarySem01ControlBlock),
+  };
+  myBinarySem01Handle = osSemaphoreNew(1, 1, &myBinarySem01_attributes);
+
+  /* definition and creation of myCountingSem01 */
+  const osSemaphoreAttr_t myCountingSem01_attributes = {
+    .name = "myCountingSem01",
+    .cb_mem = &myCountingSem01ControlBlock,
+    .cb_size = sizeof(myCountingSem01ControlBlock),
+  };
+  myCountingSem01Handle = osSemaphoreNew(2, 2, &myCountingSem01_attributes);
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* Create the timer(s) */
+  /* definition and creation of myTimer01 */
+  const osTimerAttr_t myTimer01_attributes = {
+    .name = "myTimer01",
+    .cb_mem = &myTimer01ControlBlock,
+    .cb_size = sizeof(myTimer01ControlBlock),
+  };
+  myTimer01Handle = osTimerNew(Callback01, osTimerPeriodic, NULL, &myTimer01_attributes);
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of defaultTask */
+  const osThreadAttr_t defaultTask_attributes = {
+    .name = "defaultTask",
+    .priority = (osPriority_t) osPriorityNormal,
+    .stack_size = 128
+  };
+  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
+  /* definition and creation of blinker */
+  const osThreadAttr_t blinker_attributes = {
+    .name = "blinker",
+    .stack_mem = &blinkerBuffer[0],
+    .stack_size = sizeof(blinkerBuffer),
+    .cb_mem = &blinkerControlBlock,
+    .cb_size = sizeof(blinkerControlBlock),
+    .priority = (osPriority_t) osPriorityLow,
+  };
+  blinkerHandle = osThreadNew(StartTask02, NULL, &blinker_attributes);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+  /* Start scheduler */
+  osKernelStart();
+  
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -325,11 +431,8 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_LPUART1
-                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_I2C3
                               |RCC_PERIPHCLK_ADC;
   PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
-  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
-  PeriphClkInit.I2c3ClockSelection = RCC_I2C3CLKSOURCE_PCLK1;
   PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
@@ -407,98 +510,6 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
-
-}
-
-/**
-  * @brief I2C1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_I2C1_Init(void)
-{
-
-  /* USER CODE BEGIN I2C1_Init 0 */
-
-  /* USER CODE END I2C1_Init 0 */
-
-  /* USER CODE BEGIN I2C1_Init 1 */
-
-  /* USER CODE END I2C1_Init 1 */
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x10909CEC;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Analogue filter 
-  */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Digital filter 
-  */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C1_Init 2 */
-
-  /* USER CODE END I2C1_Init 2 */
-
-}
-
-/**
-  * @brief I2C3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_I2C3_Init(void)
-{
-
-  /* USER CODE BEGIN I2C3_Init 0 */
-
-  /* USER CODE END I2C3_Init 0 */
-
-  /* USER CODE BEGIN I2C3_Init 1 */
-
-  /* USER CODE END I2C3_Init 1 */
-  hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x10909CEC;
-  hi2c3.Init.OwnAddress1 = 0;
-  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c3.Init.OwnAddress2 = 0;
-  hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Analogue filter 
-  */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Digital filter 
-  */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C3_Init 2 */
-
-  /* USER CODE END I2C3_Init 2 */
 
 }
 
@@ -665,9 +676,9 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 0xffffffff;
+  htim2.Init.Period = 0;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  //  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
     Error_Handler();
@@ -695,10 +706,6 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
   /* USER CODE BEGIN TIM2_Init 2 */
   /* HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0); //Set the priority of the timer to highest (0) */
   /* HAL_NVIC_EnableIRQ(TIM2_IRQn);  // Enable the IRQ in the NVIC */
@@ -720,11 +727,8 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
-  /* DMA1_Channel7_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
 
 }
 
@@ -744,32 +748,33 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, sm_237t_pwr_Pin|tsl237_pwr_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(tsl237_pwr_GPIO_Port, tsl237_pwr_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(sensor_power_GPIO_Port, sensor_power_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin : rtc_EVI_Pin */
-  GPIO_InitStruct.Pin = rtc_EVI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  /*Configure GPIO pin : PC15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(rtc_EVI_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : sm_237t_pwr_Pin tsl237_pwr_Pin sensor_power_Pin */
-  GPIO_InitStruct.Pin = sm_237t_pwr_Pin|tsl237_pwr_Pin|sensor_power_Pin;
+  /*Configure GPIO pins : PA0 PA1 PA6 PA7 
+                           PA8 PA9 PA10 PA11 
+                           PA12 PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_6|GPIO_PIN_7 
+                          |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
+                          |GPIO_PIN_12|GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : tsl237_pwr_Pin */
+  GPIO_InitStruct.Pin = tsl237_pwr_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : rtc_nINT_Pin sensor_int_Pin */
-  GPIO_InitStruct.Pin = rtc_nINT_Pin|sensor_int_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(tsl237_pwr_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : led_out_Pin */
   GPIO_InitStruct.Pin = led_out_Pin;
@@ -778,17 +783,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(led_out_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB1 PB5 PB6 PB7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  /*Configure GPIO pins : PB1 PB4 PB5 PB6 
+                           PB7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6 
+                          |GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PA12 PA15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_15;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PH3 */
   GPIO_InitStruct.Pin = GPIO_PIN_3;
@@ -796,15 +797,76 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
 
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
-
 }
 
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_StartDefaultTask */
+/**
+  * @brief  Function implementing the defaultTask thread.
+  * @param  argument: Not used 
+  * @retval None
+  */
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void *argument)
+{
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END 5 */ 
+}
+
+/* USER CODE BEGIN Header_StartTask02 */
+/**
+* @brief Function implementing the blinker thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask02 */
+void StartTask02(void *argument)
+{
+  /* USER CODE BEGIN StartTask02 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartTask02 */
+}
+
+/* Callback01 function */
+void Callback01(void *argument)
+{
+  /* USER CODE BEGIN Callback01 */
+  
+  /* USER CODE END Callback01 */
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

@@ -47,23 +47,23 @@
 /* Code: */
 #include "stm32l4xx.h"
 
-#define QUEUE_SIZE 32
+#define PQUEUE_SIZE 32
 
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef PQUEUE_H
+#define PQUEUE_H
 
-typedef struct queue {
+typedef struct pqueue {
   int head;
   int tail;
-  uint8_t buffer[QUEUE_SIZE];
-} queue_t;
+  uint8_t buffer[PQUEUE_SIZE];
+} pqueue_t;
 
 #endif
 
 
-void init_queue(queue_t *);
-int enqueue(queue_t *, uint8_t );
-uint8_t dequeue(queue_t *);            
-int queue_empty(queue_t *);            
+void init_pqueue(pqueue_t *);
+int penqueue(pqueue_t *, uint8_t );
+uint8_t pdequeue(pqueue_t *);            
+int pqueue_empty(pqueue_t *);            
 
 /* queue.h ends here */

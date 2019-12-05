@@ -45,10 +45,10 @@
 
 /* Code: */
 
-#include "queue.h"
+#include "pqueue.h"
 #include "interrupt.h"
 
-void init_queue(queue_t *buf) {
+void init_pqueue(pqueue_t *buf) {
   uint32_t mask;
   mask = disable();
   buf->head=0;
@@ -56,13 +56,13 @@ void init_queue(queue_t *buf) {
   restore(mask);
 }
 
-int enqueue (queue_t *buf, uint8_t data) {
+int penqueue (pqueue_t *buf, uint8_t data) {
   int return_val=0;
   uint32_t mask;
   mask = disable();
-  if ((((buf->head)+1)%QUEUE_SIZE)!=buf->tail) {
+  if ((((buf->head)+1)%PQUEUE_SIZE)!=buf->tail) {
     buf->buffer[buf->head]=data;   
-    buf->head=((buf->head)+1)%QUEUE_SIZE;
+    buf->head=((buf->head)+1)%PQUEUE_SIZE;
     return_val=0;
   }
   else {
@@ -72,19 +72,19 @@ int enqueue (queue_t *buf, uint8_t data) {
   return (return_val);
 }
 
-uint8_t dequeue (queue_t *buf) {
+uint8_t pdequeue (pqueue_t *buf) {
   int return_val=0;
   uint32_t mask;
   mask = disable();
   if (buf->tail!=buf->head) {
     return_val=buf->buffer[buf->tail];
-    buf->tail=((buf->tail)+1)%QUEUE_SIZE;
+    buf->tail=((buf->tail)+1)%PQUEUE_SIZE;
   }
   restore(mask);
   return(return_val);
 }
 
-int queue_empty(queue_t *buf) {
+int pqueue_empty(pqueue_t *buf) {
   int retval = 0;
   uint32_t mask;
   mask = disable();
@@ -96,4 +96,4 @@ int queue_empty(queue_t *buf) {
 }
 
 
-/* queue.c ends here */
+/* pqueue.c ends here */

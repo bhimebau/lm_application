@@ -14,7 +14,7 @@
 #include <string.h>
 #include "strategy.h"
 #include "command.h"
-#include "queue.h"
+#include "pqueue.h"
 #include "interrupt.h"
 #include <stm32l4xx_ll_lpuart.h>
 
@@ -22,7 +22,7 @@
 
 extern UART_HandleTypeDef huart1;
 extern RTC_HandleTypeDef hrtc;
-extern queue_t rx_queue;
+extern pqueue_t rx_queue;
 
 void prompt(void) {
   RTC_TimeTypeDef current_time;
@@ -287,14 +287,14 @@ int parse_command (uint8_t *line, uint8_t **command, uint8_t **args) {
 }
 
 int get_command(uint8_t *command_buf) {
-  static uint8_t buf[QUEUE_SIZE];
+  static uint8_t buf[PQUEUE_SIZE];
   static uint32_t counter=0;
   
   uint8_t ch = 0;;
   uint32_t mask;
   uint32_t command_complete = 0;
   
-  ch=dequeue(&rx_queue);
+  ch=pdequeue(&rx_queue);
   while (ch!=0) {
       if ((ch!='\n')&&(ch!='\r')) {
         if (ch==0x7f) {               // backspace functionality
@@ -307,7 +307,7 @@ int get_command(uint8_t *command_buf) {
           putchar(ch); // send the character
           while (!LL_LPUART_IsActiveFlag_TXE(LPUART1)); // wait until the character has been sent.      
           buf[counter++]=ch;
-          if (counter>=(QUEUE_SIZE-2)) {
+          if (counter>=(PQUEUE_SIZE-2)) {
             command_complete = 1;
             break;
           }
@@ -318,7 +318,7 @@ int get_command(uint8_t *command_buf) {
         break;
       }
       mask = disable();
-      ch=dequeue(&rx_queue);
+      ch=pdequeue(&rx_queue);
       restore(mask);  
   }
   if (command_complete) {

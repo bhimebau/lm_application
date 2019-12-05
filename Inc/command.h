@@ -42,8 +42,8 @@
 /*   unsigned char lla_function;     */
 /*   unsigned char lla_period; */
 /* } ueac_instruction_t; */
-#include "queue.h"
-#define MAX_COMMAND_LEN QUEUE_SIZE
+#include "pqueue.h"
+#define MAX_COMMAND_LEN PQUEUE_SIZE
 
 typedef struct command {
   char * cmd_string;
