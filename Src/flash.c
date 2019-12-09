@@ -16,12 +16,21 @@
 #include "rtc.h"
 #include "battery.h"
 #include "temperature.h"
+#include "tsl237.h"
 
 extern int _edata;
 extern int _sdata;
 extern int __fini_array_end;
 extern RTC_HandleTypeDef hrtc;
 extern flash_status_t fs;
+
+void sample_command(char * arguments) {
+  if (arguments) {
+    printf("NOK\n\r");
+    return;
+  }
+  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl237_readsensor());
+}
 
 void data_command(char * arguments) {
   if (arguments) {
@@ -393,7 +402,7 @@ int read_all_records(flash_status_t * fs, int type) {
           printf("%02d:%02d:%02d,",time.Hours,time.Minutes,time.Seconds);
           printf("%d.%03d,",(int) p->battery_voltage/1000,(int) p->battery_voltage%1000);
           printf("%d,",p->temperature);
-          printf("%f\n\r",p->lux);
+          printf("%6.3f\n\r",p->lux);
         }
         break;
       case LOG_RECORD:

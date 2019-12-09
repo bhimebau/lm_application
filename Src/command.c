@@ -52,6 +52,7 @@ void lon_command(char *);
 void raw_command(char *);
 void tsl237_command(char *);
 void tsl237t_command(char *);
+void sample_command(char *);
 
 
 command_t commands[] = {
@@ -74,6 +75,7 @@ command_t commands[] = {
   {"raw",raw_command},
   {"tsl237",tsl237_command},
   {"tsl237t",tsl237t_command},
+  {"sample",sample_command},
   {0,0}
 };
 
@@ -214,7 +216,12 @@ void __attribute__((weak)) tsl237_t_command(char *arguments) {
   }
 }
 
-
+void __attribute__((weak)) sample_command(char *arguments) {
+  printf("Take a single light sample and write it to flash\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
 
 /* command_t commands[] = { */
 /*   {"@",att_command}, */
@@ -303,6 +310,9 @@ int get_command(uint8_t *command_buf) {
             counter--;
           }
         }
+        /* else if (ch == 0x1b) { */
+        /*   printf("up arrow\n\r"); */
+        /* } */
         else {
           putchar(ch); // send the character
           while (!LL_LPUART_IsActiveFlag_TXE(LPUART1)); // wait until the character has been sent.      
