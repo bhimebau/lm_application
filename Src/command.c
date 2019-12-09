@@ -293,16 +293,26 @@ int parse_command (uint8_t *line, uint8_t **command, uint8_t **args) {
   return (0);
 }
 
-int get_command(uint8_t *command_buf) {
-  static uint8_t buf[QUEUE_SIZE];
-  static uint32_t counter=0;
+enum {COLLECT_CHARS, ESCAPE_SEQUENCE, COMPLETE};
+enum {ESC, LBRACKET};
   
+int get_command(uint8_t *command_buf) {
+  static uint8_t buf[QUEUE_SIZE] = {0};
+  static uint8_t last[QUEUE_SIZE] = {0};
+  static uint32_t counter=0;
+  static uint32_t mode = COLLECT_CHARS;
+  static uint32_t esmode = ESC;
+    
   uint8_t ch = 0;;
   uint32_t mask;
-  uint32_t command_complete = 0;
+  uint32_t len;
+  uint32_t i;
+  // uint32_t command_complete = 0;
   
   ch=dequeue(&rx_queue);
   while (ch!=0) {
+    switch(mode) {
+    case COLLECT_CHARS:
       if ((ch!='\n')&&(ch!='\r')) {
         if (ch==0x7f) {               // backspace functionality
           if (counter > 0) { 
@@ -310,36 +320,75 @@ int get_command(uint8_t *command_buf) {
             counter--;
           }
         }
-        /* else if (ch == 0x1b) { */
-        /*   printf("up arrow\n\r"); */
-        /* } */
+        if (ch == 0x1b) {
+          mode = ESCAPE_SEQUENCE;
+          esmode = ESC;
+        }
         else {
           putchar(ch); // send the character
           while (!LL_LPUART_IsActiveFlag_TXE(LPUART1)); // wait until the character has been sent.      
           buf[counter++]=ch;
           if (counter>=(QUEUE_SIZE-2)) {
-            command_complete = 1;
+            mode=COMPLETE;
             break;
           }
         }
       }
       else {
-        command_complete = 1;
+        mode = COMPLETE;
         break;
       }
-      mask = disable();
-      ch=dequeue(&rx_queue);
-      restore(mask);  
+      break;
+    case ESCAPE_SEQUENCE:
+      switch(esmode) {
+      case ESC:
+        if (ch == '[') {
+          esmode = LBRACKET;
+        }
+        else {
+          mode = COLLECT_CHARS;
+        }
+        break;
+      case LBRACKET:
+        if (ch == 'A') {
+          if ((len = strlen((char *)last))) {
+            while (counter>0) {
+              // Erase any characters currently on the command line 
+              putchar('\b');
+              counter--;
+            }
+            for (i=0;i<len;i++) {
+              // show the last command
+              putchar(last[i]);
+            }
+            strcpy((char *)buf,(char *)last); // copy the last command into the current command buffer
+            counter = len;
+          }
+          else {
+            mode = COLLECT_CHARS;
+          }
+          mode = COMPLETE;
+        }
+        mode = COLLECT_CHARS;
+        break;
+      }
+      break;
+    }
+    mask = disable();
+    ch=dequeue(&rx_queue);
+    restore(mask);  
   }
-  if (command_complete) {
+  if (mode == COMPLETE) {
     buf[counter] = 0;
     strcpy((char *)command_buf,(char *)buf);
+    strcpy((char *)last,(char *)buf);
     printf("\n\r");
     counter = 0;
-    return (1);
+    mode = COLLECT_CHARS;
+    return(1);
   }
   else {
-    return (0);
+    return(0);
   }
 }
     
