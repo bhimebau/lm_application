@@ -364,10 +364,6 @@ int get_command(uint8_t *command_buf) {
             strcpy((char *)buf,(char *)last); // copy the last command into the current command buffer
             counter = len;
           }
-          else {
-            mode = COLLECT_CHARS;
-          }
-          mode = COMPLETE;
         }
         mode = COLLECT_CHARS;
         break;
