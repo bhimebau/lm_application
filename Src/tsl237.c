@@ -21,22 +21,22 @@ uint32_t tsl237t_done = 0;
 
 void tsl237_vdd_on(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  GPIO_InitStruct.Pin = sm_237t_pwr_Pin|tsl237_pwr_Pin;
+  GPIO_InitStruct.Pin = tsl237_pwr_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  HAL_GPIO_WritePin(GPIOA, sm_237t_pwr_Pin|tsl237_pwr_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA,tsl237_pwr_Pin, GPIO_PIN_SET);
 }
   
 void tsl237_vdd_off(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  GPIO_InitStruct.Pin = sm_237t_pwr_Pin|tsl237_pwr_Pin;
+  GPIO_InitStruct.Pin = tsl237_pwr_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  HAL_GPIO_WritePin(GPIOA, sm_237t_pwr_Pin|tsl237_pwr_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA,tsl237_pwr_Pin, GPIO_PIN_RESET);
 }
 
 void tsl237_command(char *arguments) {
@@ -58,7 +58,6 @@ void tsl237t_command(char *arguments) {
     printf("OK\n\r");
   }
 }
-
 
 float tsl237_readsensor() {
   long long sum = 0;
