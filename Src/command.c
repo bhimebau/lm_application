@@ -320,7 +320,7 @@ int get_command(uint8_t *command_buf) {
             counter--;
           }
         }
-        if (ch == 0x1b) {
+        else if (ch == 0x1b) {
           mode = ESCAPE_SEQUENCE;
           esmode = ESC;
         }

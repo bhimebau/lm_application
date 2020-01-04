@@ -217,7 +217,7 @@ int main(void)
   MX_I2C3_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  rv8803_set_32khz_clkout(&hi2c3);                 // Cause the clkout of the rtc    
+  //  rv8803_set_32khz_clkout(&hi2c3);            // Cause the clkout of the rtc    
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
@@ -247,7 +247,7 @@ int main(void)
           command_length = delspace(command);
           if (command_length != -1) {
             if(execute_command(command)) {
-              /* printf("command = %s\n\r",command); */
+              printf("command = %s\n\r",command);
               printf("NOK\n\r");
             }
           }

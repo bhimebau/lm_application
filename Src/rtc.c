@@ -86,6 +86,7 @@ void ts_command(char *arguments) {
     return;
   }
   while (argument) {
+    printf("%d: %s\n\r",argument_count,argument);
     switch (argument_count) {
     case 0:
       current_time.Hours = (int) strtol(argument,NULL,10);
