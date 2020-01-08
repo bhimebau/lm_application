@@ -221,7 +221,7 @@ int main(void)
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
-  tsl237_vdd_on();
+  // tsl237_vdd_on();
   /* USER CODE END 2 */
 
   /* Infinite loop */

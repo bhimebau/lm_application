@@ -13,7 +13,7 @@
 void SystemClock_Config(void);
 void lp_stop_wfi();
 
-void power_command(char *arguments) {
+void stop_command(char *arguments) {
   if (arguments) {
     printf("NOK\n\r");
   }

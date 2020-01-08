@@ -44,7 +44,9 @@ void tsl237_command(char *arguments) {
     printf("NOK\n\r");
   }
   else {
+    tsl237_vdd_on();
     printf("%.3f\n\r",(double) tsl237_readsensor());
+    tsl237_vdd_off();
     printf("OK\n\r");
   }
 }
