@@ -117,7 +117,6 @@ void collect_data(void) {
   tsl237_vdd_on();
   HAL_ADC_Init(&hadc1);
   write_sensor_data(&fs,read_vrefint(),read_temp(),tsl237_readsensor());
-  HAL_I2C_DeInit(&hi2c1);
   tsl237_vdd_off();
 }
 
