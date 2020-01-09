@@ -114,15 +114,11 @@ uint32_t diffCapture = 0;
 /* USER CODE BEGIN 0 */
 void collect_data(void) {
   //  HAL_UART_Init(&hlpuart1);
-  tsl25911_vdd_on();
+  tsl237_vdd_on();
   HAL_ADC_Init(&hadc1);
-  HAL_I2C_MspInit(&hi2c1);
-  MX_I2C1_Init();
-  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl25911_readsensor(&hi2c1));
+  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl237_readsensor());
   HAL_I2C_DeInit(&hi2c1);
-  HAL_I2C_MspDeInit(&hi2c1);
-  HAL_ADC_DeInit(&hadc1);
-  tsl25911_vdd_off();
+  tsl237_vdd_off();
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {

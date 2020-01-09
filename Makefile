@@ -39,7 +39,6 @@ BUILD_DIR = build
 C_SOURCES =  \
 Src/main.c \
 Src/retarget.c \
-Src/tsl25911.c \
 Src/flash.c \
 Src/rtc.c \
 Src/temperature.c \
@@ -77,7 +76,6 @@ Src/queue.c \
 Src/ver.c \
 Src/power.c \
 Src/led.c \
-Src/rv8803.c \
 Src/tsl237.c
 
 # ASM sources
