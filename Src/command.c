@@ -175,7 +175,7 @@ void __attribute__((weak)) help_command(char *arguments) {
 }
 
 void __attribute__((weak)) stop_command(char *arguments) {
-  printf("Led Off Default Command\n\r");
+  printf("LP Stop Default Command\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
