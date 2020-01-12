@@ -53,7 +53,7 @@ void raw_command(char *);
 void tsl237_command(char *);
 void tsl237t_command(char *);
 void sample_command(char *);
-
+void debug_command(char *);
 
 command_t commands[] = {
   {"@",att_command},
@@ -76,6 +76,7 @@ command_t commands[] = {
   {"tsl237",tsl237_command},
   {"tsl237t",tsl237t_command},
   {"sample",sample_command},
+  {"debug",debug_command},
   {0,0}
 };
 
@@ -222,6 +223,14 @@ void __attribute__((weak)) sample_command(char *arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
+
+void __attribute__((weak)) debug_command(char *arguments) {
+  printf("Enable or Disable STOP2 debugging\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
 
 /* command_t commands[] = { */
 /*   {"@",att_command}, */

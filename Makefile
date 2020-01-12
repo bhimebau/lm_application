@@ -76,7 +76,9 @@ Src/queue.c \
 Src/ver.c \
 Src/power.c \
 Src/led.c \
-Src/tsl237.c
+Src/tsl237.c \
+Src/debug.c
+
 
 # ASM sources
 ASM_SOURCES =  \

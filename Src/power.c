@@ -8,7 +8,11 @@
  *
  */
 #include "main.h"
+#include <stm32l4xx_ll_lpuart.h>
 #include <stdio.h>
+
+extern UART_HandleTypeDef hlpuart1;
+
 
 void SystemClock_Config(void);
 void lp_stop_wfi();
@@ -44,14 +48,22 @@ void i2c_pin_configure(void) {
 
 void lp_stop_wfi(void) {
   // i2c_pin_configure();
-  SysTick->CTRL = 0;
+  //   SysTick->CTRL = 0;
+  HAL_SuspendTick();
   __HAL_RCC_GPIOC_CLK_DISABLE();
   __HAL_RCC_GPIOA_CLK_DISABLE();
   __HAL_RCC_GPIOB_CLK_DISABLE();
   __HAL_RCC_GPIOH_CLK_DISABLE();
+  /* if (LL_LPUART_IsEnabledInStopMode(LPUART1)) { */
+  /*   printf("\n\rLPUART Enabled in STOP\n\r"); */
+  /* } */
+  /* else { */
+  /*   printf("\n\rLPUART Disabled in STOP\n\r"); */
+  /* } */
   HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI); // Power Manage Between Iterations
   SystemClock_Config(); // Restore the clock settings after STOP2, exiting STOP2 does not restore them implicitly.
-  SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling again
+  //  SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling again
+  HAL_ResumeTick();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();

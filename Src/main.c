@@ -1,3 +1,4 @@
+
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -25,7 +26,6 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <stdio.h>
-#include "tsl25911.h"
 #include "retarget.h"
 #include "flash.h"
 #include "rtc.h"
@@ -36,7 +36,6 @@
 #include <stm32l4xx_ll_bus.h>
 #include "queue.h"
 #include "power.h"
-#include "rv8803.h"
 #include "tsl237.h"
 /* USER CODE END Includes */
 
@@ -130,8 +129,8 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
     break;
   case HAL_TIM_ACTIVE_CHANNEL_2:
     /* HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); */
-    captureDone = 1;
-    tsl237t_done = 1;
+    /* captureDone = 1; */
+    /* tsl237t_done = 1; */
     // Handle Channel 1 Capture Event
     break;
   default:
@@ -182,6 +181,7 @@ int main(void)
   enum {ON, OFF};
   uint8_t command[MAX_COMMAND_LEN];
   int command_length = 0;
+  int i;
   /* USER CODE END 1 */
   
 
@@ -205,18 +205,24 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_I2C1_Init();
+  //  MX_I2C1_Init();
   MX_RTC_Init();
   MX_ADC1_Init();
   MX_LPUART1_UART_Init();
-  MX_I2C3_Init();
+  //  MX_I2C3_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   //  rv8803_set_32khz_clkout(&hi2c3);            // Cause the clkout of the rtc    
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
+  HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
+  HAL_Delay(600);
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
+  tsl237_vdd_off();
+  //  HAL_DBGMCU_EnableDBGStopMode();
+  //  HAL_DBGMCU_DisableDBGStopMode();
   // tsl237_vdd_on();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -242,7 +248,12 @@ int main(void)
           command_length = delspace(command);
           if (command_length != -1) {
             if(execute_command(command)) {
-              printf("command = %s\n\r",command);
+              /* printf("command = %s\n\r",command); */
+              /* i = 0; */
+              /* while(command[i]!=0) { */
+              /*   printf("%c 0x%02x\n\r",command[i],command[i]); */
+              /*   i+=1; */
+              /* } */
               printf("NOK\n\r");
             }
           }
@@ -252,13 +263,14 @@ int main(void)
           mode_counter = 0;
           prompt();
         }
-        if (mode_flag) {
-          printf("\n\r\n\rEnter Low Power Sampling Mode, Hit Enter to Return to Command Mode\n\r");
-          prompt();
-          //  HAL_UART_DeInit(&hlpuart1);
-          collect_data();
-          mode = SAMPLE;
-        }
+        /* if (mode_flag) { */
+        /*   printf("\n\r\n\rEnter Low Power Sampling Mode, Hit Enter to Return to Command Mode\n\r"); */
+        /*   prompt(); */
+        /*   //  HAL_UART_DeInit(&hlpuart1); */
+        /*   collect_data(); */
+        /*   mode = SAMPLE; */
+        /* } */
+        lp_stop_wfi();
         break;
       case SAMPLE:
         HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
@@ -526,8 +538,10 @@ static void MX_LPUART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN LPUART1_Init 2 */
-  LL_APB1_GRP1_EnableClockStopSleep(LL_APB1_GRP2_PERIPH_LPUART1);
-  LL_LPUART_SetWakeUpMethod (LPUART1, LL_LPUART_WAKEUP_ON_RXNE);
+  LL_APB1_GRP2_EnableClockStopSleep(LL_APB1_GRP2_PERIPH_LPUART1);
+  LL_LPUART_EnableClockInStopMode(LPUART1);
+  LL_LPUART_SetWakeUpMethod(LPUART1, LL_LPUART_WAKEUP_ON_RXNE);
+  //  LL_LPUART_SetWakeUpMethod(LPUART1,LL_LPUART_WAKEUP_ON_STARTBIT);
   LL_LPUART_EnableInStopMode (LPUART1);
   LL_LPUART_EnableIT_RXNE(LPUART1);
   /* USER CODE END LPUART1_Init 2 */
@@ -739,32 +753,35 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, sm_237t_pwr_Pin|tsl237_pwr_Pin, GPIO_PIN_RESET);
+  //  HAL_GPIO_WritePin(GPIOA, sm_237t_pwr_Pin|tsl237_pwr_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, tsl237_pwr_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(sensor_power_GPIO_Port, sensor_power_Pin, GPIO_PIN_SET);
+  //  HAL_GPIO_WritePin(sensor_power_GPIO_Port, sensor_power_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : rtc_EVI_Pin */
-  GPIO_InitStruct.Pin = rtc_EVI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(rtc_EVI_GPIO_Port, &GPIO_InitStruct);
+  /* GPIO_InitStruct.Pin = rtc_EVI_Pin; */
+  /* GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING; */
+  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
+  /* HAL_GPIO_Init(rtc_EVI_GPIO_Port, &GPIO_InitStruct); */
 
   /*Configure GPIO pins : sm_237t_pwr_Pin tsl237_pwr_Pin sensor_power_Pin */
-  GPIO_InitStruct.Pin = sm_237t_pwr_Pin|tsl237_pwr_Pin|sensor_power_Pin;
+  //   GPIO_InitStruct.Pin = sm_237t_pwr_Pin|tsl237_pwr_Pin|sensor_power_Pin;
+  //  GPIO_InitStruct.Pin = tsl237_pwr_Pin|sensor_power_Pin;
+  GPIO_InitStruct.Pin = tsl237_pwr_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : rtc_nINT_Pin sensor_int_Pin */
-  GPIO_InitStruct.Pin = rtc_nINT_Pin|sensor_int_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  /* GPIO_InitStruct.Pin = rtc_nINT_Pin|sensor_int_Pin; */
+  /* GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING; */
+  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
+  /* HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); */
 
   /*Configure GPIO pin : led_out_Pin */
   GPIO_InitStruct.Pin = led_out_Pin;
