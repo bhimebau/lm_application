@@ -21,6 +21,4 @@ extern uint32_t tsl237t_done;
 void tsl237_vdd_on(void);
 void tsl237_vdd_off(void);
 void tsl237_command(char *);
-void tsl237t_command(char *);
 float tsl237_readsensor(void); 
-float tsl237t_readsensor(void); 

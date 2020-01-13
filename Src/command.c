@@ -74,7 +74,6 @@ command_t commands[] = {
   {"lon",lon_command},
   {"raw",raw_command},
   {"tsl237",tsl237_command},
-  {"tsl237t",tsl237t_command},
   {"sample",sample_command},
   {"debug",debug_command},
   {0,0}

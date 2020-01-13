@@ -24,12 +24,21 @@ extern int __fini_array_end;
 extern RTC_HandleTypeDef hrtc;
 extern flash_status_t fs;
 
+extern ADC_HandleTypeDef hadc1;
+extern TIM_HandleTypeDef htim2;
+
 void sample_command(char * arguments) {
   if (arguments) {
     printf("NOK\n\r");
     return;
   }
+  HAL_ADC_Init(&hadc1);
+  HAL_TIM_Base_Init(&htim2);
+  HAL_TIM_IC_Init(&htim2);
   write_sensor_data(&fs,read_vrefint(),read_temp(),tsl237_readsensor());
+  HAL_ADC_DeInit(&hadc1);
+  HAL_TIM_Base_DeInit(&htim2);
+  HAL_TIM_IC_DeInit(&htim2);
 }
 
 void data_command(char * arguments) {

@@ -81,11 +81,9 @@ DMA_HandleTypeDef hdma_tim2_ch2_ch4;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_LPUART1_UART_Init(void);
-static void MX_I2C3_Init(void);
 static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 extern uint8_t led_state;
@@ -113,10 +111,10 @@ uint32_t diffCapture = 0;
 /* USER CODE BEGIN 0 */
 void collect_data(void) {
   //  HAL_UART_Init(&hlpuart1);
-  tsl237_vdd_on();
+  /* tsl237_vdd_on(); */
   HAL_ADC_Init(&hadc1);
   write_sensor_data(&fs,read_vrefint(),read_temp(),tsl237_readsensor());
-  tsl237_vdd_off();
+  /* tsl237_vdd_off(); */
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
@@ -150,12 +148,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
   collect_data_flag = 1;
-  if (mode_counter >= COMMAND_TIMEOUT) {
-    mode_flag = 1;
-  }
-  else {
-    mode_counter++;
-  }
+  /* if (mode_counter >= COMMAND_TIMEOUT) { */
+  /*   mode_flag = 1; */
+  /* } */
+  /* else { */
+  /*   mode_counter++; */
+  /* } */
   /* if (rtc_counter++>=59) { */
   /*   rtc_counter = 0; */
   /*   collect_data_flag = 1; */
@@ -181,7 +179,6 @@ int main(void)
   enum {ON, OFF};
   uint8_t command[MAX_COMMAND_LEN];
   int command_length = 0;
-  int i;
   /* USER CODE END 1 */
   
 
@@ -205,24 +202,20 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  //  MX_I2C1_Init();
   MX_RTC_Init();
-  MX_ADC1_Init();
+  MX_ADC1_Init();          // 50uA 
   MX_LPUART1_UART_Init();
-  //  MX_I2C3_Init();
-  MX_TIM2_Init();
+  MX_TIM2_Init();          // 120uA 
   /* USER CODE BEGIN 2 */
-  //  rv8803_set_32khz_clkout(&hi2c3);            // Cause the clkout of the rtc    
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
   HAL_Delay(600);
   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
-  tsl237_vdd_off();
-  //  HAL_DBGMCU_EnableDBGStopMode();
-  //  HAL_DBGMCU_DisableDBGStopMode();
-  // tsl237_vdd_on();
-
+  tsl237_vdd_off();           // Turn off the sensor power
+  HAL_ADC_DeInit(&hadc1);     // Kick off the A2D Subsystem
+  HAL_TIM_Base_DeInit(&htim2);
+  HAL_TIM_IC_DeInit(&htim2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -272,19 +265,20 @@ int main(void)
         /* } */
         lp_stop_wfi();
         break;
-      case SAMPLE:
-        HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
-        lp_stop_wfi();  
-        break;
+      /* case SAMPLE: */
+      /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET); */
+      /*   lp_stop_wfi();   */
+      /*   break; */
       default:
-        mode = SAMPLE;
+        /* mode = SAMPLE; */
+        mode = COMMAND;
       }
-      if (collect_data_flag) {
-        if (mode == SAMPLE) {
-          collect_data();
-        }
-        collect_data_flag = 0;
-      }
+      /* if (collect_data_flag) { */
+      /*   if (mode == SAMPLE) { */
+      /*     collect_data(); */
+      /*   } */
+      /*   collect_data_flag = 0; */
+      /* } */
     }
   }
   /* USER CODE END 3 */
@@ -414,98 +408,6 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
-
-}
-
-/**
-  * @brief I2C1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_I2C1_Init(void)
-{
-
-  /* USER CODE BEGIN I2C1_Init 0 */
-
-  /* USER CODE END I2C1_Init 0 */
-
-  /* USER CODE BEGIN I2C1_Init 1 */
-
-  /* USER CODE END I2C1_Init 1 */
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x10909CEC;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Analogue filter 
-  */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Digital filter 
-  */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C1_Init 2 */
-
-  /* USER CODE END I2C1_Init 2 */
-
-}
-
-/**
-  * @brief I2C3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_I2C3_Init(void)
-{
-
-  /* USER CODE BEGIN I2C3_Init 0 */
-
-  /* USER CODE END I2C3_Init 0 */
-
-  /* USER CODE BEGIN I2C3_Init 1 */
-
-  /* USER CODE END I2C3_Init 1 */
-  hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x10909CEC;
-  hi2c3.Init.OwnAddress1 = 0;
-  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c3.Init.OwnAddress2 = 0;
-  hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Analogue filter 
-  */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Digital filter 
-  */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C3_Init 2 */
-
-  /* USER CODE END I2C3_Init 2 */
 
 }
 
