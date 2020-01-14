@@ -22,7 +22,8 @@ void batt_command(char *arguments) {
   }
   else {
     battery_voltage = read_vrefint();
-    printf("%d.%03d\n\r",(int)battery_voltage/1000,(int)battery_voltage%1000-100 );
+    //    printf("%d.%03d\n\r",(int)battery_voltage/1000,(int)battery_voltage%1000-100 );
+    printf("%d.%03d\n\r",(int)battery_voltage/1000,(int)battery_voltage%1000);
     printf("OK\n\r");
   }
 }
@@ -53,5 +54,5 @@ uint32_t read_vrefint(void) {
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
       Error_Handler();
   }
-  return(__HAL_ADC_CALC_VREFANALOG_VOLTAGE(rawVintref, ADC_RESOLUTION_12B));
+  return(__HAL_ADC_CALC_VREFANALOG_VOLTAGE(rawVintref, ADC_RESOLUTION_12B)-100);
 }
