@@ -191,8 +191,8 @@ int main(void)
   enum {ON, OFF};
   uint8_t command[MAX_COMMAND_LEN];
   int command_length = 0;
-  RTC_TimeTypeDef current_time = {0};
-  RTC_AlarmTypeDef sAlarm = {0};
+  /* RTC_TimeTypeDef current_time = {0}; */
+  /* RTC_AlarmTypeDef sAlarm = {0}; */
 
   /* USER CODE END 1 */
   
@@ -283,7 +283,7 @@ int main(void)
         lp_stop_wfi();
         if (collect_data_flag) {
           collect_data_flag = 0;
-          printf("RTC Alarm Activated\n\r");
+          // printf("RTC Alarm Activated\n\r");
           sample();
           /* /\* HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BCD); *\/ */
           /* /\* HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BCD); *\/ */

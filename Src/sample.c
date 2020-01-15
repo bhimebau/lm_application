@@ -27,6 +27,7 @@ void sample(void) {
   HAL_ADC_Init(&hadc1);
   HAL_TIM_Base_Init(&htim2);
   HAL_TIM_IC_Init(&htim2);
+  HAL_Delay(5);
   write_sensor_data(&fs,read_vrefint(),read_temp(),tsl237_readsensor());
   HAL_ADC_DeInit(&hadc1);
   HAL_TIM_Base_DeInit(&htim2);
