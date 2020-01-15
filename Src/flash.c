@@ -34,14 +34,6 @@ void sample_command(char * arguments) {
     return;
   }
   sample();
-
-  /* HAL_ADC_Init(&hadc1); */
-  /* HAL_TIM_Base_Init(&htim2); */
-  /* HAL_TIM_IC_Init(&htim2); */
-  /* write_sensor_data(&fs,read_vrefint(),read_temp(),tsl237_readsensor()); */
-  /* HAL_ADC_DeInit(&hadc1); */
-  /* HAL_TIM_Base_DeInit(&htim2); */
-  /* HAL_TIM_IC_DeInit(&htim2); */
 }
 
 void data_command(char * arguments) {
@@ -66,15 +58,32 @@ void erase_command(char *arguments) {
     return;
   }
   /* printf("Arguments = %s\n\r",arguments); */
-  if (!strcmp("all",arguments)) {
+  if (!strcmp("data",arguments)) {
     if (flash_reset(&fs)) {
       printf("NOK\n\r");
       return;
     }
   }
+  else if (!strcmp("cal",arguments)) {
+    if (cal_erase()) {
+      printf("NOK\n\r");
+      return;
+    }
+  }
+  else {
+    printf("NOK\n\r");
+    return;
+  }
   printf("OK\n\r");
 }
 
+void flash_command(char *arguments) {
+  if (arguments) {
+    printf("NOK\n\r");
+    return;
+  }
+  report_flash_status(&fs);
+}
 
 int flash_write_init(flash_status_t * fs) {
   sensordata_t *sd = 0;
@@ -194,6 +203,32 @@ static uint32_t GetBank(uint32_t Addr) {
   return FLASH_BANK_1;
 }
 
+int cal_erase(void) {
+  static FLASH_EraseInitTypeDef EraseInitStruct;
+  uint32_t PAGEError = 0;
+
+  
+  HAL_FLASH_Unlock();
+  /* Clear OPTVERR bit set on virgin samples */
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR); 
+  /* Fill EraseInit structure*/
+  EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+  EraseInitStruct.Banks       = GetBank(CAL_START);
+  EraseInitStruct.Page        = GetPage(CAL_START);
+  EraseInitStruct.NbPages     = 1;
+
+  /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
+     you have to make sure that these data are rewritten before they are accessed during code
+     execution. If this cannot be done safely, it is recommended to flush the caches by setting the
+     DCRST and ICRST bits in the FLASH_CR register. */
+  if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK) {
+    HAL_FLASH_Lock();
+    return (-1);
+  }
+  HAL_FLASH_Lock();
+  return(0);
+}
+
 int flash_erase(void) {
   uint32_t FirstPage = 0, NbOfPages = 0, BankNumber = 0;
   uint32_t PAGEError = 0;
@@ -242,85 +277,6 @@ int flash_reset(flash_status_t * fs) {
   }
   return(0);
 }
-
-/*   // Data that will be written if the memory has not been initialized yet. */
-     
-/*   if (pt) { */
-/*     // Previously Inialized Data Storage, Sentinel located. */
-/*     pt-=2;               // Point at first data location. */
-/*     fs->data_start = p;  // Start of memory will be at the top of flash */
-/*     if (pb) { */
-/*       // bottom sentinel location was found. */
-/*       fs->max_possible_records = (pt-pb-(uint64_t *)2); // Compute the total slots */
-/*     } */
-/*     else { */
-/*       // the bottom sentinel mark is missing even though the top sentinel is found */
-/*       // This can occur when new code is loaded and the flash page gets erased. */
-/*       // A new bottom sentinel needs to be added. */
-
-/*       // Compute last address of the flashed program. */
-/*       pb = (uint64_t *)&__fini_array_end */
-/*         + ((uint64_t *)&_edata */
-/*            - (uint64_t *)&_sdata); */
-
-/*       // Compute the first address of the next flash page */
-/*       // This is necessary because subsequent code downloads will erase up to the end of the page. */
-/*       // This will reduce the number of times the bottom sentinel will get erased. */
-/*       // However, this will not stop the sentinel from getting erased by a large code change. */
-/*       pb = (pb & ~((uint64_t *) 0x7FF)) + 1; */
-      
-/*       pb+=2;   // Increment pointer by 16. */
-/*       pb = (uint64_t *) ((uintptr_t) p & ~(uintptr_t)0xF); // Align pointer on a 16 byte boundary */
-
-
-      
-/*       // write the sentinel mark to denote the start of the data area */
-/*       fs->next_address = p; */
-/*       if (write_record(fs,(void *) &sentinel)) { */
-/*         return (-1); */
-/*       } */
-/*       fs->next_record_number = 0; // Set the first record number to 0, the sentinel does not count. */
-/*       p+=2; */
-/*       fs->data_start = p;  // The data will start at one location beyond the sentinel. */
-/*       fs->max_possible_records = ((uint32_t)0x0803FFF0 - (uint32_t) p) >> 4; */
-/*       fs->total_records = 0; */
-/*       return (0); */
-/*     } */
-/*     fs->max_possible_records = ((uint32_t)0x0803FFF0 - (uint32_t) p) >> 4; */
-/*     sd = (sensordata_t *) p; */
-/*     while (sd->watermark!=0xFF) { */
-/*       record_counter++; */
-/*       sd++; */
-/*     } */
-/*     fs->next_address = (uint64_t *) sd; */
-/*     fs->next_record_number = record_counter; */
-/*     fs->total_records = record_counter; */
-/*     return(0); */
-/*   } */
-/*   else { */
-/*     // The data storage area is uninitialized. Write the sentinel to the first data slot. */
-/*     p = (uint64_t *)&__fini_array_end + ((uint64_t *)&_edata - (uint64_t *)&_sdata); // Compute last address of the flashed program. */
-/*     p+=2;   // Increment pointer by 16. */
-/*     p = (uint64_t *) ((uintptr_t) p & ~(uintptr_t)0xF); // Align pointer on a 16 byte boundary */
-/*     if (p) { */
-/*       // write the sentinel mark to denote the start of the data area */
-/*       fs->next_address = p; */
-/*       if (write_record(fs,(void *) &sentinel)) { */
-/*         return (-1); */
-/*       } */
-/*       fs->next_record_number = 0; // Set the first record number to 0, the sentinel does not count. */
-/*       p+=2; */
-/*       fs->data_start = p;  // The data will start at one location beyond the sentinel. */
-/*       fs->max_possible_records = ((uint32_t)0x0803FFF0 - (uint32_t) p) >> 4; */
-/*       fs->total_records = 0; */
-/*       return (0); */
-/*     } */
-/*     else { */
-/*       // Flash data area needs to be erased. Cannot write any data */
-/*       return (-1); */
-/*     } */
-/*   } */
-/* } */
 
 uint64_t * find_sentinel_bottom(void) {
   uint64_t *p = (uint64_t *)&__fini_array_end + ((uint64_t *)&_edata - (uint64_t *)&_sdata); // Compute last address of the flashed program. 

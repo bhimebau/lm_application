@@ -18,8 +18,6 @@
 #include "interrupt.h"
 #include <stm32l4xx_ll_lpuart.h>
 
-
-
 extern UART_HandleTypeDef huart1;
 extern RTC_HandleTypeDef hrtc;
 extern queue_t rx_queue;
@@ -38,22 +36,17 @@ void ds_command(char *);
 void ts_command(char *);
 void dr_command(char *);
 void tr_command(char *);
-void temp_command(char *);
-void batt_command(char *);
 void data_command(char *);
 void log_command(char *);  
 void erase_command(char *);
-void light_command(char *);
 void help_command(char *);
 void version_command(char *);
-void stop_command(char *);
 void lof_command(char *);
 void lon_command(char *);
 void raw_command(char *);
-void tsl237_command(char *);
-void tsl237t_command(char *);
 void sample_command(char *);
 void debug_command(char *);
+void flash_command(char *);
 
 command_t commands[] = {
   {"@",att_command},
@@ -61,21 +54,16 @@ command_t commands[] = {
   {"ts",ts_command},
   {"tr",tr_command},
   {"dr",dr_command},
-  {"temp",temp_command},
-  {"batt",batt_command},
   {"data",data_command},
   {"log",log_command},
   {"ef",erase_command},
   {"help",help_command},
-  {"ls",light_command},
   {"ver",version_command},
-  {"stop",stop_command},
   {"lof",lof_command},
   {"lon",lon_command},
-  {"raw",raw_command},
-  {"tsl237",tsl237_command},
   {"sample",sample_command},
   {"debug",debug_command},
+  {"flash",flash_command},
   {0,0}
 };
 
@@ -230,21 +218,14 @@ void __attribute__((weak)) debug_command(char *arguments) {
   }
 }
 
+void __attribute__((weak)) flash_command(char *arguments) {
+  printf("Report Flash Meta Data\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
 
-/* command_t commands[] = { */
-/*   {"@",att_command}, */
-/*   {"ds",ds_command}, */
-/*   {"ts",ts_command}, */
-/*   {"tr",tr_command}, */
-/*   {"dr",dr_command}, */
-/*   {"temp",temp_command}, */
-/*   {"batt",batt_command}, */
-/*   {"data",data_command}, */
-/*   {"log",log_command}, */
-/*   {"ef",erase_command}, */
-/*   {"help",help_command}, */
-/*   {0,0} */
-/* }; */
+
 
 int execute_command(uint8_t * line) {
   uint8_t *cmd;

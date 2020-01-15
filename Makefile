@@ -78,7 +78,8 @@ Src/power.c \
 Src/led.c \
 Src/tsl237.c \
 Src/debug.c \
-Src/sample.c
+Src/sample.c \
+Src/cal.c
 
 
 # ASM sources
