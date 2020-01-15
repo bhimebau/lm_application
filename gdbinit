@@ -1,5 +1,10 @@
 # Reset the target
 
+define portb
+  echo PORTB->IDR
+  p/x GPIOB->IDR
+end
+
 define reset
  monitor reset halt
 end
@@ -17,3 +22,6 @@ target extended-remote :3333
 load
 b main
 c
+
+
+

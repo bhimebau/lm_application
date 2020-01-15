@@ -86,6 +86,7 @@ void ts_command(char *arguments) {
     return;
   }
   while (argument) {
+    printf("%d: %s\n\r",argument_count,argument);
     switch (argument_count) {
     case 0:
       current_time.Hours = (int) strtol(argument,NULL,10);
@@ -126,6 +127,17 @@ void ts_command(char *arguments) {
     printf("NOK\n\r");
     return;
   }
+  /* sAlarm.AlarmTime.Minutes = (current_time.Minutes + SAMPLE_INTERVAL_MINUTES) % 60; // Set the alarm 5 minutes in the future  */
+  /* sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE; */
+  /* sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET; */
+  /* sAlarm.AlarmMask =  RTC_ALARMMASK_DATEWEEKDAY|RTC_ALARMMASK_HOURS|RTC_ALARMMASK_SECONDS; // Only consider the minutes value  */
+  /* sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL; */
+  /* sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE; */
+  /* sAlarm.AlarmDateWeekDay = 0x1; */
+  /* sAlarm.Alarm = RTC_ALARM_A; */
+  /* if (HAL_RTC_SetAlarm_IT(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK) { */
+  /*   Error_Handler(); */
+  /* } */
   printf("OK\n\r");
 }
 

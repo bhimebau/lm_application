@@ -81,8 +81,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define rtc_EVI_Pin GPIO_PIN_5
-#define rtc_EVI_GPIO_Port GPIOA
+#define rtc_EVI_Pin GPIO_PIN_15
+#define rtc_EVI_GPIO_Port GPIOC
+#define sm_237t_pwr_Pin GPIO_PIN_0
+#define sm_237t_pwr_GPIO_Port GPIOA
+#define sm_237t_freq_Pin GPIO_PIN_1
+#define sm_237t_freq_GPIO_Port GPIOA
+#define tsl237_pwr_Pin GPIO_PIN_4
+#define tsl237_pwr_GPIO_Port GPIOA
+#define tsl237_freq_Pin GPIO_PIN_5
+#define tsl237_freq_GPIO_Port GPIOA
 #define rtc_nINT_Pin GPIO_PIN_6
 #define rtc_nINT_GPIO_Port GPIOA
 #define rtc_nINT_EXTI_IRQn EXTI9_5_IRQn
@@ -97,6 +105,8 @@ void Error_Handler(void);
 #define sensor_clock_GPIO_Port GPIOA
 #define sensor_data_Pin GPIO_PIN_10
 #define sensor_data_GPIO_Port GPIOA
+#define sensor_power_Pin GPIO_PIN_11
+#define sensor_power_GPIO_Port GPIOA
 #define rtc_data_Pin GPIO_PIN_4
 #define rtc_data_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */

@@ -22,7 +22,8 @@ void batt_command(char *arguments) {
   }
   else {
     battery_voltage = read_vrefint();
-    printf("%d.%03d\n\r",(int)battery_voltage/1000,(int)battery_voltage%1000 );
+    //    printf("%d.%03d\n\r",(int)battery_voltage/1000,(int)battery_voltage%1000-100 );
+    printf("%d.%03d\n\r",(int)battery_voltage/1000,(int)battery_voltage%1000);
     printf("OK\n\r");
   }
 }

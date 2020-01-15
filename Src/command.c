@@ -20,6 +20,7 @@
 #include <stm32l4xx_ll_lpuart.h>
 
 
+
 extern UART_HandleTypeDef huart1;
 extern RTC_HandleTypeDef hrtc;
 extern queue_t rx_queue;
@@ -45,9 +46,16 @@ void log_command(char *);
 void erase_command(char *);
 void light_command(char *);
 void help_command(char *);
+void version_command(char *);
+void stop_command(char *);
+void lof_command(char *);
+void lon_command(char *);
+void raw_command(char *);
+void tsl237_command(char *);
+void tsl237t_command(char *);
 void sample_command(char *);
-void collect_data(void);
- 
+void debug_command(char *);
+
 command_t commands[] = {
   {"@",att_command},
   {"ds",ds_command},
@@ -61,7 +69,14 @@ command_t commands[] = {
   {"ef",erase_command},
   {"help",help_command},
   {"ls",light_command},
-  {"sample", sample_command},
+  {"ver",version_command},
+  {"stop",stop_command},
+  {"lof",lof_command},
+  {"lon",lon_command},
+  {"raw",raw_command},
+  {"tsl237",tsl237_command},
+  {"sample",sample_command},
+  {"debug",debug_command},
   {0,0}
 };
 
@@ -160,21 +175,60 @@ void __attribute__((weak)) help_command(char *arguments) {
   printf("OK\n\r");
 }
 
-void __attribute__((weak)) sample_command(char *arguments){
-	
-	if (arguments){
-		//printf("Arguments = %s\n\r", arguments);
-		int a = atoi(arguments);
-		for(int i = 0; i < a; i++){
-			printf("Collecting Data: %d\n\r", (i+1));
-			collect_data();
-		}
-		printf("OK\n\r");
-	}
-	else{
-		collect_data();
-		printf("OK\n\r");
-	}
+void __attribute__((weak)) stop_command(char *arguments) {
+  printf("LP Stop Default Command\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) lof_command(char *arguments) {
+  printf("Led On Default Command\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) lon_command(char *arguments) {
+  printf("Enter lpstop mode\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) raw_command(char *arguments) {
+  printf("Display raw values for light sensor\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) tsl237_command(char *arguments) {
+  printf("Display tsl237 data\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) tsl237_t_command(char *arguments) {
+  printf("Display tsl237t data\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) sample_command(char *arguments) {
+  printf("Take a single light sample and write it to flash\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) debug_command(char *arguments) {
+  printf("Enable or Disable STOP2 debugging\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
 }
 
 /* command_t commands[] = { */
@@ -247,16 +301,26 @@ int parse_command (uint8_t *line, uint8_t **command, uint8_t **args) {
   return (0);
 }
 
-int get_command(uint8_t *command_buf) {
-  static uint8_t buf[QUEUE_SIZE];
-  static uint32_t counter=0;
+enum {COLLECT_CHARS, ESCAPE_SEQUENCE, COMPLETE};
+enum {ESC, LBRACKET};
   
+int get_command(uint8_t *command_buf) {
+  static uint8_t buf[QUEUE_SIZE] = {0};
+  static uint8_t last[QUEUE_SIZE] = {0};
+  static uint32_t counter=0;
+  static uint32_t mode = COLLECT_CHARS;
+  static uint32_t esmode = ESC;
+    
   uint8_t ch = 0;;
   uint32_t mask;
-  uint32_t command_complete = 0;
+  uint32_t len;
+  uint32_t i;
+  // uint32_t command_complete = 0;
   
   ch=dequeue(&rx_queue);
   while (ch!=0) {
+    switch(mode) {
+    case COLLECT_CHARS:
       if ((ch!='\n')&&(ch!='\r')) {
         if (ch==0x7f) {               // backspace functionality
           if (counter > 0) { 
@@ -264,33 +328,71 @@ int get_command(uint8_t *command_buf) {
             counter--;
           }
         }
+        else if (ch == 0x1b) {
+          mode = ESCAPE_SEQUENCE;
+          esmode = ESC;
+        }
         else {
           putchar(ch); // send the character
           while (!LL_LPUART_IsActiveFlag_TXE(LPUART1)); // wait until the character has been sent.      
           buf[counter++]=ch;
           if (counter>=(QUEUE_SIZE-2)) {
-            command_complete = 1;
+            mode=COMPLETE;
             break;
           }
         }
       }
       else {
-        command_complete = 1;
+        mode = COMPLETE;
         break;
       }
-      mask = disable();
-      ch=dequeue(&rx_queue);
-      restore(mask);  
+      break;
+    case ESCAPE_SEQUENCE:
+      switch(esmode) {
+      case ESC:
+        if (ch == '[') {
+          esmode = LBRACKET;
+        }
+        else {
+          mode = COLLECT_CHARS;
+        }
+        break;
+      case LBRACKET:
+        if (ch == 'A') {
+          if ((len = strlen((char *)last))) {
+            while (counter>0) {
+              // Erase any characters currently on the command line 
+              putchar('\b');
+              counter--;
+            }
+            for (i=0;i<len;i++) {
+              // show the last command
+              putchar(last[i]);
+            }
+            strcpy((char *)buf,(char *)last); // copy the last command into the current command buffer
+            counter = len;
+          }
+        }
+        mode = COLLECT_CHARS;
+        break;
+      }
+      break;
+    }
+    mask = disable();
+    ch=dequeue(&rx_queue);
+    restore(mask);  
   }
-  if (command_complete) {
+  if (mode == COMPLETE) {
     buf[counter] = 0;
     strcpy((char *)command_buf,(char *)buf);
+    strcpy((char *)last,(char *)buf);
     printf("\n\r");
     counter = 0;
-    return (1);
+    mode = COLLECT_CHARS;
+    return(1);
   }
   else {
-    return (0);
+    return(0);
   }
 }
     
