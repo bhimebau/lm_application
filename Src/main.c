@@ -173,10 +173,10 @@ int main(void)
   enum {ON, OFF};
   uint8_t command[MAX_COMMAND_LEN];
   int command_length = 0;
-  int i;
-  caldata_t cd;
-  caldata_t *cal_array = (caldata_t *) CAL_START;
-  int flash_error = 0;
+  /* int i; */
+  /* caldata_t cd; */
+  /* caldata_t *cal_array = (caldata_t *) CAL_START; */
+  /* int flash_error = 0; */
   
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
@@ -202,30 +202,31 @@ int main(void)
   HAL_ADC_DeInit(&hadc1);     // Kick off the A2D Subsystem
   HAL_TIM_Base_DeInit(&htim2);
   HAL_TIM_IC_DeInit(&htim2);
-
-  cd.tsl237_frequency = 25.0;
-  cd.magarcsec2_value = 25.0;
-  for (i=0;i<256;i++) {
-    cd.tsl237_frequency -= .1;
-    cd.magarcsec2_value -= .1;
-    if (cd.magarcsec2_value < 0) {
-      cd.magarcsec2_value = 0;
-    }
-    if (cd.tsl237_frequency < 0) {
-      cd.tsl237_frequency = 0;
-    }
+  HAL_DBGMCU_DisableDBGStopMode();
+  
+  /* cd.tsl237_frequency = 25.0; */
+  /* cd.magarcsec2_value = 25.0; */
+  /* for (i=0;i<256;i++) { */
+  /*   cd.tsl237_frequency -= .1; */
+  /*   cd.magarcsec2_value -= .1; */
+  /*   if (cd.magarcsec2_value < 0) { */
+  /*     cd.magarcsec2_value = 0; */
+  /*   } */
+  /*   if (cd.tsl237_frequency < 0) { */
+  /*     cd.tsl237_frequency = 0; */
+  /*   } */
     
-    if (flash_caldata(i,&cd)) {
-      printf("\n\rFlash not Erased\n\r");
-      flash_error = 1;
-      break;
-    }
-  }
-  if (!flash_error) {
-    for (i=0; i<256; i++) {
-      printf("%f %f\n\r",cal_array[i].tsl237_frequency,cal_array[i].magarcsec2_value);
-    }
-  }
+  /*   if (flash_caldata(i,&cd)) { */
+  /*     printf("\n\rFlash not Erased\n\r"); */
+  /*     flash_error = 1; */
+  /*     break; */
+  /*   } */
+  /* } */
+  /* if (!flash_error) { */
+  /*   for (i=0; i<256; i++) { */
+  /*     printf("%f %f\n\r",cal_array[i].tsl237_frequency,cal_array[i].magarcsec2_value); */
+  /*   } */
+  /* } */
   
   while (1) {
     printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
