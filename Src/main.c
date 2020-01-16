@@ -196,7 +196,7 @@ int main(void)
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
   led_on();
-  //   HAL_Delay(600);
+  HAL_Delay(600);
   led_off();
   tsl237_vdd_off();           // Turn off the sensor power
   HAL_ADC_DeInit(&hadc1);     // Kick off the A2D Subsystem
@@ -381,6 +381,7 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
+
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */

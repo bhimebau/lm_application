@@ -28,14 +28,6 @@ extern flash_status_t fs;
 extern ADC_HandleTypeDef hadc1;
 extern TIM_HandleTypeDef htim2;
 
-void sample_command(char * arguments) {
-  if (arguments) {
-    printf("NOK\n\r");
-    return;
-  }
-  sample();
-}
-
 void data_command(char * arguments) {
   if (arguments) {
     printf("NOK\n\r");
@@ -356,6 +348,7 @@ int read_all_records(flash_status_t * fs, int type) {
     
   
   if (p->watermark == 0xFF) {
+    printf("OK\n\r"); 
     return (0);
   }
   else {

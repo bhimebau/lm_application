@@ -19,6 +19,16 @@
 #include "tsl237.h"
 #include "sample.h"
 
+void cal_command(char *arguments) {
+  if (!arguments) {
+    // Show the calibration
+    return;
+  }
+  printf("argument = %s\n\r",arguments);
+  printf("OK\n\r");
+}
+
+
 int flash_caldata(int index, caldata_t * val) {
   HAL_StatusTypeDef status;
   uint64_t *q = (uint64_t *) val;

@@ -1462,6 +1462,7 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
   __LL_ADC_MULTI_CONV_DATA_MASTER_SLAVE((__ADC_MULTI_MASTER_SLAVE__), (__ADC_MULTI_CONV_DATA__))
 #endif
 
+
 /**
   * @brief  Helper macro to select the ADC common instance
   *         to which is belonging the selected ADC instance.
