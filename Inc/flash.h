@@ -14,7 +14,19 @@
 // STM32L432 Flash Starts at 0x8000000 and ends at 0x803FFFFF. 
 #define FLASH_START        0x08000000
 // Last 16 byte word in the memory is 0x0803FFF0 
-#define FLASH_END          0x0803FFF0
+// #define FLASH_END          0x0803FFF0
+
+// The 64 bit data in the last page is at address 0x0803FFF0.
+// The sensor calibration data for the flash will be located in the very
+// top page of memory. This means that the start of space for the data
+// and log records will not include the top page. 
+#define FLASH_END          0x0803F7F0
+
+// Calibration data lives in the top page 
+#define CAL_START      0x0803F800
+#define CAL_END        0x0803FFF0
+
+
 #define SENTINEL_MARK_BOTTOM      0xDEADBEEFA5A5A5A5
 #define SENTINEL_MARK_TOP         0xFEEDC0DE5A5A5A5A
 
@@ -39,6 +51,11 @@ typedef struct log_data {
   uint32_t timestamp;              // Time, bit packed into 32 bits
   uint8_t msg[8];                  // String message to make the record seem less cryptic.
 } logdata_t;
+
+typedef struct caldata {
+  float tsl237_frequency;
+  float magarcsec2_value;
+} caldata_t;
 
 typedef struct raw {
   uint64_t data0;
@@ -65,3 +82,4 @@ int write_sensor_data(flash_status_t *,uint16_t,uint16_t,float);
 int write_log_data(flash_status_t *, char *);
 int report_flash_status(flash_status_t *);
 int flash_reset(flash_status_t *);
+int cal_erase(void);

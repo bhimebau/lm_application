@@ -39,6 +39,8 @@
 #include "tsl237.h"
 #include "led.h"
 #include "sample.h"
+#include "cal.h"
+
 
 /* USER CODE END Includes */
 
@@ -55,7 +57,7 @@
 #define WU_UART 0x01
 #define WU_RTC 0x02
 #define COMMAND_TIMEOUT 1000
-#define SAMPLE_INTERVAL_MINUTES 5
+#define SAMPLE_INTERVAL_MINUTES 10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -157,26 +159,6 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
     minute_counter = 0;
     collect_data_flag = 1;
   }
-  
-  /* if (mode_counter >= COMMAND_TIMEOUT) { */
-  /*   mode_flag = 1; */
-  /* } */
-  /* else { */
-  /*   mode_counter++; */
-  /* } */
-  /* if (rtc_counter++>=59) { */
-  /*   rtc_counter = 0; */
-  /*   collect_data_flag = 1; */
-  /* } */
-  /* if (!led_state) { */
-  /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET); */
-  /* } */
-  /* else { */
-  /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); */
-  /* } */
-  /* led_state^=1; */
-
-  /* RTC_DateTypeDef current_date; */
 }
 
 /* USER CODE END 0 */
@@ -191,28 +173,18 @@ int main(void)
   enum {ON, OFF};
   uint8_t command[MAX_COMMAND_LEN];
   int command_length = 0;
-  /* RTC_TimeTypeDef current_time = {0}; */
-  /* RTC_AlarmTypeDef sAlarm = {0}; */
-
-  /* USER CODE END 1 */
+  int i;
+  caldata_t cd;
+  caldata_t *cal_array = (caldata_t *) CAL_START;
+  int flash_error = 0;
   
-
-  /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
   init_queue(&rx_queue);
-
-  /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -221,26 +193,41 @@ int main(void)
   MX_ADC1_Init();          // 50uA 
   MX_LPUART1_UART_Init();
   MX_TIM2_Init();          // 120uA 
-  /* USER CODE BEGIN 2 */
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
-  //HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
   led_on();
   HAL_Delay(600);
   led_off();
-  //HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
   tsl237_vdd_off();           // Turn off the sensor power
   HAL_ADC_DeInit(&hadc1);     // Kick off the A2D Subsystem
   HAL_TIM_Base_DeInit(&htim2);
   HAL_TIM_IC_DeInit(&htim2);
-  /* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+  cd.tsl237_frequency = 25.0;
+  cd.magarcsec2_value = 25.0;
+  for (i=0;i<256;i++) {
+    cd.tsl237_frequency -= .1;
+    cd.magarcsec2_value -= .1;
+    if (cd.magarcsec2_value < 0) {
+      cd.magarcsec2_value = 0;
+    }
+    if (cd.tsl237_frequency < 0) {
+      cd.tsl237_frequency = 0;
+    }
+    
+    if (flash_caldata(i,&cd)) {
+      printf("\n\rFlash not Erased\n\r");
+      flash_error = 1;
+      break;
+    }
+  }
+  if (!flash_error) {
+    for (i=0; i<256; i++) {
+      printf("%f %f\n\r",cal_array[i].tsl237_frequency,cal_array[i].magarcsec2_value);
+    }
+  }
+  
   while (1) {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
     printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
     printf("Version: %s\n\r",VERSION);
     printf("************************\n\r"); 
@@ -249,94 +236,28 @@ int main(void)
     prompt();
    
     while (1) {
-      /* USER CODE END WHILE */
-      
-      /* USER CODE BEGIN 3 */
-      switch(mode) {
-      case COMMAND:
-        if (get_command(command)) {
-          command_length = delspace(command);
-          if (command_length != -1) {
-            if(execute_command(command)) {
-              /* printf("command = %s\n\r",command); */
-              /* i = 0; */
-              /* while(command[i]!=0) { */
-              /*   printf("%c 0x%02x\n\r",command[i],command[i]); */
-              /*   i+=1; */
-              /* } */
-              printf("NOK\n\r");
-            }
-          }
-          else {
+      // Command Interpreter
+      if (get_command(command)) {
+        command_length = delspace(command);
+        if (command_length != -1) {
+          if(execute_command(command)) {
             printf("NOK\n\r");
           }
-          mode_counter = 0;
-          prompt();
         }
-        /* if (mode_flag) { */
-        /*   printf("\n\r\n\rEnter Low Power Sampling Mode, Hit Enter to Return to Command Mode\n\r"); */
-        /*   prompt(); */
-        /*   //  HAL_UART_DeInit(&hlpuart1); */
-        /*   collect_data(); */
-        /*   mode = SAMPLE; */
-        /* } */
-        lp_stop_wfi();
-        if (collect_data_flag) {
-          collect_data_flag = 0;
-          // printf("RTC Alarm Activated\n\r");
-          sample();
-          /* /\* HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BCD); *\/ */
-          /* /\* HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BCD); *\/ */
-          /* /\* //          sAlarm.AlarmTime.Minutes = (current_time.Minutes + SAMPLE_INTERVAL_MINUTES) % 60; *\/ */
-          /* /\* sAlarm.AlarmTime.Hours = 0; *\/ */
-          /* /\* sAlarm.AlarmTime.Seconds = 0; *\/ */
-          /* /\* sAlarm.AlarmTime.Minutes = (current_time.Minutes + SAMPLE_INTERVAL_MINUTES) % 60; // Set the alarm 5 minutes in the future  *\/ */
-          /* /\* sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE; *\/ */
-          /* /\* sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET; *\/ */
-          /* /\* sAlarm.AlarmMask =  RTC_ALARMMASK_DATEWEEKDAY|RTC_ALARMMASK_HOURS|RTC_ALARMMASK_SECONDS; // Consider minutes value only *\/ */
-          /* /\* sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL; *\/ */
-          /* /\* sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE; *\/ */
-          /* /\* sAlarm.AlarmDateWeekDay = 0x1; *\/ */
-          /* /\* sAlarm.Alarm = RTC_ALARM_A; *\/ */
-
-          /* /\* if (HAL_RTC_DeactivateAlarm(&hrtc, RTC_ALARM_A)) { *\/ */
-          /* /\*   Error_Handler(); *\/ */
-          /* /\* } *\/ */
-              
-          /* /\* if (HAL_RTC_SetAlarm_IT(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK) { *\/ */
-          /* /\*   Error_Handler(); *\/ */
-          /* /\* } *\/ */
-          /* sAlarm.AlarmTime.Minutes = 4;   */
-          /* sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE; */
-          /* sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET; */
-          /* sAlarm.AlarmMask =  RTC_ALARMMASK_DATEWEEKDAY|RTC_ALARMMASK_HOURS|RTC_ALARMMASK_SECONDS; // Only consider the minutes value  */
-          /* sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL; */
-          /* sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE; */
-          /* sAlarm.AlarmDateWeekDay = 0x1; */
-          /* sAlarm.Alarm = RTC_ALARM_A; */
-          /* if (HAL_RTC_SetAlarm_IT(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK) */
-          /*   { */
-          /*     Error_Handler(); */
-          /*   } */
+        else {
+          printf("NOK\n\r");
         }
-        break;
-      /* case SAMPLE: */
-      /*   HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET); */
-      /*   lp_stop_wfi();   */
-      /*   break; */
-      default:
-        /* mode = SAMPLE; */
-        mode = COMMAND;
+        prompt();
       }
-      /* if (collect_data_flag) { */
-      /*   if (mode == SAMPLE) { */
-      /*     collect_data(); */
-      /*   } */
-      /*   collect_data_flag = 0; */
-      /* } */
+      // Automatic Data Collection
+      if (collect_data_flag) {
+        collect_data_flag = 0;
+        sample();
+      }
+      // Drop to Low Power Mode
+      lp_stop_wfi();
     }
   }
-  /* USER CODE END 3 */
 }
 
 /**
@@ -460,6 +381,7 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
+
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */

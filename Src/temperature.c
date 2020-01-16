@@ -56,11 +56,12 @@ uint32_t read_temp(void) {
   /*     Error_Handler(); */
   /* } */
   vref = read_vrefint();
-  //  printf("raw temperature = %d, reference voltage = %d\n\r",(int)rawTemp, (int)vref);
   return (__HAL_ADC_CALC_TEMPERATURE(vref,
                                      rawTemp,
                                      ADC_RESOLUTION_12B));
 }
+
+
   
 /* uint32_t read_vrefint(void) { */
 /*   static uint32_t first_time_up = 1; */
