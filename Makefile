@@ -79,7 +79,8 @@ Src/led.c \
 Src/tsl237.c \
 Src/debug.c \
 Src/sample.c \
-Src/cal.c
+Src/cal.c \
+Src/uid.c
 
 
 # ASM sources

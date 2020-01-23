@@ -48,6 +48,7 @@ void raw_command(char *);
 void sample_command(char *);
 void debug_command(char *);
 void flash_command(char *);
+void uid_command(char *);
 
 command_t commands[] = {
   {"@",att_command},
@@ -65,6 +66,7 @@ command_t commands[] = {
   {"sample",sample_command},
   {"debug",debug_command},
   {"flash",flash_command},
+  {"uid",uid_command},
   {0,0}
 };
 
