@@ -49,7 +49,7 @@ void sample_command(char *);
 void debug_command(char *);
 void flash_command(char *);
 void uid_command(char *);
-void test_command(char *);
+void cal_command(char *);
 
 command_t commands[] = {
   {"@",att_command},
@@ -68,7 +68,7 @@ command_t commands[] = {
   {"debug",debug_command},
   {"flash",flash_command},
   {"uid",uid_command},
-  {"test",uid_command},
+  {"cal",cal_command},
   {0,0}
 };
 
@@ -230,8 +230,8 @@ void __attribute__((weak)) flash_command(char *arguments) {
   }
 }
 
-void __attribute__((weak)) test_command(char *arguments) {
-  printf("Generic Testing Command \n\r");
+void __attribute__((weak)) cal_command(char *arguments) {
+  printf("Build and report on the sensor calibration command\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
