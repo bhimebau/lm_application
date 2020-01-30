@@ -58,8 +58,8 @@
 #define WU_RTC 0x02
 #define COMMAND_TIMEOUT 1000
 #define SAMPLE_INTERVAL_MINUTES 10
-#define EVENING_START_HOUR 17
-#define MORNING_END_HOUR 8
+#define EVENING_START_HOUR 17 // Real-Time Clock Value in BCD 
+#define MORNING_END_HOUR 8   // Real-Time Clock Value in BCD 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -252,8 +252,8 @@ int main(void)
       // Automatic Data Collection
       if (collect_data_flag) {
         collect_data_flag = 0;
-        HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BCD);
-        HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BCD);
+        HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
+        HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
         // Only collect data between EVENING_START_HOUR and MORNING_END_HOUR
         if (((current_time.Hours >= EVENING_START_HOUR) && (current_time.Hours <= 23)) ||
             ((current_time.Hours >= 0) && (current_time.Hours <= MORNING_END_HOUR))) {
