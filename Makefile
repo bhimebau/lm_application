@@ -128,10 +128,17 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 AS_DEFS = 
 
 # C defines
+
+ifeq ($(DEBUG), 1)
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
 -DSTM32L432xx
-
+else
+C_DEFS =  \
+-DUSE_HAL_DRIVER \
+-DSTM32L432xx \
+-DDEPLOY
+endif
 
 # AS includes
 AS_INCLUDES = 
@@ -155,7 +162,6 @@ CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-
 ifeq ($(DEBUG), 1)
 CFLAGS += -g3 -gdwarf-4
 endif
-
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"

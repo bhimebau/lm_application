@@ -113,6 +113,7 @@ volatile uint8_t captureDone = 0;
 float frequency = 0;
 uint32_t diffCapture = 0;
 
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -166,8 +167,7 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
+int main(void) {
   /* USER CODE BEGIN 1 */
   enum {ON, OFF};
   uint8_t command[MAX_COMMAND_LEN];
@@ -201,7 +201,9 @@ int main(void)
   HAL_ADC_DeInit(&hadc1);     // Kick off the A2D Subsystem
   HAL_TIM_Base_DeInit(&htim2);
   HAL_TIM_IC_DeInit(&htim2);
+  #ifdef DEPLOY
   HAL_DBGMCU_DisableDBGStopMode();
+  #endif
   
   /* cd.tsl237_frequency = 25.0; */
   /* cd.magarcsec2_value = 25.0; */
