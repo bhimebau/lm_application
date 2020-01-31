@@ -21,18 +21,29 @@
 #include "sample.h"
 #include "cal.h"
 
-int32_t calibration_ram[(DARK_MAG-BRIGHT_MAG)*10+1];
+int32_t calibration_ram[CAL_MAX_INDEX];
 
 void cal_command(char *arguments) {
   if (!arguments) {
-    // Show the calibration
+    cal_show_sram();
     return;
   }
   else if (!strcmp(arguments,"blank")) {
     cal_blank();
   }
-  else if (!strcmp(arguments,"sram")) {
-    cal_show_sram();
+  else if (!strcmp(arguments,"load")) {
+    if (!cal_load()) {
+      printf("OK\n\r");
+    }
+    else {
+      printf("NOK\n\r");
+    }
+  }
+  else if (!strcmp(arguments,"store")) {
+    printf("store the cal in flash - unimplemented\n\r");
+  }
+  else if (!strcmp(arguments,"write")) {
+    printf("write a cal value to sram\n\r");
   }
   else {
     printf("argument = %s\n\r",arguments);
@@ -49,14 +60,29 @@ int cal_blank(void) {
 }
 
 int cal_show_sram(void) {
-  int i;
-  for (i=0;i<CAL_MAX_INDEX;i++) {
-    printf("%d.%d:%d\n\r",(i/10)+BRIGHT_MAG,i%10,(int)calibration_ram[i]);
+  int i = 0;
+  printf("%2d.0:%11d ",i+BRIGHT_MAG,(int)calibration_ram[i]);
+  for (i=1;i<CAL_MAX_INDEX;i++) {
+    if (!(i%10)) {
+      printf("\n\r%2d.0:",(i/10)+BRIGHT_MAG);
+    }
+    printf("%11d ",(int)calibration_ram[i]);
   }
-  printf("OK\n\r");
+  printf("\n\rOK\n\r");
   return(0);
-  
 }
+
+int cal_load(void) {
+  int i;
+  uint32_t *p = (uint32_t *) CAL_START;
+  for (i=0;i<CAL_MAX_INDEX;i++) {
+    calibration_ram[i] = *p;
+    p++;
+  }
+  return (0);
+}
+
+
 
 int flash_caldata(int index, caldata_t * val) {
   HAL_StatusTypeDef status;
