@@ -17,5 +17,8 @@
 int flash_caldata(int, caldata_t *);
 int cal_blank(void);
 int cal_show_sram(void);
-int cal_load(void);
+int cal_f2r(void);
+int cal_r2f(void);
+int cal_write(char *,uint32_t);
+
 

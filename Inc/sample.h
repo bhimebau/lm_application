@@ -9,3 +9,4 @@
  */
 
 void sample(void);
+uint32_t sample_noflash();

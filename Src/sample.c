@@ -45,3 +45,20 @@ void sample(void) {
   HAL_TIM_IC_DeInit(&htim2);
 }
 
+uint32_t sample_noflash(void) {
+  uint32_t light_data;
+
+  //  HAL_ADC_Init(&hadc1);
+  // Calibrate the A2D
+  //   while (HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED) != HAL_OK); // must be done on each init of the converter. 
+  HAL_TIM_Base_Init(&htim2);
+  HAL_TIM_IC_Init(&htim2);
+  //  HAL_Delay(5);
+  light_data = tsl237_readsensor();
+  //  HAL_ADC_DeInit(&hadc1);
+  HAL_TIM_Base_DeInit(&htim2);
+  HAL_TIM_IC_DeInit(&htim2);
+  return (light_data);
+}
+
+  

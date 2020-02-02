@@ -44,14 +44,16 @@ void tsl237_command(char *arguments) {
     printf("NOK\n\r");
   }
   else {
-    printf("%.3f\n\r",(double) tsl237_readsensor());
+    //  printf("%.3f\n\r",(double) tsl237_readsensor());
+    printf("%dn\r",(int) tsl237_readsensor());
     printf("OK\n\r");
   }
 }
 
-float tsl237_readsensor() {
+uint32_t tsl237_readsensor() {
   long long sum = 0;
-  float average_period;
+  //float average_period;
+  uint32_t average_period;
   int i;
   uint32_t buf[NUM_SAMPLES];
   tsl237_vdd_on();  // Power on the sensor 
@@ -70,7 +72,8 @@ float tsl237_readsensor() {
           sum += (long long) ((htim2.Instance->ARR - buf[i-1]) + buf[i]);
         }
       }
-      average_period = (float) sum/(NUM_SAMPLES-1);  // Compute the average 
+      //    average_period = (float) sum/(NUM_SAMPLES-1);  // Compute the average
+      average_period = sum/(NUM_SAMPLES-1);  // Compute the average
       break;
     }
   }
@@ -78,7 +81,8 @@ float tsl237_readsensor() {
   tsl237_vdd_off(); // Turn off the sensor to save power 
   //  __HAL_RCC_DMA1_CLK_DISABLE(); // Kick off the clock to the DMA controller
   //   HAL_TIM_Base_DeInit(&htim2);  // Uninitialize timer 2 to save power
-  return ((float) HAL_RCC_GetHCLKFreq() / average_period);
+  //  return ((float) HAL_RCC_GetHCLKFreq() / average_period);
+  return(average_period);
 }
 
 
