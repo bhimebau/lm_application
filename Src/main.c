@@ -235,8 +235,9 @@ int main(void) {
     printf("************************\n\r"); 
     flash_write_init(&fs);
     write_log_data(&fs,"r-cold");
+    cal_f2r();  // Copy calibration from flash to ram array. 
     prompt();
-   
+    
     while (1) {
       // Command Interpreter
       if (get_command(command)) {
