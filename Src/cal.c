@@ -29,6 +29,7 @@ void cal_command(char *arguments) {
   char * argv[MAX_ARGS];
   char *p = arguments;
   int i;
+  long value;
   if (!arguments) {
     cal_show_sram();
     return;
@@ -52,6 +53,12 @@ void cal_command(char *arguments) {
    
   if (!strcmp(argv[0],"blank")) {
     cal_blank();
+  }
+  else if (!strcmp(argv[0],"fillup")) {
+    cal_fill_test_ascending();
+  }
+  else if (!strcmp(argv[0],"filldown")) {
+    cal_fill_test_descending();
   }
   else if (!strcmp(argv[0],"load")) {
     if (!cal_f2r()) {
@@ -77,6 +84,16 @@ void cal_command(char *arguments) {
       printf("NOK\n\r");
     }
   }
+  else if (!strcmp(argv[0],"lookup")) {
+    value = strtol(argv[1],NULL,10);
+    if ((value=cal_lookup(value))!=-1) {
+      printf("%d.%d\n\r",(int)(value/100),(int)(value%100));
+      printf("OK\n\r");
+    }
+    else {
+      printf("NOK\n\r");
+    }
+  }
   else {
     printf("argument = %s\n\r",arguments);
     printf("OK\n\r");
@@ -90,6 +107,27 @@ int cal_blank(void) {
   }
   return(0);
 }
+
+int cal_fill_test_ascending(void) {
+  int i;
+  int data = 100;
+  for (i=0;i<CAL_MAX_INDEX;i++) {
+    calibration_ram[i] = data;
+    data+=100;
+  }
+  return(0);
+}
+
+int cal_fill_test_descending(void) {
+  int i;
+  int data = 20100;
+  for (i=0;i<CAL_MAX_INDEX;i++) {
+    calibration_ram[i] = data;
+    data-=100;
+  }
+  return(0);
+}
+
 
 int cal_show_sram(void) {
   int i = 0;
@@ -194,8 +232,50 @@ int cal_write(char * mag, uint32_t data) {
   return(0);
 }
 
-
-
+int cal_lookup(uint32_t count) {
+  int i;
+  int index = -1;
+  int delta = 0;
+  for (i=0;i<(CAL_MAX_INDEX-1);i++) {
+    // Acending Values 
+    if (calibration_ram[i] < calibration_ram[i+1]) {
+      if ((count >= calibration_ram[i]) &&
+          (count <= calibration_ram[i+1])) {
+        index = i;
+        delta = (calibration_ram[i+1]-calibration_ram[i])/10;
+        count = (count-calibration_ram[i])/delta;
+        index = (index + (BRIGHT_MAG*10))*10;
+        index = index + count;
+        break;
+      }  
+    }
+    // Decending Values
+    else if (calibration_ram[i] > calibration_ram[i+1]) {
+      if ((count <= calibration_ram[i]) &&
+          (count >= calibration_ram[i+1])) {
+        index = i;
+        delta = (calibration_ram[i]-calibration_ram[i+1])/10;
+        count = (count-calibration_ram[i+1])/delta;
+        if (count == 0) {
+          index = index+1;
+        }
+        index = (index + (BRIGHT_MAG*10))*10;
+        index = index + count;
+        break;
+      }  
+    }
+    // Flat Values
+    else {
+      if (count==calibration_ram[i]) {
+        index = i;
+        count = 0;
+        break;
+      }
+    }
+  }
+  return(index);
+}
+  
 int flash_caldata(int index, caldata_t * val) {
   HAL_StatusTypeDef status;
   uint64_t *q = (uint64_t *) val;
