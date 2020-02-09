@@ -289,8 +289,8 @@ int cal_complete(void) {
   float x1,x2,y1,y2;
   float m, b;
   float value;
-  int begin, end;
-  int loops = 0;
+  int begin = 0;
+  int end = 0;
   int found = 0;
   int last_pass = 0;
     // see of the first element in the table has a value.
@@ -325,8 +325,8 @@ int cal_complete(void) {
     if (i == CAL_MAX_INDEX) {
       last_pass = 1;
     }
-    printf("begin=%d, end=%d\n\r",begin, end);
-    printf("x1=%f,y1=%f  x2=%f,y2=%f\n\r",x1,y1,x2,y2);
+    /* printf("begin=%d, end=%d\n\r",begin, end); */
+    /* printf("x1=%f,y1=%f  x2=%f,y2=%f\n\r",x1,y1,x2,y2); */
     // compute the slope
     m = (y2-y1)/(x2-x1);
     
@@ -334,7 +334,7 @@ int cal_complete(void) {
     b = y1 - (m * x1);
     
     // print the equation for the line 
-    printf("line equation: y = %.2f*x + %.2f\n\r",m,b);
+    /* printf("line equation: y = %.2f*x + %.2f\n\r",m,b); */
     
     // Compute the intermediate points
     for (i=begin+1;i<end;i++) {
@@ -342,7 +342,6 @@ int cal_complete(void) {
       calibration_ram[i] = (int) value;
     }
     begin = end;
-    loops++;
   }
   return (0);
 }

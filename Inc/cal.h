@@ -13,7 +13,7 @@
 #define DARK_MAG 25
 #define BRIGHT_MAG 5
 #define CAL_MAX_INDEX ((DARK_MAG-BRIGHT_MAG)*10+1)
-#define CAL_MAX_VALUE 200000
+#define CAL_MAX_VALUE 10000
 #define CAL_MIN_VALUE 10
 
 int flash_caldata(int, caldata_t *);
