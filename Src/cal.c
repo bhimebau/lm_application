@@ -94,6 +94,14 @@ void cal_command(char *arguments) {
       printf("NOK\n\r");
     }
   }
+  else if (!strcmp(argv[0],"complete")) {
+    cal_complete();
+    printf("OK\n\r");
+  }
+  else if (!strcmp(argv[0],"fake")) {
+    cal_fake();
+    printf("OK\n\r");
+  }
   else {
     printf("argument = %s\n\r",arguments);
     printf("OK\n\r");
@@ -275,7 +283,79 @@ int cal_lookup(uint32_t count) {
   }
   return(index);
 }
-  
+
+int cal_complete(void) {
+  int i;
+  float x1,x2,y1,y2;
+  float m, b;
+  float value;
+  int begin, end;
+  int loops = 0;
+  int found = 0;
+  int last_pass = 0;
+    // see of the first element in the table has a value.
+  begin = 0;
+  while (!last_pass) {
+    if (calibration_ram[begin]==-1) {
+      x1 = begin;
+      y1 = CAL_MIN_VALUE;
+      calibration_ram[begin] = CAL_MIN_VALUE;
+    }
+    else {
+      x1 = begin;
+      y1 = calibration_ram[begin];
+    }
+    found = 0;
+    for (i=begin+1;i<CAL_MAX_INDEX;i++) {
+      if (calibration_ram[i] != -1) {
+        end = i;
+        x2=end;
+        y2=calibration_ram[i];
+        found = 1;
+        break;
+      }
+    }
+    if (!found) {
+      i = CAL_MAX_INDEX;
+      x2 = CAL_MAX_INDEX;
+      y2 = CAL_MAX_VALUE;
+      end = CAL_MAX_INDEX-1;
+      calibration_ram[end] = CAL_MAX_VALUE;
+    }
+    if (i == CAL_MAX_INDEX) {
+      last_pass = 1;
+    }
+    printf("begin=%d, end=%d\n\r",begin, end);
+    printf("x1=%f,y1=%f  x2=%f,y2=%f\n\r",x1,y1,x2,y2);
+    // compute the slope
+    m = (y2-y1)/(x2-x1);
+    
+    // compute the y-intercept
+    b = y1 - (m * x1);
+    
+    // print the equation for the line 
+    printf("line equation: y = %.2f*x + %.2f\n\r",m,b);
+    
+    // Compute the intermediate points
+    for (i=begin+1;i<end;i++) {
+      value = m * (float) i + b;
+      calibration_ram[i] = (int) value;
+    }
+    begin = end;
+    loops++;
+  }
+  return (0);
+}
+
+int cal_fake(void) {
+  cal_blank();
+  calibration_ram[50] = 1000;
+  calibration_ram[100] = 3000;
+  calibration_ram[150] = 6000;
+  calibration_ram[190] = 13000;
+  return(0);
+}
+
 int flash_caldata(int index, caldata_t * val) {
   HAL_StatusTypeDef status;
   uint64_t *q = (uint64_t *) val;
