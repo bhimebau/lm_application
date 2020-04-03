@@ -1,7 +1,8 @@
 # lm_application
 
-From the main dir ... 
-This code has been developed to implement the light pollution sensor application. The operation is described in the theory of operation document. 
+This code has been developed to implement the light pollution sensor
+application. The operation is described in the theory of operation
+document.
 
 ## References
 
