@@ -1,0 +1,70 @@
+\hypertarget{retarget_8h}{}\section{Inc/retarget.h File Reference}
+\label{retarget_8h}\index{Inc/retarget.\+h@{Inc/retarget.\+h}}
+{\ttfamily \#include \char`\"{}stm32l4xx\+\_\+hal.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$sys/stat.\+h$>$}\newline
+Include dependency graph for retarget.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{retarget_8h_ac7028227e5051dfa3bb8fabb0edd07c8}{Retarget\+Init} (U\+A\+R\+T\+\_\+\+Handle\+Type\+Def $\ast$huart)
+\item 
+int \hyperlink{retarget_8h_a4284676ccba12d7f2061d338001f71fb}{\+\_\+isatty} (int fd)
+\item 
+int \hyperlink{retarget_8h_a0c1fa2d02c07b22bf2ebd769a028b852}{\+\_\+write} (int fd, char $\ast$ptr, int len)
+\item 
+int \hyperlink{retarget_8h_a58a559c63748012aab165d5f82af766d}{\+\_\+close} (int fd)
+\item 
+int \hyperlink{retarget_8h_a883d6c1f92ad3c6f19731e7b57b2c458}{\+\_\+lseek} (int fd, int ptr, int dir)
+\item 
+int \hyperlink{retarget_8h_ab60e5acd5530805f1421802fc0dc1d35}{\+\_\+read} (int fd, char $\ast$ptr, int len)
+\item 
+int \hyperlink{retarget_8h_a6e8d95db883bc4efe10c487d74e96b06}{\+\_\+fstat} (int fd, struct stat $\ast$st)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{retarget_8h_a58a559c63748012aab165d5f82af766d}\label{retarget_8h_a58a559c63748012aab165d5f82af766d}} 
+\index{retarget.\+h@{retarget.\+h}!\+\_\+close@{\+\_\+close}}
+\index{\+\_\+close@{\+\_\+close}!retarget.\+h@{retarget.\+h}}
+\subsubsection{\texorpdfstring{\+\_\+close()}{\_close()}}
+{\footnotesize\ttfamily int \+\_\+close (\begin{DoxyParamCaption}\item[{int}]{fd }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8h_a6e8d95db883bc4efe10c487d74e96b06}\label{retarget_8h_a6e8d95db883bc4efe10c487d74e96b06}} 
+\index{retarget.\+h@{retarget.\+h}!\+\_\+fstat@{\+\_\+fstat}}
+\index{\+\_\+fstat@{\+\_\+fstat}!retarget.\+h@{retarget.\+h}}
+\subsubsection{\texorpdfstring{\+\_\+fstat()}{\_fstat()}}
+{\footnotesize\ttfamily int \+\_\+fstat (\begin{DoxyParamCaption}\item[{int}]{fd,  }\item[{struct stat $\ast$}]{st }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8h_a4284676ccba12d7f2061d338001f71fb}\label{retarget_8h_a4284676ccba12d7f2061d338001f71fb}} 
+\index{retarget.\+h@{retarget.\+h}!\+\_\+isatty@{\+\_\+isatty}}
+\index{\+\_\+isatty@{\+\_\+isatty}!retarget.\+h@{retarget.\+h}}
+\subsubsection{\texorpdfstring{\+\_\+isatty()}{\_isatty()}}
+{\footnotesize\ttfamily int \+\_\+isatty (\begin{DoxyParamCaption}\item[{int}]{fd }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8h_a883d6c1f92ad3c6f19731e7b57b2c458}\label{retarget_8h_a883d6c1f92ad3c6f19731e7b57b2c458}} 
+\index{retarget.\+h@{retarget.\+h}!\+\_\+lseek@{\+\_\+lseek}}
+\index{\+\_\+lseek@{\+\_\+lseek}!retarget.\+h@{retarget.\+h}}
+\subsubsection{\texorpdfstring{\+\_\+lseek()}{\_lseek()}}
+{\footnotesize\ttfamily int \+\_\+lseek (\begin{DoxyParamCaption}\item[{int}]{fd,  }\item[{int}]{ptr,  }\item[{int}]{dir }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8h_ab60e5acd5530805f1421802fc0dc1d35}\label{retarget_8h_ab60e5acd5530805f1421802fc0dc1d35}} 
+\index{retarget.\+h@{retarget.\+h}!\+\_\+read@{\+\_\+read}}
+\index{\+\_\+read@{\+\_\+read}!retarget.\+h@{retarget.\+h}}
+\subsubsection{\texorpdfstring{\+\_\+read()}{\_read()}}
+{\footnotesize\ttfamily int \+\_\+read (\begin{DoxyParamCaption}\item[{int}]{fd,  }\item[{char $\ast$}]{ptr,  }\item[{int}]{len }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8h_a0c1fa2d02c07b22bf2ebd769a028b852}\label{retarget_8h_a0c1fa2d02c07b22bf2ebd769a028b852}} 
+\index{retarget.\+h@{retarget.\+h}!\+\_\+write@{\+\_\+write}}
+\index{\+\_\+write@{\+\_\+write}!retarget.\+h@{retarget.\+h}}
+\subsubsection{\texorpdfstring{\+\_\+write()}{\_write()}}
+{\footnotesize\ttfamily int \+\_\+write (\begin{DoxyParamCaption}\item[{int}]{fd,  }\item[{char $\ast$}]{ptr,  }\item[{int}]{len }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8h_ac7028227e5051dfa3bb8fabb0edd07c8}\label{retarget_8h_ac7028227e5051dfa3bb8fabb0edd07c8}} 
+\index{retarget.\+h@{retarget.\+h}!Retarget\+Init@{Retarget\+Init}}
+\index{Retarget\+Init@{Retarget\+Init}!retarget.\+h@{retarget.\+h}}
+\subsubsection{\texorpdfstring{Retarget\+Init()}{RetargetInit()}}
+{\footnotesize\ttfamily void Retarget\+Init (\begin{DoxyParamCaption}\item[{U\+A\+R\+T\+\_\+\+Handle\+Type\+Def $\ast$}]{huart }\end{DoxyParamCaption})}
+

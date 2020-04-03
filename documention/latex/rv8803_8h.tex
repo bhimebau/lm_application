@@ -1,0 +1,107 @@
+\hypertarget{rv8803_8h}{}\section{Inc/rv8803.h File Reference}
+\label{rv8803_8h}\index{Inc/rv8803.\+h@{Inc/rv8803.\+h}}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structrv8803__time__date__t}{rv8803\+\_\+time\+\_\+date\+\_\+t}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{rv8803_8h_a220b9e7fff6da0ebaff014e7c3a7b953}{R\+V8803\+\_\+\+A\+D\+DR}~0x64
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{rv8803_8h_a42c1d50a3a686b53bcf373848bfc65b7}{rv8803\+\_\+readreg} (I2\+C\+\_\+\+Handle\+Type\+Def $\ast$, uint8\+\_\+t, uint8\+\_\+t $\ast$, uint16\+\_\+t)
+\item 
+int \hyperlink{rv8803_8h_a915b261c142209dddd139dc0ee16fd6d}{rv8803\+\_\+writereg} (I2\+C\+\_\+\+Handle\+Type\+Def $\ast$, uint8\+\_\+t, uint8\+\_\+t $\ast$, uint16\+\_\+t)
+\item 
+int \hyperlink{rv8803_8h_a0eb35862db54ad7f953a30394668e24b}{rv8803\+\_\+set\+\_\+1khz\+\_\+clkout} (I2\+C\+\_\+\+Handle\+Type\+Def $\ast$\hyperlink{main_8c_a5ccf4a01a8d7f08d3190181f843f7515}{hi2c3})
+\item 
+int \hyperlink{rv8803_8h_af4a6d4db82bdf88d015950adec701f64}{rv8803\+\_\+set\+\_\+32khz\+\_\+clkout} (I2\+C\+\_\+\+Handle\+Type\+Def $\ast$\hyperlink{main_8c_a5ccf4a01a8d7f08d3190181f843f7515}{hi2c3})
+\item 
+int \hyperlink{rv8803_8h_a9294084553bb80b0e8b38fe8820f99b2}{rv8803\+\_\+read\+\_\+time} (I2\+C\+\_\+\+Handle\+Type\+Def $\ast$, \hyperlink{structrv8803__time__date__t}{rv8803\+\_\+time\+\_\+date\+\_\+t} $\ast$)
+\item 
+int \hyperlink{rv8803_8h_af4d27fbab17e7304c6aa1626cc127dab}{rv8803\+\_\+write\+\_\+time} (I2\+C\+\_\+\+Handle\+Type\+Def $\ast$, \hyperlink{structrv8803__time__date__t}{rv8803\+\_\+time\+\_\+date\+\_\+t} $\ast$)
+\item 
+uint8\+\_\+t \hyperlink{rv8803_8h_ac810634a32fef2651712d3ef3f579684}{bcd2dec} (uint8\+\_\+t)
+\item 
+uint8\+\_\+t \hyperlink{rv8803_8h_a702580e86c6bb5a1ebe96375777a4d98}{dec2bcd} (uint8\+\_\+t)
+\item 
+int \hyperlink{rv8803_8h_a88f24b7a7dc7cf9d0f92d41f232f45ef}{timestruct\+\_\+bcd2dec} (\hyperlink{structrv8803__time__date__t}{rv8803\+\_\+time\+\_\+date\+\_\+t} $\ast$ts)
+\item 
+int \hyperlink{rv8803_8h_a609910a4651f5d58203ad96ced162fe7}{timestruct\+\_\+dec2bcd} (\hyperlink{structrv8803__time__date__t}{rv8803\+\_\+time\+\_\+date\+\_\+t} $\ast$ts)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{rv8803_8h_a220b9e7fff6da0ebaff014e7c3a7b953}\label{rv8803_8h_a220b9e7fff6da0ebaff014e7c3a7b953}} 
+\index{rv8803.\+h@{rv8803.\+h}!R\+V8803\+\_\+\+A\+D\+DR@{R\+V8803\+\_\+\+A\+D\+DR}}
+\index{R\+V8803\+\_\+\+A\+D\+DR@{R\+V8803\+\_\+\+A\+D\+DR}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{R\+V8803\+\_\+\+A\+D\+DR}{RV8803\_ADDR}}
+{\footnotesize\ttfamily \#define R\+V8803\+\_\+\+A\+D\+DR~0x64}
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{rv8803_8h_ac810634a32fef2651712d3ef3f579684}\label{rv8803_8h_ac810634a32fef2651712d3ef3f579684}} 
+\index{rv8803.\+h@{rv8803.\+h}!bcd2dec@{bcd2dec}}
+\index{bcd2dec@{bcd2dec}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{bcd2dec()}{bcd2dec()}}
+{\footnotesize\ttfamily uint8\+\_\+t bcd2dec (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rv8803_8h_a702580e86c6bb5a1ebe96375777a4d98}\label{rv8803_8h_a702580e86c6bb5a1ebe96375777a4d98}} 
+\index{rv8803.\+h@{rv8803.\+h}!dec2bcd@{dec2bcd}}
+\index{dec2bcd@{dec2bcd}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{dec2bcd()}{dec2bcd()}}
+{\footnotesize\ttfamily uint8\+\_\+t dec2bcd (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rv8803_8h_a9294084553bb80b0e8b38fe8820f99b2}\label{rv8803_8h_a9294084553bb80b0e8b38fe8820f99b2}} 
+\index{rv8803.\+h@{rv8803.\+h}!rv8803\+\_\+read\+\_\+time@{rv8803\+\_\+read\+\_\+time}}
+\index{rv8803\+\_\+read\+\_\+time@{rv8803\+\_\+read\+\_\+time}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{rv8803\+\_\+read\+\_\+time()}{rv8803\_read\_time()}}
+{\footnotesize\ttfamily int rv8803\+\_\+read\+\_\+time (\begin{DoxyParamCaption}\item[{I2\+C\+\_\+\+Handle\+Type\+Def $\ast$}]{,  }\item[{\hyperlink{structrv8803__time__date__t}{rv8803\+\_\+time\+\_\+date\+\_\+t} $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rv8803_8h_a42c1d50a3a686b53bcf373848bfc65b7}\label{rv8803_8h_a42c1d50a3a686b53bcf373848bfc65b7}} 
+\index{rv8803.\+h@{rv8803.\+h}!rv8803\+\_\+readreg@{rv8803\+\_\+readreg}}
+\index{rv8803\+\_\+readreg@{rv8803\+\_\+readreg}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{rv8803\+\_\+readreg()}{rv8803\_readreg()}}
+{\footnotesize\ttfamily int rv8803\+\_\+readreg (\begin{DoxyParamCaption}\item[{I2\+C\+\_\+\+Handle\+Type\+Def $\ast$}]{,  }\item[{uint8\+\_\+t}]{,  }\item[{uint8\+\_\+t $\ast$}]{,  }\item[{uint16\+\_\+t}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rv8803_8h_a0eb35862db54ad7f953a30394668e24b}\label{rv8803_8h_a0eb35862db54ad7f953a30394668e24b}} 
+\index{rv8803.\+h@{rv8803.\+h}!rv8803\+\_\+set\+\_\+1khz\+\_\+clkout@{rv8803\+\_\+set\+\_\+1khz\+\_\+clkout}}
+\index{rv8803\+\_\+set\+\_\+1khz\+\_\+clkout@{rv8803\+\_\+set\+\_\+1khz\+\_\+clkout}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{rv8803\+\_\+set\+\_\+1khz\+\_\+clkout()}{rv8803\_set\_1khz\_clkout()}}
+{\footnotesize\ttfamily int rv8803\+\_\+set\+\_\+1khz\+\_\+clkout (\begin{DoxyParamCaption}\item[{I2\+C\+\_\+\+Handle\+Type\+Def $\ast$}]{hi2c3 }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rv8803_8h_af4a6d4db82bdf88d015950adec701f64}\label{rv8803_8h_af4a6d4db82bdf88d015950adec701f64}} 
+\index{rv8803.\+h@{rv8803.\+h}!rv8803\+\_\+set\+\_\+32khz\+\_\+clkout@{rv8803\+\_\+set\+\_\+32khz\+\_\+clkout}}
+\index{rv8803\+\_\+set\+\_\+32khz\+\_\+clkout@{rv8803\+\_\+set\+\_\+32khz\+\_\+clkout}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{rv8803\+\_\+set\+\_\+32khz\+\_\+clkout()}{rv8803\_set\_32khz\_clkout()}}
+{\footnotesize\ttfamily int rv8803\+\_\+set\+\_\+32khz\+\_\+clkout (\begin{DoxyParamCaption}\item[{I2\+C\+\_\+\+Handle\+Type\+Def $\ast$}]{hi2c3 }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rv8803_8h_af4d27fbab17e7304c6aa1626cc127dab}\label{rv8803_8h_af4d27fbab17e7304c6aa1626cc127dab}} 
+\index{rv8803.\+h@{rv8803.\+h}!rv8803\+\_\+write\+\_\+time@{rv8803\+\_\+write\+\_\+time}}
+\index{rv8803\+\_\+write\+\_\+time@{rv8803\+\_\+write\+\_\+time}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{rv8803\+\_\+write\+\_\+time()}{rv8803\_write\_time()}}
+{\footnotesize\ttfamily int rv8803\+\_\+write\+\_\+time (\begin{DoxyParamCaption}\item[{I2\+C\+\_\+\+Handle\+Type\+Def $\ast$}]{,  }\item[{\hyperlink{structrv8803__time__date__t}{rv8803\+\_\+time\+\_\+date\+\_\+t} $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rv8803_8h_a915b261c142209dddd139dc0ee16fd6d}\label{rv8803_8h_a915b261c142209dddd139dc0ee16fd6d}} 
+\index{rv8803.\+h@{rv8803.\+h}!rv8803\+\_\+writereg@{rv8803\+\_\+writereg}}
+\index{rv8803\+\_\+writereg@{rv8803\+\_\+writereg}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{rv8803\+\_\+writereg()}{rv8803\_writereg()}}
+{\footnotesize\ttfamily int rv8803\+\_\+writereg (\begin{DoxyParamCaption}\item[{I2\+C\+\_\+\+Handle\+Type\+Def $\ast$}]{,  }\item[{uint8\+\_\+t}]{,  }\item[{uint8\+\_\+t $\ast$}]{,  }\item[{uint16\+\_\+t}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rv8803_8h_a88f24b7a7dc7cf9d0f92d41f232f45ef}\label{rv8803_8h_a88f24b7a7dc7cf9d0f92d41f232f45ef}} 
+\index{rv8803.\+h@{rv8803.\+h}!timestruct\+\_\+bcd2dec@{timestruct\+\_\+bcd2dec}}
+\index{timestruct\+\_\+bcd2dec@{timestruct\+\_\+bcd2dec}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{timestruct\+\_\+bcd2dec()}{timestruct\_bcd2dec()}}
+{\footnotesize\ttfamily int timestruct\+\_\+bcd2dec (\begin{DoxyParamCaption}\item[{\hyperlink{structrv8803__time__date__t}{rv8803\+\_\+time\+\_\+date\+\_\+t} $\ast$}]{ts }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rv8803_8h_a609910a4651f5d58203ad96ced162fe7}\label{rv8803_8h_a609910a4651f5d58203ad96ced162fe7}} 
+\index{rv8803.\+h@{rv8803.\+h}!timestruct\+\_\+dec2bcd@{timestruct\+\_\+dec2bcd}}
+\index{timestruct\+\_\+dec2bcd@{timestruct\+\_\+dec2bcd}!rv8803.\+h@{rv8803.\+h}}
+\subsubsection{\texorpdfstring{timestruct\+\_\+dec2bcd()}{timestruct\_dec2bcd()}}
+{\footnotesize\ttfamily int timestruct\+\_\+dec2bcd (\begin{DoxyParamCaption}\item[{\hyperlink{structrv8803__time__date__t}{rv8803\+\_\+time\+\_\+date\+\_\+t} $\ast$}]{ts }\end{DoxyParamCaption})}
+

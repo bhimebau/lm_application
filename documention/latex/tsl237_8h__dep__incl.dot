@@ -1,0 +1,16 @@
+digraph "Inc/tsl237.h"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="Inc/tsl237.h",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid"];
+  Node2 [label="Src/cal.c",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$cal_8c.html"];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid"];
+  Node3 [label="Src/flash.c",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$flash_8c.html"];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid"];
+  Node4 [label="Src/main.c",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$main_8c.html",tooltip=": Main program body "];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid"];
+  Node5 [label="Src/sample.c",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$sample_8c.html"];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid"];
+  Node6 [label="Src/tsl237.c",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$Src_2tsl237_8c.html"];
+}

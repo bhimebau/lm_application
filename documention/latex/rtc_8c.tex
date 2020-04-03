@@ -1,0 +1,77 @@
+\hypertarget{rtc_8c}{}\section{Src/rtc.c File Reference}
+\label{rtc_8c}\index{Src/rtc.\+c@{Src/rtc.\+c}}
+{\ttfamily \#include \char`\"{}main.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}rtc.\+h\char`\"{}}\newline
+Include dependency graph for rtc.\+c\+:
+% FIG 0
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{rtc_8c_abbeb82818425ce05fa4510455ffcbda5}{ds\+\_\+command} (char $\ast$arguments)
+\item 
+void \hyperlink{rtc_8c_abd818ebb099d573647a39b8f96252dbc}{ts\+\_\+command} (char $\ast$arguments)
+\item 
+void \hyperlink{rtc_8c_aa4374d45e6be2570a7e9d7c5f5435f78}{tr\+\_\+command} (char $\ast$arguments)
+\item 
+void \hyperlink{rtc_8c_aaec93ce711d91fb6867fa0b855f53910}{dr\+\_\+command} (char $\ast$arguments)
+\item 
+uint32\+\_\+t \hyperlink{rtc_8c_a701619892591e5cd5b242b83cb16eec8}{pack\+\_\+time} (R\+T\+C\+\_\+\+Time\+Type\+Def $\ast$time, R\+T\+C\+\_\+\+Date\+Type\+Def $\ast$date)
+\item 
+void \hyperlink{rtc_8c_a953d4ca458b5a21c4e4e450cb9ba9fab}{unpack\+\_\+time} (uint32\+\_\+t timeval, R\+T\+C\+\_\+\+Time\+Type\+Def $\ast$time, R\+T\+C\+\_\+\+Date\+Type\+Def $\ast$date)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+R\+T\+C\+\_\+\+Handle\+Type\+Def \hyperlink{rtc_8c_aa0c7fca836406ade332e1e3f1039d8ab}{hrtc}
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{rtc_8c_aaec93ce711d91fb6867fa0b855f53910}\label{rtc_8c_aaec93ce711d91fb6867fa0b855f53910}} 
+\index{rtc.\+c@{rtc.\+c}!dr\+\_\+command@{dr\+\_\+command}}
+\index{dr\+\_\+command@{dr\+\_\+command}!rtc.\+c@{rtc.\+c}}
+\subsubsection{\texorpdfstring{dr\+\_\+command()}{dr\_command()}}
+{\footnotesize\ttfamily void dr\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{arguments }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rtc_8c_abbeb82818425ce05fa4510455ffcbda5}\label{rtc_8c_abbeb82818425ce05fa4510455ffcbda5}} 
+\index{rtc.\+c@{rtc.\+c}!ds\+\_\+command@{ds\+\_\+command}}
+\index{ds\+\_\+command@{ds\+\_\+command}!rtc.\+c@{rtc.\+c}}
+\subsubsection{\texorpdfstring{ds\+\_\+command()}{ds\_command()}}
+{\footnotesize\ttfamily void ds\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{arguments }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rtc_8c_a701619892591e5cd5b242b83cb16eec8}\label{rtc_8c_a701619892591e5cd5b242b83cb16eec8}} 
+\index{rtc.\+c@{rtc.\+c}!pack\+\_\+time@{pack\+\_\+time}}
+\index{pack\+\_\+time@{pack\+\_\+time}!rtc.\+c@{rtc.\+c}}
+\subsubsection{\texorpdfstring{pack\+\_\+time()}{pack\_time()}}
+{\footnotesize\ttfamily uint32\+\_\+t pack\+\_\+time (\begin{DoxyParamCaption}\item[{R\+T\+C\+\_\+\+Time\+Type\+Def $\ast$}]{time,  }\item[{R\+T\+C\+\_\+\+Date\+Type\+Def $\ast$}]{date }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rtc_8c_aa4374d45e6be2570a7e9d7c5f5435f78}\label{rtc_8c_aa4374d45e6be2570a7e9d7c5f5435f78}} 
+\index{rtc.\+c@{rtc.\+c}!tr\+\_\+command@{tr\+\_\+command}}
+\index{tr\+\_\+command@{tr\+\_\+command}!rtc.\+c@{rtc.\+c}}
+\subsubsection{\texorpdfstring{tr\+\_\+command()}{tr\_command()}}
+{\footnotesize\ttfamily void tr\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{arguments }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rtc_8c_abd818ebb099d573647a39b8f96252dbc}\label{rtc_8c_abd818ebb099d573647a39b8f96252dbc}} 
+\index{rtc.\+c@{rtc.\+c}!ts\+\_\+command@{ts\+\_\+command}}
+\index{ts\+\_\+command@{ts\+\_\+command}!rtc.\+c@{rtc.\+c}}
+\subsubsection{\texorpdfstring{ts\+\_\+command()}{ts\_command()}}
+{\footnotesize\ttfamily void ts\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{arguments }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rtc_8c_a953d4ca458b5a21c4e4e450cb9ba9fab}\label{rtc_8c_a953d4ca458b5a21c4e4e450cb9ba9fab}} 
+\index{rtc.\+c@{rtc.\+c}!unpack\+\_\+time@{unpack\+\_\+time}}
+\index{unpack\+\_\+time@{unpack\+\_\+time}!rtc.\+c@{rtc.\+c}}
+\subsubsection{\texorpdfstring{unpack\+\_\+time()}{unpack\_time()}}
+{\footnotesize\ttfamily void unpack\+\_\+time (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{timeval,  }\item[{R\+T\+C\+\_\+\+Time\+Type\+Def $\ast$}]{time,  }\item[{R\+T\+C\+\_\+\+Date\+Type\+Def $\ast$}]{date }\end{DoxyParamCaption})}
+
+
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{rtc_8c_aa0c7fca836406ade332e1e3f1039d8ab}\label{rtc_8c_aa0c7fca836406ade332e1e3f1039d8ab}} 
+\index{rtc.\+c@{rtc.\+c}!hrtc@{hrtc}}
+\index{hrtc@{hrtc}!rtc.\+c@{rtc.\+c}}
+\subsubsection{\texorpdfstring{hrtc}{hrtc}}
+{\footnotesize\ttfamily R\+T\+C\+\_\+\+Handle\+Type\+Def hrtc}
+

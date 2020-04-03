@@ -1,0 +1,120 @@
+\hypertarget{retarget_8c}{}\section{Src/retarget.c File Reference}
+\label{retarget_8c}\index{Src/retarget.\+c@{Src/retarget.\+c}}
+{\ttfamily \#include $<$\+\_\+ansi.\+h$>$}\newline
+{\ttfamily \#include $<$\+\_\+syslist.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$sys/time.\+h$>$}\newline
+{\ttfamily \#include $<$sys/times.\+h$>$}\newline
+{\ttfamily \#include $<$limits.\+h$>$}\newline
+{\ttfamily \#include $<$signal.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}retarget.\+h\char`\"{}}\newline
+Include dependency graph for retarget.\+c\+:
+% FIG 0
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{retarget_8c_afcf80a6d91178952d107ad00b165752b}{S\+T\+D\+I\+N\+\_\+\+F\+I\+L\+E\+NO}~0
+\item 
+\#define \hyperlink{retarget_8c_abd165ee6474b5b75bf075842fff13a04}{S\+T\+D\+O\+U\+T\+\_\+\+F\+I\+L\+E\+NO}~1
+\item 
+\#define \hyperlink{retarget_8c_ae2fe1725bb5e9823d089c46b9ed5266e}{S\+T\+D\+E\+R\+R\+\_\+\+F\+I\+L\+E\+NO}~2
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{retarget_8c_ac7028227e5051dfa3bb8fabb0edd07c8}{Retarget\+Init} (U\+A\+R\+T\+\_\+\+Handle\+Type\+Def $\ast$huart)
+\item 
+int \hyperlink{retarget_8c_a4284676ccba12d7f2061d338001f71fb}{\+\_\+isatty} (int fd)
+\item 
+int \hyperlink{retarget_8c_a0c1fa2d02c07b22bf2ebd769a028b852}{\+\_\+write} (int fd, char $\ast$ptr, int len)
+\item 
+int \hyperlink{retarget_8c_a58a559c63748012aab165d5f82af766d}{\+\_\+close} (int fd)
+\item 
+int \hyperlink{retarget_8c_a883d6c1f92ad3c6f19731e7b57b2c458}{\+\_\+lseek} (int fd, int ptr, int dir)
+\item 
+int \hyperlink{retarget_8c_ab60e5acd5530805f1421802fc0dc1d35}{\+\_\+read} (int fd, char $\ast$ptr, int len)
+\item 
+int \hyperlink{retarget_8c_a6e8d95db883bc4efe10c487d74e96b06}{\+\_\+fstat} (int fd, struct stat $\ast$st)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+U\+A\+R\+T\+\_\+\+Handle\+Type\+Def $\ast$ \hyperlink{retarget_8c_af8d99acb61924bc42b4652c2316c1b20}{g\+Huart}
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{retarget_8c_ae2fe1725bb5e9823d089c46b9ed5266e}\label{retarget_8c_ae2fe1725bb5e9823d089c46b9ed5266e}} 
+\index{retarget.\+c@{retarget.\+c}!S\+T\+D\+E\+R\+R\+\_\+\+F\+I\+L\+E\+NO@{S\+T\+D\+E\+R\+R\+\_\+\+F\+I\+L\+E\+NO}}
+\index{S\+T\+D\+E\+R\+R\+\_\+\+F\+I\+L\+E\+NO@{S\+T\+D\+E\+R\+R\+\_\+\+F\+I\+L\+E\+NO}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{S\+T\+D\+E\+R\+R\+\_\+\+F\+I\+L\+E\+NO}{STDERR\_FILENO}}
+{\footnotesize\ttfamily \#define S\+T\+D\+E\+R\+R\+\_\+\+F\+I\+L\+E\+NO~2}
+
+\mbox{\Hypertarget{retarget_8c_afcf80a6d91178952d107ad00b165752b}\label{retarget_8c_afcf80a6d91178952d107ad00b165752b}} 
+\index{retarget.\+c@{retarget.\+c}!S\+T\+D\+I\+N\+\_\+\+F\+I\+L\+E\+NO@{S\+T\+D\+I\+N\+\_\+\+F\+I\+L\+E\+NO}}
+\index{S\+T\+D\+I\+N\+\_\+\+F\+I\+L\+E\+NO@{S\+T\+D\+I\+N\+\_\+\+F\+I\+L\+E\+NO}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{S\+T\+D\+I\+N\+\_\+\+F\+I\+L\+E\+NO}{STDIN\_FILENO}}
+{\footnotesize\ttfamily \#define S\+T\+D\+I\+N\+\_\+\+F\+I\+L\+E\+NO~0}
+
+\mbox{\Hypertarget{retarget_8c_abd165ee6474b5b75bf075842fff13a04}\label{retarget_8c_abd165ee6474b5b75bf075842fff13a04}} 
+\index{retarget.\+c@{retarget.\+c}!S\+T\+D\+O\+U\+T\+\_\+\+F\+I\+L\+E\+NO@{S\+T\+D\+O\+U\+T\+\_\+\+F\+I\+L\+E\+NO}}
+\index{S\+T\+D\+O\+U\+T\+\_\+\+F\+I\+L\+E\+NO@{S\+T\+D\+O\+U\+T\+\_\+\+F\+I\+L\+E\+NO}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{S\+T\+D\+O\+U\+T\+\_\+\+F\+I\+L\+E\+NO}{STDOUT\_FILENO}}
+{\footnotesize\ttfamily \#define S\+T\+D\+O\+U\+T\+\_\+\+F\+I\+L\+E\+NO~1}
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{retarget_8c_a58a559c63748012aab165d5f82af766d}\label{retarget_8c_a58a559c63748012aab165d5f82af766d}} 
+\index{retarget.\+c@{retarget.\+c}!\+\_\+close@{\+\_\+close}}
+\index{\+\_\+close@{\+\_\+close}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{\+\_\+close()}{\_close()}}
+{\footnotesize\ttfamily int \+\_\+close (\begin{DoxyParamCaption}\item[{int}]{fd }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8c_a6e8d95db883bc4efe10c487d74e96b06}\label{retarget_8c_a6e8d95db883bc4efe10c487d74e96b06}} 
+\index{retarget.\+c@{retarget.\+c}!\+\_\+fstat@{\+\_\+fstat}}
+\index{\+\_\+fstat@{\+\_\+fstat}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{\+\_\+fstat()}{\_fstat()}}
+{\footnotesize\ttfamily int \+\_\+fstat (\begin{DoxyParamCaption}\item[{int}]{fd,  }\item[{struct stat $\ast$}]{st }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8c_a4284676ccba12d7f2061d338001f71fb}\label{retarget_8c_a4284676ccba12d7f2061d338001f71fb}} 
+\index{retarget.\+c@{retarget.\+c}!\+\_\+isatty@{\+\_\+isatty}}
+\index{\+\_\+isatty@{\+\_\+isatty}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{\+\_\+isatty()}{\_isatty()}}
+{\footnotesize\ttfamily int \+\_\+isatty (\begin{DoxyParamCaption}\item[{int}]{fd }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8c_a883d6c1f92ad3c6f19731e7b57b2c458}\label{retarget_8c_a883d6c1f92ad3c6f19731e7b57b2c458}} 
+\index{retarget.\+c@{retarget.\+c}!\+\_\+lseek@{\+\_\+lseek}}
+\index{\+\_\+lseek@{\+\_\+lseek}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{\+\_\+lseek()}{\_lseek()}}
+{\footnotesize\ttfamily int \+\_\+lseek (\begin{DoxyParamCaption}\item[{int}]{fd,  }\item[{int}]{ptr,  }\item[{int}]{dir }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8c_ab60e5acd5530805f1421802fc0dc1d35}\label{retarget_8c_ab60e5acd5530805f1421802fc0dc1d35}} 
+\index{retarget.\+c@{retarget.\+c}!\+\_\+read@{\+\_\+read}}
+\index{\+\_\+read@{\+\_\+read}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{\+\_\+read()}{\_read()}}
+{\footnotesize\ttfamily int \+\_\+read (\begin{DoxyParamCaption}\item[{int}]{fd,  }\item[{char $\ast$}]{ptr,  }\item[{int}]{len }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8c_a0c1fa2d02c07b22bf2ebd769a028b852}\label{retarget_8c_a0c1fa2d02c07b22bf2ebd769a028b852}} 
+\index{retarget.\+c@{retarget.\+c}!\+\_\+write@{\+\_\+write}}
+\index{\+\_\+write@{\+\_\+write}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{\+\_\+write()}{\_write()}}
+{\footnotesize\ttfamily int \+\_\+write (\begin{DoxyParamCaption}\item[{int}]{fd,  }\item[{char $\ast$}]{ptr,  }\item[{int}]{len }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{retarget_8c_ac7028227e5051dfa3bb8fabb0edd07c8}\label{retarget_8c_ac7028227e5051dfa3bb8fabb0edd07c8}} 
+\index{retarget.\+c@{retarget.\+c}!Retarget\+Init@{Retarget\+Init}}
+\index{Retarget\+Init@{Retarget\+Init}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{Retarget\+Init()}{RetargetInit()}}
+{\footnotesize\ttfamily void Retarget\+Init (\begin{DoxyParamCaption}\item[{U\+A\+R\+T\+\_\+\+Handle\+Type\+Def $\ast$}]{huart }\end{DoxyParamCaption})}
+
+
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{retarget_8c_af8d99acb61924bc42b4652c2316c1b20}\label{retarget_8c_af8d99acb61924bc42b4652c2316c1b20}} 
+\index{retarget.\+c@{retarget.\+c}!g\+Huart@{g\+Huart}}
+\index{g\+Huart@{g\+Huart}!retarget.\+c@{retarget.\+c}}
+\subsubsection{\texorpdfstring{g\+Huart}{gHuart}}
+{\footnotesize\ttfamily U\+A\+R\+T\+\_\+\+Handle\+Type\+Def$\ast$ g\+Huart}
+

@@ -1,0 +1,86 @@
+\hypertarget{command_8h}{}\section{Inc/command.h File Reference}
+\label{command_8h}\index{Inc/command.\+h@{Inc/command.\+h}}
+{\ttfamily \#include \char`\"{}queue.\+h\char`\"{}}\newline
+Include dependency graph for command.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structcommand}{command}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{command_8h_a81f68567c11671e8c35cfcfb454a4160}{M\+A\+X\+\_\+\+C\+O\+M\+M\+A\+N\+D\+\_\+\+L\+EN}~\hyperlink{queue_8h_a142810068f1b99cd93d3fc9f0e160e02}{Q\+U\+E\+U\+E\+\_\+\+S\+I\+ZE}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct \hyperlink{structcommand}{command} \hyperlink{command_8h_ab742005ee418c78c52c05872b8260d48}{command\+\_\+t}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{command_8h_a2fc02f8962e27a8f1113dec68dd9e98a}{get\+\_\+command} (uint8\+\_\+t $\ast$)
+\item 
+int \hyperlink{command_8h_a7ded3813a818e3e726ad7bd033eecf51}{delspace} (uint8\+\_\+t $\ast$)
+\item 
+int \hyperlink{command_8h_a354e4cff16fde48843dc6b4f4b73d9a9}{execute\+\_\+command} (uint8\+\_\+t $\ast$)
+\item 
+int \hyperlink{command_8h_a1fb5f66bc2464fb2695acb7bcaf88474}{parse\+\_\+command} (uint8\+\_\+t $\ast$, uint8\+\_\+t $\ast$$\ast$, uint8\+\_\+t $\ast$$\ast$)
+\item 
+void \hyperlink{command_8h_acb99be969a83b88957b842df172b62d2}{prompt} (void)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{command_8h_a81f68567c11671e8c35cfcfb454a4160}\label{command_8h_a81f68567c11671e8c35cfcfb454a4160}} 
+\index{command.\+h@{command.\+h}!M\+A\+X\+\_\+\+C\+O\+M\+M\+A\+N\+D\+\_\+\+L\+EN@{M\+A\+X\+\_\+\+C\+O\+M\+M\+A\+N\+D\+\_\+\+L\+EN}}
+\index{M\+A\+X\+\_\+\+C\+O\+M\+M\+A\+N\+D\+\_\+\+L\+EN@{M\+A\+X\+\_\+\+C\+O\+M\+M\+A\+N\+D\+\_\+\+L\+EN}!command.\+h@{command.\+h}}
+\subsubsection{\texorpdfstring{M\+A\+X\+\_\+\+C\+O\+M\+M\+A\+N\+D\+\_\+\+L\+EN}{MAX\_COMMAND\_LEN}}
+{\footnotesize\ttfamily \#define M\+A\+X\+\_\+\+C\+O\+M\+M\+A\+N\+D\+\_\+\+L\+EN~\hyperlink{queue_8h_a142810068f1b99cd93d3fc9f0e160e02}{Q\+U\+E\+U\+E\+\_\+\+S\+I\+ZE}}
+
+
+
+\subsection{Typedef Documentation}
+\mbox{\Hypertarget{command_8h_ab742005ee418c78c52c05872b8260d48}\label{command_8h_ab742005ee418c78c52c05872b8260d48}} 
+\index{command.\+h@{command.\+h}!command\+\_\+t@{command\+\_\+t}}
+\index{command\+\_\+t@{command\+\_\+t}!command.\+h@{command.\+h}}
+\subsubsection{\texorpdfstring{command\+\_\+t}{command\_t}}
+{\footnotesize\ttfamily typedef struct \hyperlink{structcommand}{command}  \hyperlink{command_8h_ab742005ee418c78c52c05872b8260d48}{command\+\_\+t}}
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{command_8h_a7ded3813a818e3e726ad7bd033eecf51}\label{command_8h_a7ded3813a818e3e726ad7bd033eecf51}} 
+\index{command.\+h@{command.\+h}!delspace@{delspace}}
+\index{delspace@{delspace}!command.\+h@{command.\+h}}
+\subsubsection{\texorpdfstring{delspace()}{delspace()}}
+{\footnotesize\ttfamily int delspace (\begin{DoxyParamCaption}\item[{uint8\+\_\+t $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8h_a354e4cff16fde48843dc6b4f4b73d9a9}\label{command_8h_a354e4cff16fde48843dc6b4f4b73d9a9}} 
+\index{command.\+h@{command.\+h}!execute\+\_\+command@{execute\+\_\+command}}
+\index{execute\+\_\+command@{execute\+\_\+command}!command.\+h@{command.\+h}}
+\subsubsection{\texorpdfstring{execute\+\_\+command()}{execute\_command()}}
+{\footnotesize\ttfamily int execute\+\_\+command (\begin{DoxyParamCaption}\item[{uint8\+\_\+t $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8h_a2fc02f8962e27a8f1113dec68dd9e98a}\label{command_8h_a2fc02f8962e27a8f1113dec68dd9e98a}} 
+\index{command.\+h@{command.\+h}!get\+\_\+command@{get\+\_\+command}}
+\index{get\+\_\+command@{get\+\_\+command}!command.\+h@{command.\+h}}
+\subsubsection{\texorpdfstring{get\+\_\+command()}{get\_command()}}
+{\footnotesize\ttfamily int get\+\_\+command (\begin{DoxyParamCaption}\item[{uint8\+\_\+t $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8h_a1fb5f66bc2464fb2695acb7bcaf88474}\label{command_8h_a1fb5f66bc2464fb2695acb7bcaf88474}} 
+\index{command.\+h@{command.\+h}!parse\+\_\+command@{parse\+\_\+command}}
+\index{parse\+\_\+command@{parse\+\_\+command}!command.\+h@{command.\+h}}
+\subsubsection{\texorpdfstring{parse\+\_\+command()}{parse\_command()}}
+{\footnotesize\ttfamily int parse\+\_\+command (\begin{DoxyParamCaption}\item[{uint8\+\_\+t $\ast$}]{,  }\item[{uint8\+\_\+t $\ast$$\ast$}]{,  }\item[{uint8\+\_\+t $\ast$$\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8h_acb99be969a83b88957b842df172b62d2}\label{command_8h_acb99be969a83b88957b842df172b62d2}} 
+\index{command.\+h@{command.\+h}!prompt@{prompt}}
+\index{prompt@{prompt}!command.\+h@{command.\+h}}
+\subsubsection{\texorpdfstring{prompt()}{prompt()}}
+{\footnotesize\ttfamily void prompt (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+

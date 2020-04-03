@@ -1,0 +1,320 @@
+\hypertarget{command_8c}{}\section{Src/command.c File Reference}
+\label{command_8c}\index{Src/command.\+c@{Src/command.\+c}}
+{\ttfamily \#include \char`\"{}main.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$ctype.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}strategy.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}command.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}queue.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}interrupt.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stm32l4xx\+\_\+ll\+\_\+lpuart.\+h$>$}\newline
+Include dependency graph for command.\+c\+:
+% FIG 0
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{command_8c_a06fc87d81c62e9abb8790b6e5713c55ba746a578bf607a13d7c2921e7108790c5}{C\+O\+L\+L\+E\+C\+T\+\_\+\+C\+H\+A\+RS}, 
+\hyperlink{command_8c_a06fc87d81c62e9abb8790b6e5713c55baa3e68757b780f403527171dce5823e4d}{E\+S\+C\+A\+P\+E\+\_\+\+S\+E\+Q\+U\+E\+N\+CE}, 
+\hyperlink{command_8c_a06fc87d81c62e9abb8790b6e5713c55ba00a900c9df90c74f75004b3dc04f173d}{C\+O\+M\+P\+L\+E\+TE}
+ \}
+\item 
+enum \{ \hyperlink{command_8c_adf764cbdea00d65edcd07bb9953ad2b7af5297152557c7da396243000ca240e89}{E\+SC}, 
+\hyperlink{command_8c_adf764cbdea00d65edcd07bb9953ad2b7a0cec39b7d239ce3b136a6a5c8dce4733}{L\+B\+R\+A\+C\+K\+ET}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{command_8c_acb99be969a83b88957b842df172b62d2}{prompt} (void)
+\item 
+void \hyperlink{command_8c_abd00421d1b0268aa06d5bfda43231d79}{att\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_afda53fa88005219d33d4baaf4bac48e0}{ds\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_ad9a0f8699e639d64fffaca860a03bc1b}{ts\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a7eaa85bd988907b12a26d1174a8638ec}{dr\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a961c1f8f434a35c3aeab6def41f4a344}{tr\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a4fb9ededa6c2e12309f49942963b7384}{data\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a8fac189baf669e1d939983493fea116f}{log\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_af56a3aa905a9d17ae06d8032e346a128}{erase\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_adc64c9d779e683acca9c1b9f2ebad78f}{help\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a012d710f655c6c17ce594a1763c0edba}{version\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a4f407d0a2ce19f20731701e81d08d8af}{lof\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a59bb4303fc76dd44eccb6e81da61b41f}{lon\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_adc4e87a2f1ac00fddaef3f0a0421a453}{raw\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_ac77077b02ff7e2c361e30c24fe71a3a5}{sample\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a085de5d0d9c0e9dceb9d04929ced727a}{debug\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a3a7b9454bb04ab8705628c859d347b72}{flash\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_ae86a4620b3360e228f3fa53517167dad}{uid\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_aa60922d778bc45a3a61c7fc18c12c610}{cal\+\_\+command} (char $\ast$)
+\item 
+void \hyperlink{command_8c_a201468129b483039afc5a619e2d31097}{\+\_\+\+\_\+attribute\+\_\+\+\_\+} ((weak))
+\item 
+int \hyperlink{command_8c_aa30f4c00b873d2302f4c20fc5df3ba1f}{execute\+\_\+command} (uint8\+\_\+t $\ast$line)
+\item 
+int \hyperlink{command_8c_ad7b1cbc5ceeadc2bb6d5fb7f62c9cb36}{parse\+\_\+command} (uint8\+\_\+t $\ast$line, uint8\+\_\+t $\ast$$\ast$\hyperlink{structcommand}{command}, uint8\+\_\+t $\ast$$\ast$args)
+\item 
+int \hyperlink{command_8c_aeb82c11e2d8bb3fd08592095f37cc694}{get\+\_\+command} (uint8\+\_\+t $\ast$command\+\_\+buf)
+\item 
+int \hyperlink{command_8c_abfd2dbecf27f4f7f109bf6aed578f926}{delspace} (uint8\+\_\+t $\ast$instr)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+U\+A\+R\+T\+\_\+\+Handle\+Type\+Def \hyperlink{command_8c_a2cf715bef37f7e8ef385a30974a5f0d5}{huart1}
+\item 
+R\+T\+C\+\_\+\+Handle\+Type\+Def \hyperlink{command_8c_aa0c7fca836406ade332e1e3f1039d8ab}{hrtc}
+\item 
+\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} \hyperlink{command_8c_a60f346797b70da4ff860918b6b9b3f7c}{rx\+\_\+queue}
+\item 
+\hyperlink{command_8h_ab742005ee418c78c52c05872b8260d48}{command\+\_\+t} \hyperlink{command_8c_a75717c98ba3a1b5c7b453830e68574c9}{commands} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\subsection{Enumeration Type Documentation}
+\mbox{\Hypertarget{command_8c_a06fc87d81c62e9abb8790b6e5713c55b}\label{command_8c_a06fc87d81c62e9abb8790b6e5713c55b}} 
+\subsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily anonymous enum}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{C\+O\+L\+L\+E\+C\+T\+\_\+\+C\+H\+A\+RS@{C\+O\+L\+L\+E\+C\+T\+\_\+\+C\+H\+A\+RS}!command.\+c@{command.\+c}}\index{command.\+c@{command.\+c}!C\+O\+L\+L\+E\+C\+T\+\_\+\+C\+H\+A\+RS@{C\+O\+L\+L\+E\+C\+T\+\_\+\+C\+H\+A\+RS}}}\mbox{\Hypertarget{command_8c_a06fc87d81c62e9abb8790b6e5713c55ba746a578bf607a13d7c2921e7108790c5}\label{command_8c_a06fc87d81c62e9abb8790b6e5713c55ba746a578bf607a13d7c2921e7108790c5}} 
+C\+O\+L\+L\+E\+C\+T\+\_\+\+C\+H\+A\+RS&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{E\+S\+C\+A\+P\+E\+\_\+\+S\+E\+Q\+U\+E\+N\+CE@{E\+S\+C\+A\+P\+E\+\_\+\+S\+E\+Q\+U\+E\+N\+CE}!command.\+c@{command.\+c}}\index{command.\+c@{command.\+c}!E\+S\+C\+A\+P\+E\+\_\+\+S\+E\+Q\+U\+E\+N\+CE@{E\+S\+C\+A\+P\+E\+\_\+\+S\+E\+Q\+U\+E\+N\+CE}}}\mbox{\Hypertarget{command_8c_a06fc87d81c62e9abb8790b6e5713c55baa3e68757b780f403527171dce5823e4d}\label{command_8c_a06fc87d81c62e9abb8790b6e5713c55baa3e68757b780f403527171dce5823e4d}} 
+E\+S\+C\+A\+P\+E\+\_\+\+S\+E\+Q\+U\+E\+N\+CE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{C\+O\+M\+P\+L\+E\+TE@{C\+O\+M\+P\+L\+E\+TE}!command.\+c@{command.\+c}}\index{command.\+c@{command.\+c}!C\+O\+M\+P\+L\+E\+TE@{C\+O\+M\+P\+L\+E\+TE}}}\mbox{\Hypertarget{command_8c_a06fc87d81c62e9abb8790b6e5713c55ba00a900c9df90c74f75004b3dc04f173d}\label{command_8c_a06fc87d81c62e9abb8790b6e5713c55ba00a900c9df90c74f75004b3dc04f173d}} 
+C\+O\+M\+P\+L\+E\+TE&\\
+\hline
+
+\end{DoxyEnumFields}
+\mbox{\Hypertarget{command_8c_adf764cbdea00d65edcd07bb9953ad2b7}\label{command_8c_adf764cbdea00d65edcd07bb9953ad2b7}} 
+\subsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily anonymous enum}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{E\+SC@{E\+SC}!command.\+c@{command.\+c}}\index{command.\+c@{command.\+c}!E\+SC@{E\+SC}}}\mbox{\Hypertarget{command_8c_adf764cbdea00d65edcd07bb9953ad2b7af5297152557c7da396243000ca240e89}\label{command_8c_adf764cbdea00d65edcd07bb9953ad2b7af5297152557c7da396243000ca240e89}} 
+E\+SC&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{L\+B\+R\+A\+C\+K\+ET@{L\+B\+R\+A\+C\+K\+ET}!command.\+c@{command.\+c}}\index{command.\+c@{command.\+c}!L\+B\+R\+A\+C\+K\+ET@{L\+B\+R\+A\+C\+K\+ET}}}\mbox{\Hypertarget{command_8c_adf764cbdea00d65edcd07bb9953ad2b7a0cec39b7d239ce3b136a6a5c8dce4733}\label{command_8c_adf764cbdea00d65edcd07bb9953ad2b7a0cec39b7d239ce3b136a6a5c8dce4733}} 
+L\+B\+R\+A\+C\+K\+ET&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{command_8c_a201468129b483039afc5a619e2d31097}\label{command_8c_a201468129b483039afc5a619e2d31097}} 
+\index{command.\+c@{command.\+c}!\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{\+\_\+\+\_\+attribute\+\_\+\+\_\+()}{\_\_attribute\_\_()}}
+{\footnotesize\ttfamily void \+\_\+\+\_\+attribute\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{(weak)}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_abd00421d1b0268aa06d5bfda43231d79}\label{command_8c_abd00421d1b0268aa06d5bfda43231d79}} 
+\index{command.\+c@{command.\+c}!att\+\_\+command@{att\+\_\+command}}
+\index{att\+\_\+command@{att\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{att\+\_\+command()}{att\_command()}}
+{\footnotesize\ttfamily void att\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_aa60922d778bc45a3a61c7fc18c12c610}\label{command_8c_aa60922d778bc45a3a61c7fc18c12c610}} 
+\index{command.\+c@{command.\+c}!cal\+\_\+command@{cal\+\_\+command}}
+\index{cal\+\_\+command@{cal\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+command()}{cal\_command()}}
+{\footnotesize\ttfamily void cal\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_a4fb9ededa6c2e12309f49942963b7384}\label{command_8c_a4fb9ededa6c2e12309f49942963b7384}} 
+\index{command.\+c@{command.\+c}!data\+\_\+command@{data\+\_\+command}}
+\index{data\+\_\+command@{data\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{data\+\_\+command()}{data\_command()}}
+{\footnotesize\ttfamily void data\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_a085de5d0d9c0e9dceb9d04929ced727a}\label{command_8c_a085de5d0d9c0e9dceb9d04929ced727a}} 
+\index{command.\+c@{command.\+c}!debug\+\_\+command@{debug\+\_\+command}}
+\index{debug\+\_\+command@{debug\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{debug\+\_\+command()}{debug\_command()}}
+{\footnotesize\ttfamily void debug\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_abfd2dbecf27f4f7f109bf6aed578f926}\label{command_8c_abfd2dbecf27f4f7f109bf6aed578f926}} 
+\index{command.\+c@{command.\+c}!delspace@{delspace}}
+\index{delspace@{delspace}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{delspace()}{delspace()}}
+{\footnotesize\ttfamily int delspace (\begin{DoxyParamCaption}\item[{uint8\+\_\+t $\ast$}]{instr }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_a7eaa85bd988907b12a26d1174a8638ec}\label{command_8c_a7eaa85bd988907b12a26d1174a8638ec}} 
+\index{command.\+c@{command.\+c}!dr\+\_\+command@{dr\+\_\+command}}
+\index{dr\+\_\+command@{dr\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{dr\+\_\+command()}{dr\_command()}}
+{\footnotesize\ttfamily void dr\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_afda53fa88005219d33d4baaf4bac48e0}\label{command_8c_afda53fa88005219d33d4baaf4bac48e0}} 
+\index{command.\+c@{command.\+c}!ds\+\_\+command@{ds\+\_\+command}}
+\index{ds\+\_\+command@{ds\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{ds\+\_\+command()}{ds\_command()}}
+{\footnotesize\ttfamily void ds\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_af56a3aa905a9d17ae06d8032e346a128}\label{command_8c_af56a3aa905a9d17ae06d8032e346a128}} 
+\index{command.\+c@{command.\+c}!erase\+\_\+command@{erase\+\_\+command}}
+\index{erase\+\_\+command@{erase\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{erase\+\_\+command()}{erase\_command()}}
+{\footnotesize\ttfamily void erase\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_aa30f4c00b873d2302f4c20fc5df3ba1f}\label{command_8c_aa30f4c00b873d2302f4c20fc5df3ba1f}} 
+\index{command.\+c@{command.\+c}!execute\+\_\+command@{execute\+\_\+command}}
+\index{execute\+\_\+command@{execute\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{execute\+\_\+command()}{execute\_command()}}
+{\footnotesize\ttfamily int execute\+\_\+command (\begin{DoxyParamCaption}\item[{uint8\+\_\+t $\ast$}]{line }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_a3a7b9454bb04ab8705628c859d347b72}\label{command_8c_a3a7b9454bb04ab8705628c859d347b72}} 
+\index{command.\+c@{command.\+c}!flash\+\_\+command@{flash\+\_\+command}}
+\index{flash\+\_\+command@{flash\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{flash\+\_\+command()}{flash\_command()}}
+{\footnotesize\ttfamily void flash\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_aeb82c11e2d8bb3fd08592095f37cc694}\label{command_8c_aeb82c11e2d8bb3fd08592095f37cc694}} 
+\index{command.\+c@{command.\+c}!get\+\_\+command@{get\+\_\+command}}
+\index{get\+\_\+command@{get\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{get\+\_\+command()}{get\_command()}}
+{\footnotesize\ttfamily int get\+\_\+command (\begin{DoxyParamCaption}\item[{uint8\+\_\+t $\ast$}]{command\+\_\+buf }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_adc64c9d779e683acca9c1b9f2ebad78f}\label{command_8c_adc64c9d779e683acca9c1b9f2ebad78f}} 
+\index{command.\+c@{command.\+c}!help\+\_\+command@{help\+\_\+command}}
+\index{help\+\_\+command@{help\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{help\+\_\+command()}{help\_command()}}
+{\footnotesize\ttfamily void help\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_a4f407d0a2ce19f20731701e81d08d8af}\label{command_8c_a4f407d0a2ce19f20731701e81d08d8af}} 
+\index{command.\+c@{command.\+c}!lof\+\_\+command@{lof\+\_\+command}}
+\index{lof\+\_\+command@{lof\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{lof\+\_\+command()}{lof\_command()}}
+{\footnotesize\ttfamily void lof\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_a8fac189baf669e1d939983493fea116f}\label{command_8c_a8fac189baf669e1d939983493fea116f}} 
+\index{command.\+c@{command.\+c}!log\+\_\+command@{log\+\_\+command}}
+\index{log\+\_\+command@{log\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{log\+\_\+command()}{log\_command()}}
+{\footnotesize\ttfamily void log\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_a59bb4303fc76dd44eccb6e81da61b41f}\label{command_8c_a59bb4303fc76dd44eccb6e81da61b41f}} 
+\index{command.\+c@{command.\+c}!lon\+\_\+command@{lon\+\_\+command}}
+\index{lon\+\_\+command@{lon\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{lon\+\_\+command()}{lon\_command()}}
+{\footnotesize\ttfamily void lon\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_ad7b1cbc5ceeadc2bb6d5fb7f62c9cb36}\label{command_8c_ad7b1cbc5ceeadc2bb6d5fb7f62c9cb36}} 
+\index{command.\+c@{command.\+c}!parse\+\_\+command@{parse\+\_\+command}}
+\index{parse\+\_\+command@{parse\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{parse\+\_\+command()}{parse\_command()}}
+{\footnotesize\ttfamily int parse\+\_\+command (\begin{DoxyParamCaption}\item[{uint8\+\_\+t $\ast$}]{line,  }\item[{uint8\+\_\+t $\ast$$\ast$}]{command,  }\item[{uint8\+\_\+t $\ast$$\ast$}]{args }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_acb99be969a83b88957b842df172b62d2}\label{command_8c_acb99be969a83b88957b842df172b62d2}} 
+\index{command.\+c@{command.\+c}!prompt@{prompt}}
+\index{prompt@{prompt}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{prompt()}{prompt()}}
+{\footnotesize\ttfamily void prompt (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_adc4e87a2f1ac00fddaef3f0a0421a453}\label{command_8c_adc4e87a2f1ac00fddaef3f0a0421a453}} 
+\index{command.\+c@{command.\+c}!raw\+\_\+command@{raw\+\_\+command}}
+\index{raw\+\_\+command@{raw\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{raw\+\_\+command()}{raw\_command()}}
+{\footnotesize\ttfamily void raw\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_ac77077b02ff7e2c361e30c24fe71a3a5}\label{command_8c_ac77077b02ff7e2c361e30c24fe71a3a5}} 
+\index{command.\+c@{command.\+c}!sample\+\_\+command@{sample\+\_\+command}}
+\index{sample\+\_\+command@{sample\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{sample\+\_\+command()}{sample\_command()}}
+{\footnotesize\ttfamily void sample\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_a961c1f8f434a35c3aeab6def41f4a344}\label{command_8c_a961c1f8f434a35c3aeab6def41f4a344}} 
+\index{command.\+c@{command.\+c}!tr\+\_\+command@{tr\+\_\+command}}
+\index{tr\+\_\+command@{tr\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{tr\+\_\+command()}{tr\_command()}}
+{\footnotesize\ttfamily void tr\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_ad9a0f8699e639d64fffaca860a03bc1b}\label{command_8c_ad9a0f8699e639d64fffaca860a03bc1b}} 
+\index{command.\+c@{command.\+c}!ts\+\_\+command@{ts\+\_\+command}}
+\index{ts\+\_\+command@{ts\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{ts\+\_\+command()}{ts\_command()}}
+{\footnotesize\ttfamily void ts\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_ae86a4620b3360e228f3fa53517167dad}\label{command_8c_ae86a4620b3360e228f3fa53517167dad}} 
+\index{command.\+c@{command.\+c}!uid\+\_\+command@{uid\+\_\+command}}
+\index{uid\+\_\+command@{uid\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{uid\+\_\+command()}{uid\_command()}}
+{\footnotesize\ttfamily void uid\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{command_8c_a012d710f655c6c17ce594a1763c0edba}\label{command_8c_a012d710f655c6c17ce594a1763c0edba}} 
+\index{command.\+c@{command.\+c}!version\+\_\+command@{version\+\_\+command}}
+\index{version\+\_\+command@{version\+\_\+command}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{version\+\_\+command()}{version\_command()}}
+{\footnotesize\ttfamily void version\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{ }\end{DoxyParamCaption})}
+
+
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{command_8c_a75717c98ba3a1b5c7b453830e68574c9}\label{command_8c_a75717c98ba3a1b5c7b453830e68574c9}} 
+\index{command.\+c@{command.\+c}!commands@{commands}}
+\index{commands@{commands}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{commands}{commands}}
+{\footnotesize\ttfamily \hyperlink{command_8h_ab742005ee418c78c52c05872b8260d48}{command\+\_\+t} commands\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+  \{\textcolor{stringliteral}{"@"},\hyperlink{command_8c_abd00421d1b0268aa06d5bfda43231d79}{att\_command}\},
+  \{\textcolor{stringliteral}{"ds"},\hyperlink{command_8c_afda53fa88005219d33d4baaf4bac48e0}{ds\_command}\},
+  \{\textcolor{stringliteral}{"ts"},\hyperlink{command_8c_ad9a0f8699e639d64fffaca860a03bc1b}{ts\_command}\},
+  \{\textcolor{stringliteral}{"tr"},\hyperlink{command_8c_a961c1f8f434a35c3aeab6def41f4a344}{tr\_command}\},
+  \{\textcolor{stringliteral}{"dr"},\hyperlink{command_8c_a7eaa85bd988907b12a26d1174a8638ec}{dr\_command}\},
+  \{\textcolor{stringliteral}{"data"},\hyperlink{command_8c_a4fb9ededa6c2e12309f49942963b7384}{data\_command}\},
+  \{\textcolor{stringliteral}{"log"},\hyperlink{command_8c_a8fac189baf669e1d939983493fea116f}{log\_command}\},
+  \{\textcolor{stringliteral}{"ef"},\hyperlink{command_8c_af56a3aa905a9d17ae06d8032e346a128}{erase\_command}\},
+  \{\textcolor{stringliteral}{"help"},\hyperlink{command_8c_adc64c9d779e683acca9c1b9f2ebad78f}{help\_command}\},
+  \{\textcolor{stringliteral}{"ver"},\hyperlink{command_8c_a012d710f655c6c17ce594a1763c0edba}{version\_command}\},
+  \{\textcolor{stringliteral}{"lof"},\hyperlink{command_8c_a4f407d0a2ce19f20731701e81d08d8af}{lof\_command}\},
+  \{\textcolor{stringliteral}{"lon"},\hyperlink{command_8c_a59bb4303fc76dd44eccb6e81da61b41f}{lon\_command}\},
+  \{\textcolor{stringliteral}{"sample"},\hyperlink{command_8c_ac77077b02ff7e2c361e30c24fe71a3a5}{sample\_command}\},
+  \{\textcolor{stringliteral}{"debug"},\hyperlink{command_8c_a085de5d0d9c0e9dceb9d04929ced727a}{debug\_command}\},
+  \{\textcolor{stringliteral}{"flash"},\hyperlink{command_8c_a3a7b9454bb04ab8705628c859d347b72}{flash\_command}\},
+  \{\textcolor{stringliteral}{"uid"},\hyperlink{command_8c_ae86a4620b3360e228f3fa53517167dad}{uid\_command}\},
+  \{\textcolor{stringliteral}{"cal"},\hyperlink{command_8c_aa60922d778bc45a3a61c7fc18c12c610}{cal\_command}\},
+  \{0,0\}
+\}
+\end{DoxyCode}
+\mbox{\Hypertarget{command_8c_aa0c7fca836406ade332e1e3f1039d8ab}\label{command_8c_aa0c7fca836406ade332e1e3f1039d8ab}} 
+\index{command.\+c@{command.\+c}!hrtc@{hrtc}}
+\index{hrtc@{hrtc}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{hrtc}{hrtc}}
+{\footnotesize\ttfamily R\+T\+C\+\_\+\+Handle\+Type\+Def hrtc}
+
+\mbox{\Hypertarget{command_8c_a2cf715bef37f7e8ef385a30974a5f0d5}\label{command_8c_a2cf715bef37f7e8ef385a30974a5f0d5}} 
+\index{command.\+c@{command.\+c}!huart1@{huart1}}
+\index{huart1@{huart1}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{huart1}{huart1}}
+{\footnotesize\ttfamily U\+A\+R\+T\+\_\+\+Handle\+Type\+Def huart1}
+
+\mbox{\Hypertarget{command_8c_a60f346797b70da4ff860918b6b9b3f7c}\label{command_8c_a60f346797b70da4ff860918b6b9b3f7c}} 
+\index{command.\+c@{command.\+c}!rx\+\_\+queue@{rx\+\_\+queue}}
+\index{rx\+\_\+queue@{rx\+\_\+queue}!command.\+c@{command.\+c}}
+\subsubsection{\texorpdfstring{rx\+\_\+queue}{rx\_queue}}
+{\footnotesize\ttfamily \hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} rx\+\_\+queue}
+

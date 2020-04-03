@@ -80,7 +80,8 @@ Src/tsl237.c \
 Src/debug.c \
 Src/sample.c \
 Src/cal.c \
-Src/uid.c
+Src/uid.c \
+Src/option_byte.c
 
 
 # ASM sources

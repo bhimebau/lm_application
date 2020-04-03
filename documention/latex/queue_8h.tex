@@ -1,0 +1,78 @@
+\hypertarget{queue_8h}{}\section{Inc/queue.h File Reference}
+\label{queue_8h}\index{Inc/queue.\+h@{Inc/queue.\+h}}
+{\ttfamily \#include \char`\"{}stm32l4xx.\+h\char`\"{}}\newline
+Include dependency graph for queue.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structqueue}{queue}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{queue_8h_a142810068f1b99cd93d3fc9f0e160e02}{Q\+U\+E\+U\+E\+\_\+\+S\+I\+ZE}~32
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct \hyperlink{structqueue}{queue} \hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{queue_8h_ac69d4b9093211ecb83e3aef89f7b76fd}{init\+\_\+queue} (\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} $\ast$)
+\item 
+int \hyperlink{queue_8h_acab39d3076d09114abf183d622c59faa}{enqueue} (\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} $\ast$, uint8\+\_\+t)
+\item 
+uint8\+\_\+t \hyperlink{queue_8h_aa2ca3996ffd62a37f0029c6b82142528}{dequeue} (\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} $\ast$)
+\item 
+int \hyperlink{queue_8h_af658a6949be085e42ae6063cc6a4b52e}{queue\+\_\+empty} (\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} $\ast$)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{queue_8h_a142810068f1b99cd93d3fc9f0e160e02}\label{queue_8h_a142810068f1b99cd93d3fc9f0e160e02}} 
+\index{queue.\+h@{queue.\+h}!Q\+U\+E\+U\+E\+\_\+\+S\+I\+ZE@{Q\+U\+E\+U\+E\+\_\+\+S\+I\+ZE}}
+\index{Q\+U\+E\+U\+E\+\_\+\+S\+I\+ZE@{Q\+U\+E\+U\+E\+\_\+\+S\+I\+ZE}!queue.\+h@{queue.\+h}}
+\subsubsection{\texorpdfstring{Q\+U\+E\+U\+E\+\_\+\+S\+I\+ZE}{QUEUE\_SIZE}}
+{\footnotesize\ttfamily \#define Q\+U\+E\+U\+E\+\_\+\+S\+I\+ZE~32}
+
+
+
+\subsection{Typedef Documentation}
+\mbox{\Hypertarget{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}\label{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}} 
+\index{queue.\+h@{queue.\+h}!queue\+\_\+t@{queue\+\_\+t}}
+\index{queue\+\_\+t@{queue\+\_\+t}!queue.\+h@{queue.\+h}}
+\subsubsection{\texorpdfstring{queue\+\_\+t}{queue\_t}}
+{\footnotesize\ttfamily typedef struct \hyperlink{structqueue}{queue}  \hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t}}
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{queue_8h_aa2ca3996ffd62a37f0029c6b82142528}\label{queue_8h_aa2ca3996ffd62a37f0029c6b82142528}} 
+\index{queue.\+h@{queue.\+h}!dequeue@{dequeue}}
+\index{dequeue@{dequeue}!queue.\+h@{queue.\+h}}
+\subsubsection{\texorpdfstring{dequeue()}{dequeue()}}
+{\footnotesize\ttfamily uint8\+\_\+t dequeue (\begin{DoxyParamCaption}\item[{\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{queue_8h_acab39d3076d09114abf183d622c59faa}\label{queue_8h_acab39d3076d09114abf183d622c59faa}} 
+\index{queue.\+h@{queue.\+h}!enqueue@{enqueue}}
+\index{enqueue@{enqueue}!queue.\+h@{queue.\+h}}
+\subsubsection{\texorpdfstring{enqueue()}{enqueue()}}
+{\footnotesize\ttfamily int enqueue (\begin{DoxyParamCaption}\item[{\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} $\ast$}]{,  }\item[{uint8\+\_\+t}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{queue_8h_ac69d4b9093211ecb83e3aef89f7b76fd}\label{queue_8h_ac69d4b9093211ecb83e3aef89f7b76fd}} 
+\index{queue.\+h@{queue.\+h}!init\+\_\+queue@{init\+\_\+queue}}
+\index{init\+\_\+queue@{init\+\_\+queue}!queue.\+h@{queue.\+h}}
+\subsubsection{\texorpdfstring{init\+\_\+queue()}{init\_queue()}}
+{\footnotesize\ttfamily void init\+\_\+queue (\begin{DoxyParamCaption}\item[{\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} $\ast$}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{queue_8h_af658a6949be085e42ae6063cc6a4b52e}\label{queue_8h_af658a6949be085e42ae6063cc6a4b52e}} 
+\index{queue.\+h@{queue.\+h}!queue\+\_\+empty@{queue\+\_\+empty}}
+\index{queue\+\_\+empty@{queue\+\_\+empty}!queue.\+h@{queue.\+h}}
+\subsubsection{\texorpdfstring{queue\+\_\+empty()}{queue\_empty()}}
+{\footnotesize\ttfamily int queue\+\_\+empty (\begin{DoxyParamCaption}\item[{\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} $\ast$}]{ }\end{DoxyParamCaption})}
+

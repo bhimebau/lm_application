@@ -1,0 +1,18 @@
+\hypertarget{battery_8h}{}\section{Inc/battery.h File Reference}
+\label{battery_8h}\index{Inc/battery.\+h@{Inc/battery.\+h}}
+This graph shows which files directly or indirectly include this file\+:
+% FIG 0
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \hyperlink{battery_8h_a3a53f4ea7f97de1af16d0a07e97f730a}{read\+\_\+vrefint} (void)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{battery_8h_a3a53f4ea7f97de1af16d0a07e97f730a}\label{battery_8h_a3a53f4ea7f97de1af16d0a07e97f730a}} 
+\index{battery.\+h@{battery.\+h}!read\+\_\+vrefint@{read\+\_\+vrefint}}
+\index{read\+\_\+vrefint@{read\+\_\+vrefint}!battery.\+h@{battery.\+h}}
+\subsubsection{\texorpdfstring{read\+\_\+vrefint()}{read\_vrefint()}}
+{\footnotesize\ttfamily uint32\+\_\+t read\+\_\+vrefint (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+

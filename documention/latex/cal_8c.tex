@@ -1,0 +1,147 @@
+\hypertarget{cal_8c}{}\section{Src/cal.c File Reference}
+\label{cal_8c}\index{Src/cal.\+c@{Src/cal.\+c}}
+{\ttfamily \#include \char`\"{}main.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}flash.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}rtc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}battery.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}temperature.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}tsl237.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}sample.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}cal.\+h\char`\"{}}\newline
+Include dependency graph for cal.\+c\+:
+% FIG 0
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{cal_8c_a29b7451465deac204c5f7cb1f9c6e1fc}{M\+A\+X\+\_\+\+A\+R\+GS}~3
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{cal_8c_af28bb14c79ba4d659d74a7de22e1cd9f}{cal\+\_\+command} (char $\ast$arguments)
+\item 
+int \hyperlink{cal_8c_a7762ba8bd33d066a6129013ebc972ef2}{cal\+\_\+blank} (void)
+\item 
+int \hyperlink{cal_8c_a3c2d1e114c4fc9eaee3d64fc4211eeaf}{cal\+\_\+fill\+\_\+test\+\_\+ascending} (void)
+\item 
+int \hyperlink{cal_8c_a6091665ee60f022006ec83d941b03801}{cal\+\_\+fill\+\_\+test\+\_\+descending} (void)
+\item 
+int \hyperlink{cal_8c_ad45cfe6d0485b21314b5ec60b829c7da}{cal\+\_\+show\+\_\+sram} (void)
+\item 
+int \hyperlink{cal_8c_a45a34cc0f24194af4c57207f5b428123}{cal\+\_\+f2r} (void)
+\item 
+int \hyperlink{cal_8c_a364cacbdfdb41a7913916eb553d07604}{cal\+\_\+r2f} (void)
+\item 
+int \hyperlink{cal_8c_afab0fcbc16eb4c4ff7d154eb3b7f2084}{cal\+\_\+write} (char $\ast$mag, uint32\+\_\+t data)
+\item 
+int \hyperlink{cal_8c_ad30bd2a4c01d505aa0073b595a01ca28}{cal\+\_\+lookup} (uint32\+\_\+t count)
+\item 
+int \hyperlink{cal_8c_a536c51a3168a18dda13d9ba1c3a644f0}{cal\+\_\+complete} (void)
+\item 
+int \hyperlink{cal_8c_a9e0a0d8b75d66609c2d17d31a9c1b47c}{cal\+\_\+fake} (void)
+\item 
+int \hyperlink{cal_8c_a753093d732699731a6be55f0095aa365}{flash\+\_\+caldata} (int index, \hyperlink{flash_8h_a31a67da74a882f1bfd5ed225061db186}{caldata\+\_\+t} $\ast$val)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+int32\+\_\+t \hyperlink{cal_8c_aaeadd0c293bed210b1375bfaf843d23c}{calibration\+\_\+ram} \mbox{[}\hyperlink{cal_8h_a0135e44b559b5c2d84b74a7f6ab45e4b}{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+I\+N\+D\+EX}\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{cal_8c_a29b7451465deac204c5f7cb1f9c6e1fc}\label{cal_8c_a29b7451465deac204c5f7cb1f9c6e1fc}} 
+\index{cal.\+c@{cal.\+c}!M\+A\+X\+\_\+\+A\+R\+GS@{M\+A\+X\+\_\+\+A\+R\+GS}}
+\index{M\+A\+X\+\_\+\+A\+R\+GS@{M\+A\+X\+\_\+\+A\+R\+GS}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{M\+A\+X\+\_\+\+A\+R\+GS}{MAX\_ARGS}}
+{\footnotesize\ttfamily \#define M\+A\+X\+\_\+\+A\+R\+GS~3}
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{cal_8c_a7762ba8bd33d066a6129013ebc972ef2}\label{cal_8c_a7762ba8bd33d066a6129013ebc972ef2}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+blank@{cal\+\_\+blank}}
+\index{cal\+\_\+blank@{cal\+\_\+blank}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+blank()}{cal\_blank()}}
+{\footnotesize\ttfamily int cal\+\_\+blank (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_af28bb14c79ba4d659d74a7de22e1cd9f}\label{cal_8c_af28bb14c79ba4d659d74a7de22e1cd9f}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+command@{cal\+\_\+command}}
+\index{cal\+\_\+command@{cal\+\_\+command}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+command()}{cal\_command()}}
+{\footnotesize\ttfamily void cal\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{arguments }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_a536c51a3168a18dda13d9ba1c3a644f0}\label{cal_8c_a536c51a3168a18dda13d9ba1c3a644f0}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+complete@{cal\+\_\+complete}}
+\index{cal\+\_\+complete@{cal\+\_\+complete}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+complete()}{cal\_complete()}}
+{\footnotesize\ttfamily int cal\+\_\+complete (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_a45a34cc0f24194af4c57207f5b428123}\label{cal_8c_a45a34cc0f24194af4c57207f5b428123}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+f2r@{cal\+\_\+f2r}}
+\index{cal\+\_\+f2r@{cal\+\_\+f2r}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+f2r()}{cal\_f2r()}}
+{\footnotesize\ttfamily int cal\+\_\+f2r (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_a9e0a0d8b75d66609c2d17d31a9c1b47c}\label{cal_8c_a9e0a0d8b75d66609c2d17d31a9c1b47c}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+fake@{cal\+\_\+fake}}
+\index{cal\+\_\+fake@{cal\+\_\+fake}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+fake()}{cal\_fake()}}
+{\footnotesize\ttfamily int cal\+\_\+fake (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_a3c2d1e114c4fc9eaee3d64fc4211eeaf}\label{cal_8c_a3c2d1e114c4fc9eaee3d64fc4211eeaf}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+fill\+\_\+test\+\_\+ascending@{cal\+\_\+fill\+\_\+test\+\_\+ascending}}
+\index{cal\+\_\+fill\+\_\+test\+\_\+ascending@{cal\+\_\+fill\+\_\+test\+\_\+ascending}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+fill\+\_\+test\+\_\+ascending()}{cal\_fill\_test\_ascending()}}
+{\footnotesize\ttfamily int cal\+\_\+fill\+\_\+test\+\_\+ascending (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_a6091665ee60f022006ec83d941b03801}\label{cal_8c_a6091665ee60f022006ec83d941b03801}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+fill\+\_\+test\+\_\+descending@{cal\+\_\+fill\+\_\+test\+\_\+descending}}
+\index{cal\+\_\+fill\+\_\+test\+\_\+descending@{cal\+\_\+fill\+\_\+test\+\_\+descending}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+fill\+\_\+test\+\_\+descending()}{cal\_fill\_test\_descending()}}
+{\footnotesize\ttfamily int cal\+\_\+fill\+\_\+test\+\_\+descending (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_ad30bd2a4c01d505aa0073b595a01ca28}\label{cal_8c_ad30bd2a4c01d505aa0073b595a01ca28}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+lookup@{cal\+\_\+lookup}}
+\index{cal\+\_\+lookup@{cal\+\_\+lookup}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+lookup()}{cal\_lookup()}}
+{\footnotesize\ttfamily int cal\+\_\+lookup (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{count }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_a364cacbdfdb41a7913916eb553d07604}\label{cal_8c_a364cacbdfdb41a7913916eb553d07604}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+r2f@{cal\+\_\+r2f}}
+\index{cal\+\_\+r2f@{cal\+\_\+r2f}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+r2f()}{cal\_r2f()}}
+{\footnotesize\ttfamily int cal\+\_\+r2f (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_ad45cfe6d0485b21314b5ec60b829c7da}\label{cal_8c_ad45cfe6d0485b21314b5ec60b829c7da}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+show\+\_\+sram@{cal\+\_\+show\+\_\+sram}}
+\index{cal\+\_\+show\+\_\+sram@{cal\+\_\+show\+\_\+sram}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+show\+\_\+sram()}{cal\_show\_sram()}}
+{\footnotesize\ttfamily int cal\+\_\+show\+\_\+sram (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_afab0fcbc16eb4c4ff7d154eb3b7f2084}\label{cal_8c_afab0fcbc16eb4c4ff7d154eb3b7f2084}} 
+\index{cal.\+c@{cal.\+c}!cal\+\_\+write@{cal\+\_\+write}}
+\index{cal\+\_\+write@{cal\+\_\+write}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{cal\+\_\+write()}{cal\_write()}}
+{\footnotesize\ttfamily int cal\+\_\+write (\begin{DoxyParamCaption}\item[{char $\ast$}]{mag,  }\item[{uint32\+\_\+t}]{data }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8c_a753093d732699731a6be55f0095aa365}\label{cal_8c_a753093d732699731a6be55f0095aa365}} 
+\index{cal.\+c@{cal.\+c}!flash\+\_\+caldata@{flash\+\_\+caldata}}
+\index{flash\+\_\+caldata@{flash\+\_\+caldata}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{flash\+\_\+caldata()}{flash\_caldata()}}
+{\footnotesize\ttfamily int flash\+\_\+caldata (\begin{DoxyParamCaption}\item[{int}]{index,  }\item[{\hyperlink{flash_8h_a31a67da74a882f1bfd5ed225061db186}{caldata\+\_\+t} $\ast$}]{val }\end{DoxyParamCaption})}
+
+
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{cal_8c_aaeadd0c293bed210b1375bfaf843d23c}\label{cal_8c_aaeadd0c293bed210b1375bfaf843d23c}} 
+\index{cal.\+c@{cal.\+c}!calibration\+\_\+ram@{calibration\+\_\+ram}}
+\index{calibration\+\_\+ram@{calibration\+\_\+ram}!cal.\+c@{cal.\+c}}
+\subsubsection{\texorpdfstring{calibration\+\_\+ram}{calibration\_ram}}
+{\footnotesize\ttfamily int32\+\_\+t calibration\+\_\+ram\mbox{[}\hyperlink{cal_8h_a0135e44b559b5c2d84b74a7f6ab45e4b}{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+I\+N\+D\+EX}\mbox{]}}
+

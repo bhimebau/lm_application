@@ -40,7 +40,7 @@
 #include "led.h"
 #include "sample.h"
 #include "cal.h"
-
+#include "option_byte.h"
 
 /* USER CODE END Includes */
 
@@ -232,7 +232,9 @@ int main(void) {
   while (1) {
     printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
     printf("Version: %s\n\r",VERSION);
-    printf("************************\n\r"); 
+    printf("************************\n\r");
+    print_option_bytes();
+    printf("************************\n\r");
     flash_write_init(&fs);
     write_log_data(&fs,"r-cold");
     cal_f2r();  // Copy calibration from flash to ram array. 
@@ -280,7 +282,7 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.LSEState = RCC_LSE_BYPASS;
@@ -298,7 +300,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -327,13 +329,13 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Configure the main internal regulator output voltage 
+  /** Configure the main internal regulator output voltage
   */
   if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Enable MSI Auto calibration 
+  /** Enable MSI Auto calibration
   */
   HAL_RCCEx_EnableMSIPLLMode();
 }
@@ -349,7 +351,7 @@ void SystemClock_Config(void)
 /*   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0}; */
 /*   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0}; */
 
-/*   /\** Initializes the CPU, AHB and APB busses clocks  */
+/*   /\** Initializes the CPU, AHB and APB busses clocks */
 /*   *\/ */
 /*   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_MSI; */
 /*   RCC_OscInitStruct.LSEState = RCC_LSE_BYPASS; */
@@ -367,7 +369,7 @@ void SystemClock_Config(void)
 /*   { */
 /*     Error_Handler(); */
 /*   } */
-/*   /\** Initializes the CPU, AHB and APB busses clocks  */
+/*   /\** Initializes the CPU, AHB and APB busses clocks */
 /*   *\/ */
 /*   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK */
 /*                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2; */
@@ -399,13 +401,13 @@ void SystemClock_Config(void)
 /*   { */
 /*     Error_Handler(); */
 /*   } */
-/*   /\** Configure the main internal regulator output voltage  */
+/*   /\** Configure the main internal regulator output voltage */
 /*   *\/ */
 /*   if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK) */
 /*   { */
 /*     Error_Handler(); */
 /*   } */
-/*   /\** Enable MSI Auto calibration  */
+/*   /\** Enable MSI Auto calibration */
 /*   *\/ */
 /*   HAL_RCCEx_EnableMSIPLLMode(); */
 /* } */

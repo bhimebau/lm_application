@@ -1,0 +1,144 @@
+\hypertarget{cal_8h}{}\section{Inc/cal.h File Reference}
+\label{cal_8h}\index{Inc/cal.\+h@{Inc/cal.\+h}}
+This graph shows which files directly or indirectly include this file\+:
+% FIG 0
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{cal_8h_adaaf0dcae4e88d275cab1bf0c5e5ed1b}{D\+A\+R\+K\+\_\+\+M\+AG}~25
+\item 
+\#define \hyperlink{cal_8h_aee20825e8148f1ca89e2f2da6769b6c8}{B\+R\+I\+G\+H\+T\+\_\+\+M\+AG}~5
+\item 
+\#define \hyperlink{cal_8h_a0135e44b559b5c2d84b74a7f6ab45e4b}{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+I\+N\+D\+EX}~((\hyperlink{cal_8h_adaaf0dcae4e88d275cab1bf0c5e5ed1b}{D\+A\+R\+K\+\_\+\+M\+AG}-\/\hyperlink{cal_8h_aee20825e8148f1ca89e2f2da6769b6c8}{B\+R\+I\+G\+H\+T\+\_\+\+M\+AG})$\ast$10+1)
+\item 
+\#define \hyperlink{cal_8h_a3169698fb6b39b379327d3948f91a39e}{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+V\+A\+L\+UE}~10000
+\item 
+\#define \hyperlink{cal_8h_ab0196e17bea7bf9b9d90183a10b25406}{C\+A\+L\+\_\+\+M\+I\+N\+\_\+\+V\+A\+L\+UE}~10
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{cal_8h_abb93dddf82297085ff15009b266501c8}{flash\+\_\+caldata} (int, \hyperlink{flash_8h_a31a67da74a882f1bfd5ed225061db186}{caldata\+\_\+t} $\ast$)
+\item 
+int \hyperlink{cal_8h_a7762ba8bd33d066a6129013ebc972ef2}{cal\+\_\+blank} (void)
+\item 
+int \hyperlink{cal_8h_a3c2d1e114c4fc9eaee3d64fc4211eeaf}{cal\+\_\+fill\+\_\+test\+\_\+ascending} (void)
+\item 
+int \hyperlink{cal_8h_a6091665ee60f022006ec83d941b03801}{cal\+\_\+fill\+\_\+test\+\_\+descending} (void)
+\item 
+int \hyperlink{cal_8h_ad45cfe6d0485b21314b5ec60b829c7da}{cal\+\_\+show\+\_\+sram} (void)
+\item 
+int \hyperlink{cal_8h_a45a34cc0f24194af4c57207f5b428123}{cal\+\_\+f2r} (void)
+\item 
+int \hyperlink{cal_8h_a364cacbdfdb41a7913916eb553d07604}{cal\+\_\+r2f} (void)
+\item 
+int \hyperlink{cal_8h_ae3d020b2015756d1f679eeb39211e0bc}{cal\+\_\+write} (char $\ast$, uint32\+\_\+t)
+\item 
+int \hyperlink{cal_8h_a0fbb3a8471a4c8eb1555b1d5c80e64e4}{cal\+\_\+lookup} (uint32\+\_\+t)
+\item 
+int \hyperlink{cal_8h_a536c51a3168a18dda13d9ba1c3a644f0}{cal\+\_\+complete} (void)
+\item 
+int \hyperlink{cal_8h_a9e0a0d8b75d66609c2d17d31a9c1b47c}{cal\+\_\+fake} (void)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{cal_8h_aee20825e8148f1ca89e2f2da6769b6c8}\label{cal_8h_aee20825e8148f1ca89e2f2da6769b6c8}} 
+\index{cal.\+h@{cal.\+h}!B\+R\+I\+G\+H\+T\+\_\+\+M\+AG@{B\+R\+I\+G\+H\+T\+\_\+\+M\+AG}}
+\index{B\+R\+I\+G\+H\+T\+\_\+\+M\+AG@{B\+R\+I\+G\+H\+T\+\_\+\+M\+AG}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{B\+R\+I\+G\+H\+T\+\_\+\+M\+AG}{BRIGHT\_MAG}}
+{\footnotesize\ttfamily \#define B\+R\+I\+G\+H\+T\+\_\+\+M\+AG~5}
+
+\mbox{\Hypertarget{cal_8h_a0135e44b559b5c2d84b74a7f6ab45e4b}\label{cal_8h_a0135e44b559b5c2d84b74a7f6ab45e4b}} 
+\index{cal.\+h@{cal.\+h}!C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+I\+N\+D\+EX@{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+I\+N\+D\+EX}}
+\index{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+I\+N\+D\+EX@{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+I\+N\+D\+EX}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+I\+N\+D\+EX}{CAL\_MAX\_INDEX}}
+{\footnotesize\ttfamily \#define C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+I\+N\+D\+EX~((\hyperlink{cal_8h_adaaf0dcae4e88d275cab1bf0c5e5ed1b}{D\+A\+R\+K\+\_\+\+M\+AG}-\/\hyperlink{cal_8h_aee20825e8148f1ca89e2f2da6769b6c8}{B\+R\+I\+G\+H\+T\+\_\+\+M\+AG})$\ast$10+1)}
+
+\mbox{\Hypertarget{cal_8h_a3169698fb6b39b379327d3948f91a39e}\label{cal_8h_a3169698fb6b39b379327d3948f91a39e}} 
+\index{cal.\+h@{cal.\+h}!C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+V\+A\+L\+UE@{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+V\+A\+L\+UE}}
+\index{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+V\+A\+L\+UE@{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+V\+A\+L\+UE}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+V\+A\+L\+UE}{CAL\_MAX\_VALUE}}
+{\footnotesize\ttfamily \#define C\+A\+L\+\_\+\+M\+A\+X\+\_\+\+V\+A\+L\+UE~10000}
+
+\mbox{\Hypertarget{cal_8h_ab0196e17bea7bf9b9d90183a10b25406}\label{cal_8h_ab0196e17bea7bf9b9d90183a10b25406}} 
+\index{cal.\+h@{cal.\+h}!C\+A\+L\+\_\+\+M\+I\+N\+\_\+\+V\+A\+L\+UE@{C\+A\+L\+\_\+\+M\+I\+N\+\_\+\+V\+A\+L\+UE}}
+\index{C\+A\+L\+\_\+\+M\+I\+N\+\_\+\+V\+A\+L\+UE@{C\+A\+L\+\_\+\+M\+I\+N\+\_\+\+V\+A\+L\+UE}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{C\+A\+L\+\_\+\+M\+I\+N\+\_\+\+V\+A\+L\+UE}{CAL\_MIN\_VALUE}}
+{\footnotesize\ttfamily \#define C\+A\+L\+\_\+\+M\+I\+N\+\_\+\+V\+A\+L\+UE~10}
+
+\mbox{\Hypertarget{cal_8h_adaaf0dcae4e88d275cab1bf0c5e5ed1b}\label{cal_8h_adaaf0dcae4e88d275cab1bf0c5e5ed1b}} 
+\index{cal.\+h@{cal.\+h}!D\+A\+R\+K\+\_\+\+M\+AG@{D\+A\+R\+K\+\_\+\+M\+AG}}
+\index{D\+A\+R\+K\+\_\+\+M\+AG@{D\+A\+R\+K\+\_\+\+M\+AG}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{D\+A\+R\+K\+\_\+\+M\+AG}{DARK\_MAG}}
+{\footnotesize\ttfamily \#define D\+A\+R\+K\+\_\+\+M\+AG~25}
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{cal_8h_a7762ba8bd33d066a6129013ebc972ef2}\label{cal_8h_a7762ba8bd33d066a6129013ebc972ef2}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+blank@{cal\+\_\+blank}}
+\index{cal\+\_\+blank@{cal\+\_\+blank}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+blank()}{cal\_blank()}}
+{\footnotesize\ttfamily int cal\+\_\+blank (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_a536c51a3168a18dda13d9ba1c3a644f0}\label{cal_8h_a536c51a3168a18dda13d9ba1c3a644f0}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+complete@{cal\+\_\+complete}}
+\index{cal\+\_\+complete@{cal\+\_\+complete}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+complete()}{cal\_complete()}}
+{\footnotesize\ttfamily int cal\+\_\+complete (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_a45a34cc0f24194af4c57207f5b428123}\label{cal_8h_a45a34cc0f24194af4c57207f5b428123}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+f2r@{cal\+\_\+f2r}}
+\index{cal\+\_\+f2r@{cal\+\_\+f2r}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+f2r()}{cal\_f2r()}}
+{\footnotesize\ttfamily int cal\+\_\+f2r (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_a9e0a0d8b75d66609c2d17d31a9c1b47c}\label{cal_8h_a9e0a0d8b75d66609c2d17d31a9c1b47c}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+fake@{cal\+\_\+fake}}
+\index{cal\+\_\+fake@{cal\+\_\+fake}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+fake()}{cal\_fake()}}
+{\footnotesize\ttfamily int cal\+\_\+fake (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_a3c2d1e114c4fc9eaee3d64fc4211eeaf}\label{cal_8h_a3c2d1e114c4fc9eaee3d64fc4211eeaf}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+fill\+\_\+test\+\_\+ascending@{cal\+\_\+fill\+\_\+test\+\_\+ascending}}
+\index{cal\+\_\+fill\+\_\+test\+\_\+ascending@{cal\+\_\+fill\+\_\+test\+\_\+ascending}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+fill\+\_\+test\+\_\+ascending()}{cal\_fill\_test\_ascending()}}
+{\footnotesize\ttfamily int cal\+\_\+fill\+\_\+test\+\_\+ascending (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_a6091665ee60f022006ec83d941b03801}\label{cal_8h_a6091665ee60f022006ec83d941b03801}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+fill\+\_\+test\+\_\+descending@{cal\+\_\+fill\+\_\+test\+\_\+descending}}
+\index{cal\+\_\+fill\+\_\+test\+\_\+descending@{cal\+\_\+fill\+\_\+test\+\_\+descending}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+fill\+\_\+test\+\_\+descending()}{cal\_fill\_test\_descending()}}
+{\footnotesize\ttfamily int cal\+\_\+fill\+\_\+test\+\_\+descending (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_a0fbb3a8471a4c8eb1555b1d5c80e64e4}\label{cal_8h_a0fbb3a8471a4c8eb1555b1d5c80e64e4}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+lookup@{cal\+\_\+lookup}}
+\index{cal\+\_\+lookup@{cal\+\_\+lookup}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+lookup()}{cal\_lookup()}}
+{\footnotesize\ttfamily int cal\+\_\+lookup (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_a364cacbdfdb41a7913916eb553d07604}\label{cal_8h_a364cacbdfdb41a7913916eb553d07604}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+r2f@{cal\+\_\+r2f}}
+\index{cal\+\_\+r2f@{cal\+\_\+r2f}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+r2f()}{cal\_r2f()}}
+{\footnotesize\ttfamily int cal\+\_\+r2f (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_ad45cfe6d0485b21314b5ec60b829c7da}\label{cal_8h_ad45cfe6d0485b21314b5ec60b829c7da}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+show\+\_\+sram@{cal\+\_\+show\+\_\+sram}}
+\index{cal\+\_\+show\+\_\+sram@{cal\+\_\+show\+\_\+sram}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+show\+\_\+sram()}{cal\_show\_sram()}}
+{\footnotesize\ttfamily int cal\+\_\+show\+\_\+sram (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_ae3d020b2015756d1f679eeb39211e0bc}\label{cal_8h_ae3d020b2015756d1f679eeb39211e0bc}} 
+\index{cal.\+h@{cal.\+h}!cal\+\_\+write@{cal\+\_\+write}}
+\index{cal\+\_\+write@{cal\+\_\+write}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{cal\+\_\+write()}{cal\_write()}}
+{\footnotesize\ttfamily int cal\+\_\+write (\begin{DoxyParamCaption}\item[{char $\ast$}]{,  }\item[{uint32\+\_\+t}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{cal_8h_abb93dddf82297085ff15009b266501c8}\label{cal_8h_abb93dddf82297085ff15009b266501c8}} 
+\index{cal.\+h@{cal.\+h}!flash\+\_\+caldata@{flash\+\_\+caldata}}
+\index{flash\+\_\+caldata@{flash\+\_\+caldata}!cal.\+h@{cal.\+h}}
+\subsubsection{\texorpdfstring{flash\+\_\+caldata()}{flash\_caldata()}}
+{\footnotesize\ttfamily int flash\+\_\+caldata (\begin{DoxyParamCaption}\item[{int}]{,  }\item[{\hyperlink{flash_8h_a31a67da74a882f1bfd5ed225061db186}{caldata\+\_\+t} $\ast$}]{ }\end{DoxyParamCaption})}
+

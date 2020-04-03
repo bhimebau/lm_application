@@ -1,0 +1,404 @@
+\hypertarget{main_8c}{}\section{Src/main.c File Reference}
+\label{main_8c}\index{Src/main.\+c@{Src/main.\+c}}
+
+
+\+: Main program body  
+
+
+{\ttfamily \#include \char`\"{}main.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}retarget.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}flash.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}rtc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}temperature.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}battery.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}command.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stm32l4xx\+\_\+ll\+\_\+lpuart.\+h$>$}\newline
+{\ttfamily \#include $<$stm32l4xx\+\_\+ll\+\_\+bus.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}queue.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}power.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}tsl237.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}led.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}sample.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}cal.\+h\char`\"{}}\newline
+Include dependency graph for main.\+c\+:
+% FIG 0
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{main_8c_a8d1390ddc0fb4ee04f1e22c5ceed465a}{L\+I\+G\+H\+T\+\_\+\+S\+E\+N\+S\+O\+R\+\_\+\+A\+D\+D\+R\+E\+SS}~(0x29$<$$<$1)
+\item 
+\#define \hyperlink{main_8c_a681b002755d2f1c2468a7a144c9d1865}{D\+E\+L\+A\+Y\+\_\+1S}~100
+\item 
+\#define \hyperlink{main_8c_a8f4f4fdd97c30bd8b6290ac2b5b0cd11}{W\+U\+\_\+\+U\+A\+RT}~0x01
+\item 
+\#define \hyperlink{main_8c_ac29a83c6aff4114c793e7fb07fb80187}{W\+U\+\_\+\+R\+TC}~0x02
+\item 
+\#define \hyperlink{main_8c_a4ec5f68b5fd7b11e202f1f2f508a3fee}{C\+O\+M\+M\+A\+N\+D\+\_\+\+T\+I\+M\+E\+O\+UT}~1000
+\item 
+\#define \hyperlink{main_8c_a90b0c50fe6147da206de6cadd17dfcd1}{S\+A\+M\+P\+L\+E\+\_\+\+I\+N\+T\+E\+R\+V\+A\+L\+\_\+\+M\+I\+N\+U\+T\+ES}~10
+\item 
+\#define \hyperlink{main_8c_a65f69a96fcacd590f9fb73af502eafe9}{E\+V\+E\+N\+I\+N\+G\+\_\+\+S\+T\+A\+R\+T\+\_\+\+H\+O\+UR}~17
+\item 
+\#define \hyperlink{main_8c_a3cfe8dea48af2f7ca7e4314b9eda1acf}{M\+O\+R\+N\+I\+N\+G\+\_\+\+E\+N\+D\+\_\+\+H\+O\+UR}~8
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{main_8c_a70af21c671abfcc773614a9a4f63d920}{System\+Clock\+\_\+\+Config} (void)
+\begin{DoxyCompactList}\small\item\em System Clock Configuration. \end{DoxyCompactList}\item 
+void \hyperlink{main_8c_a464134d39864e38cf2875a3213543bc8}{collect\+\_\+data} (void)
+\item 
+void \hyperlink{main_8c_a77a2401a35ddd9bd0b8fc28331b81381}{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+I\+C\+\_\+\+Capture\+Callback} (T\+I\+M\+\_\+\+Handle\+Type\+Def $\ast$htim)
+\item 
+void \hyperlink{main_8c_a8a3b0ad512a6e6c6157440b68d395eac}{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+Period\+Elapsed\+Callback} (T\+I\+M\+\_\+\+Handle\+Type\+Def $\ast$htim)
+\item 
+void \hyperlink{main_8c_a11aeff83fd498cddbed3bcddcf017e0a}{H\+A\+L\+\_\+\+R\+T\+C\+\_\+\+Alarm\+A\+Event\+Callback} (R\+T\+C\+\_\+\+Handle\+Type\+Def $\ast$\hyperlink{stm32l4xx__it_8c_aa0c7fca836406ade332e1e3f1039d8ab}{hrtc})
+\item 
+int \hyperlink{main_8c_a840291bc02cba5474a4cb46a9b9566fe}{main} (void)
+\begin{DoxyCompactList}\small\item\em The application entry point. \end{DoxyCompactList}\item 
+void \hyperlink{main_8c_a1730ffe1e560465665eb47d9264826f9}{Error\+\_\+\+Handler} (void)
+\begin{DoxyCompactList}\small\item\em This function is executed in case of error occurrence. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+A\+D\+C\+\_\+\+Handle\+Type\+Def \hyperlink{main_8c_a22b804736f5648d52f639b2647d4ed13}{hadc1}
+\item 
+I2\+C\+\_\+\+Handle\+Type\+Def \hyperlink{main_8c_af7b2c26e44dadaaa798a5c3d82914ba7}{hi2c1}
+\item 
+I2\+C\+\_\+\+Handle\+Type\+Def \hyperlink{main_8c_a5ccf4a01a8d7f08d3190181f843f7515}{hi2c3}
+\item 
+U\+A\+R\+T\+\_\+\+Handle\+Type\+Def \hyperlink{main_8c_a5c3f9dccaa7cebcc70e1657af9e5e5dc}{hlpuart1}
+\item 
+R\+T\+C\+\_\+\+Handle\+Type\+Def \hyperlink{main_8c_aa0c7fca836406ade332e1e3f1039d8ab}{hrtc}
+\item 
+T\+I\+M\+\_\+\+Handle\+Type\+Def \hyperlink{main_8c_a2c80fd5510e2990a59a5c90d745c716c}{htim2}
+\item 
+D\+M\+A\+\_\+\+Handle\+Type\+Def \hyperlink{main_8c_ab051b95fbef5ff0c90c0782a26ab85ba}{hdma\+\_\+tim2\+\_\+ch1}
+\item 
+D\+M\+A\+\_\+\+Handle\+Type\+Def \hyperlink{main_8c_ade328c372e5c1f34a2e0abe017fff447}{hdma\+\_\+tim2\+\_\+ch2\+\_\+ch4}
+\item 
+uint8\+\_\+t \hyperlink{main_8c_ac523471a8c7c7d10b8622f5bc16068bd}{led\+\_\+state}
+\item 
+R\+T\+C\+\_\+\+Time\+Type\+Def \hyperlink{main_8c_a70fedddc4f87a883c9b5e270193bcb3d}{current\+\_\+time}
+\item 
+R\+T\+C\+\_\+\+Date\+Type\+Def \hyperlink{main_8c_a480a106b52f3db4db03eca267fcd80ca}{current\+\_\+date}
+\item 
+uint32\+\_\+t \hyperlink{main_8c_a25f650d5a49abb0c1d5433f4e5012cbf}{rtc\+\_\+counter} = 0
+\item 
+\hyperlink{flash_8h_a813b2c2faae1816ffd6890a96f75dc97}{flash\+\_\+status\+\_\+t} \hyperlink{main_8c_af103e485f895120eef7c5b0624f6a88c}{fs}
+\item 
+uint32\+\_\+t \hyperlink{main_8c_a59b0cae4a09bd6b6f02e092732f100e9}{collect\+\_\+data\+\_\+flag} = 0
+\item 
+uint32\+\_\+t \hyperlink{main_8c_ad6d37d155f2f5dd54a5f79ee9640c8ec}{sample\+\_\+interval} = 0
+\item 
+\hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} \hyperlink{main_8c_a60f346797b70da4ff860918b6b9b3f7c}{rx\+\_\+queue}
+\item 
+uint32\+\_\+t \hyperlink{main_8c_a6b29e4f37f4482274af785ad5ffe96a7}{mode} = \hyperlink{main_8h_a99fb83031ce9923c84392b4e92f956b5ae680fa7eb860abe7832f792cc18a44b4}{C\+O\+M\+M\+A\+ND}
+\item 
+uint32\+\_\+t \hyperlink{main_8c_a175dd8861c677905234893de94b4db69}{mode\+\_\+counter} = 0
+\item 
+uint32\+\_\+t \hyperlink{main_8c_a4e628eb32a0b092e4194d7cea9ba31db}{mode\+\_\+flag} = 0
+\item 
+uint32\+\_\+t \hyperlink{main_8c_aa9514c45c904a173fce4254b49aa316f}{captures} \mbox{[}2\mbox{]}
+\item 
+volatile uint8\+\_\+t \hyperlink{main_8c_a1c3a92cc78d540581f0fc5eaf3fde4d4}{capture\+Done} = 0
+\item 
+float \hyperlink{main_8c_acdfc8898c9e67fbcec81f3b04ae61bd9}{frequency} = 0
+\item 
+uint32\+\_\+t \hyperlink{main_8c_af06cbe59d61bec40b735effe12bedf8f}{diff\+Capture} = 0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\+: Main program body 
+
+\begin{DoxyAttention}{Attention}
+
+\end{DoxyAttention}
+\subsubsection*{\begin{center}\copyright{} Copyright (c) 2019 S\+T\+Microelectronics. All rights reserved.\end{center} }
+
+This software component is licensed by ST under B\+SD 3-\/\+Clause license, the \char`\"{}\+License\char`\"{}; You may not use this file except in compliance with the License. You may obtain a copy of the License at\+: opensource.\+org/licenses/\+B\+S\+D-\/3-\/\+Clause 
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{main_8c_a4ec5f68b5fd7b11e202f1f2f508a3fee}\label{main_8c_a4ec5f68b5fd7b11e202f1f2f508a3fee}} 
+\index{main.\+c@{main.\+c}!C\+O\+M\+M\+A\+N\+D\+\_\+\+T\+I\+M\+E\+O\+UT@{C\+O\+M\+M\+A\+N\+D\+\_\+\+T\+I\+M\+E\+O\+UT}}
+\index{C\+O\+M\+M\+A\+N\+D\+\_\+\+T\+I\+M\+E\+O\+UT@{C\+O\+M\+M\+A\+N\+D\+\_\+\+T\+I\+M\+E\+O\+UT}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{C\+O\+M\+M\+A\+N\+D\+\_\+\+T\+I\+M\+E\+O\+UT}{COMMAND\_TIMEOUT}}
+{\footnotesize\ttfamily \#define C\+O\+M\+M\+A\+N\+D\+\_\+\+T\+I\+M\+E\+O\+UT~1000}
+
+\mbox{\Hypertarget{main_8c_a681b002755d2f1c2468a7a144c9d1865}\label{main_8c_a681b002755d2f1c2468a7a144c9d1865}} 
+\index{main.\+c@{main.\+c}!D\+E\+L\+A\+Y\+\_\+1S@{D\+E\+L\+A\+Y\+\_\+1S}}
+\index{D\+E\+L\+A\+Y\+\_\+1S@{D\+E\+L\+A\+Y\+\_\+1S}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{D\+E\+L\+A\+Y\+\_\+1S}{DELAY\_1S}}
+{\footnotesize\ttfamily \#define D\+E\+L\+A\+Y\+\_\+1S~100}
+
+\mbox{\Hypertarget{main_8c_a65f69a96fcacd590f9fb73af502eafe9}\label{main_8c_a65f69a96fcacd590f9fb73af502eafe9}} 
+\index{main.\+c@{main.\+c}!E\+V\+E\+N\+I\+N\+G\+\_\+\+S\+T\+A\+R\+T\+\_\+\+H\+O\+UR@{E\+V\+E\+N\+I\+N\+G\+\_\+\+S\+T\+A\+R\+T\+\_\+\+H\+O\+UR}}
+\index{E\+V\+E\+N\+I\+N\+G\+\_\+\+S\+T\+A\+R\+T\+\_\+\+H\+O\+UR@{E\+V\+E\+N\+I\+N\+G\+\_\+\+S\+T\+A\+R\+T\+\_\+\+H\+O\+UR}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{E\+V\+E\+N\+I\+N\+G\+\_\+\+S\+T\+A\+R\+T\+\_\+\+H\+O\+UR}{EVENING\_START\_HOUR}}
+{\footnotesize\ttfamily \#define E\+V\+E\+N\+I\+N\+G\+\_\+\+S\+T\+A\+R\+T\+\_\+\+H\+O\+UR~17}
+
+\mbox{\Hypertarget{main_8c_a8d1390ddc0fb4ee04f1e22c5ceed465a}\label{main_8c_a8d1390ddc0fb4ee04f1e22c5ceed465a}} 
+\index{main.\+c@{main.\+c}!L\+I\+G\+H\+T\+\_\+\+S\+E\+N\+S\+O\+R\+\_\+\+A\+D\+D\+R\+E\+SS@{L\+I\+G\+H\+T\+\_\+\+S\+E\+N\+S\+O\+R\+\_\+\+A\+D\+D\+R\+E\+SS}}
+\index{L\+I\+G\+H\+T\+\_\+\+S\+E\+N\+S\+O\+R\+\_\+\+A\+D\+D\+R\+E\+SS@{L\+I\+G\+H\+T\+\_\+\+S\+E\+N\+S\+O\+R\+\_\+\+A\+D\+D\+R\+E\+SS}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{L\+I\+G\+H\+T\+\_\+\+S\+E\+N\+S\+O\+R\+\_\+\+A\+D\+D\+R\+E\+SS}{LIGHT\_SENSOR\_ADDRESS}}
+{\footnotesize\ttfamily \#define L\+I\+G\+H\+T\+\_\+\+S\+E\+N\+S\+O\+R\+\_\+\+A\+D\+D\+R\+E\+SS~(0x29$<$$<$1)}
+
+\mbox{\Hypertarget{main_8c_a3cfe8dea48af2f7ca7e4314b9eda1acf}\label{main_8c_a3cfe8dea48af2f7ca7e4314b9eda1acf}} 
+\index{main.\+c@{main.\+c}!M\+O\+R\+N\+I\+N\+G\+\_\+\+E\+N\+D\+\_\+\+H\+O\+UR@{M\+O\+R\+N\+I\+N\+G\+\_\+\+E\+N\+D\+\_\+\+H\+O\+UR}}
+\index{M\+O\+R\+N\+I\+N\+G\+\_\+\+E\+N\+D\+\_\+\+H\+O\+UR@{M\+O\+R\+N\+I\+N\+G\+\_\+\+E\+N\+D\+\_\+\+H\+O\+UR}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{M\+O\+R\+N\+I\+N\+G\+\_\+\+E\+N\+D\+\_\+\+H\+O\+UR}{MORNING\_END\_HOUR}}
+{\footnotesize\ttfamily \#define M\+O\+R\+N\+I\+N\+G\+\_\+\+E\+N\+D\+\_\+\+H\+O\+UR~8}
+
+\mbox{\Hypertarget{main_8c_a90b0c50fe6147da206de6cadd17dfcd1}\label{main_8c_a90b0c50fe6147da206de6cadd17dfcd1}} 
+\index{main.\+c@{main.\+c}!S\+A\+M\+P\+L\+E\+\_\+\+I\+N\+T\+E\+R\+V\+A\+L\+\_\+\+M\+I\+N\+U\+T\+ES@{S\+A\+M\+P\+L\+E\+\_\+\+I\+N\+T\+E\+R\+V\+A\+L\+\_\+\+M\+I\+N\+U\+T\+ES}}
+\index{S\+A\+M\+P\+L\+E\+\_\+\+I\+N\+T\+E\+R\+V\+A\+L\+\_\+\+M\+I\+N\+U\+T\+ES@{S\+A\+M\+P\+L\+E\+\_\+\+I\+N\+T\+E\+R\+V\+A\+L\+\_\+\+M\+I\+N\+U\+T\+ES}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{S\+A\+M\+P\+L\+E\+\_\+\+I\+N\+T\+E\+R\+V\+A\+L\+\_\+\+M\+I\+N\+U\+T\+ES}{SAMPLE\_INTERVAL\_MINUTES}}
+{\footnotesize\ttfamily \#define S\+A\+M\+P\+L\+E\+\_\+\+I\+N\+T\+E\+R\+V\+A\+L\+\_\+\+M\+I\+N\+U\+T\+ES~10}
+
+\mbox{\Hypertarget{main_8c_ac29a83c6aff4114c793e7fb07fb80187}\label{main_8c_ac29a83c6aff4114c793e7fb07fb80187}} 
+\index{main.\+c@{main.\+c}!W\+U\+\_\+\+R\+TC@{W\+U\+\_\+\+R\+TC}}
+\index{W\+U\+\_\+\+R\+TC@{W\+U\+\_\+\+R\+TC}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{W\+U\+\_\+\+R\+TC}{WU\_RTC}}
+{\footnotesize\ttfamily \#define W\+U\+\_\+\+R\+TC~0x02}
+
+\mbox{\Hypertarget{main_8c_a8f4f4fdd97c30bd8b6290ac2b5b0cd11}\label{main_8c_a8f4f4fdd97c30bd8b6290ac2b5b0cd11}} 
+\index{main.\+c@{main.\+c}!W\+U\+\_\+\+U\+A\+RT@{W\+U\+\_\+\+U\+A\+RT}}
+\index{W\+U\+\_\+\+U\+A\+RT@{W\+U\+\_\+\+U\+A\+RT}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{W\+U\+\_\+\+U\+A\+RT}{WU\_UART}}
+{\footnotesize\ttfamily \#define W\+U\+\_\+\+U\+A\+RT~0x01}
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{main_8c_a464134d39864e38cf2875a3213543bc8}\label{main_8c_a464134d39864e38cf2875a3213543bc8}} 
+\index{main.\+c@{main.\+c}!collect\+\_\+data@{collect\+\_\+data}}
+\index{collect\+\_\+data@{collect\+\_\+data}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{collect\+\_\+data()}{collect\_data()}}
+{\footnotesize\ttfamily void collect\+\_\+data (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a1730ffe1e560465665eb47d9264826f9}\label{main_8c_a1730ffe1e560465665eb47d9264826f9}} 
+\index{main.\+c@{main.\+c}!Error\+\_\+\+Handler@{Error\+\_\+\+Handler}}
+\index{Error\+\_\+\+Handler@{Error\+\_\+\+Handler}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{Error\+\_\+\+Handler()}{Error\_Handler()}}
+{\footnotesize\ttfamily void Error\+\_\+\+Handler (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+This function is executed in case of error occurrence. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em None} & \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{main_8c_a11aeff83fd498cddbed3bcddcf017e0a}\label{main_8c_a11aeff83fd498cddbed3bcddcf017e0a}} 
+\index{main.\+c@{main.\+c}!H\+A\+L\+\_\+\+R\+T\+C\+\_\+\+Alarm\+A\+Event\+Callback@{H\+A\+L\+\_\+\+R\+T\+C\+\_\+\+Alarm\+A\+Event\+Callback}}
+\index{H\+A\+L\+\_\+\+R\+T\+C\+\_\+\+Alarm\+A\+Event\+Callback@{H\+A\+L\+\_\+\+R\+T\+C\+\_\+\+Alarm\+A\+Event\+Callback}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{H\+A\+L\+\_\+\+R\+T\+C\+\_\+\+Alarm\+A\+Event\+Callback()}{HAL\_RTC\_AlarmAEventCallback()}}
+{\footnotesize\ttfamily void H\+A\+L\+\_\+\+R\+T\+C\+\_\+\+Alarm\+A\+Event\+Callback (\begin{DoxyParamCaption}\item[{R\+T\+C\+\_\+\+Handle\+Type\+Def $\ast$}]{hrtc }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a77a2401a35ddd9bd0b8fc28331b81381}\label{main_8c_a77a2401a35ddd9bd0b8fc28331b81381}} 
+\index{main.\+c@{main.\+c}!H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+I\+C\+\_\+\+Capture\+Callback@{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+I\+C\+\_\+\+Capture\+Callback}}
+\index{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+I\+C\+\_\+\+Capture\+Callback@{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+I\+C\+\_\+\+Capture\+Callback}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+I\+C\+\_\+\+Capture\+Callback()}{HAL\_TIM\_IC\_CaptureCallback()}}
+{\footnotesize\ttfamily void H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+I\+C\+\_\+\+Capture\+Callback (\begin{DoxyParamCaption}\item[{T\+I\+M\+\_\+\+Handle\+Type\+Def $\ast$}]{htim }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a8a3b0ad512a6e6c6157440b68d395eac}\label{main_8c_a8a3b0ad512a6e6c6157440b68d395eac}} 
+\index{main.\+c@{main.\+c}!H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+Period\+Elapsed\+Callback@{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+Period\+Elapsed\+Callback}}
+\index{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+Period\+Elapsed\+Callback@{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+Period\+Elapsed\+Callback}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+Period\+Elapsed\+Callback()}{HAL\_TIM\_PeriodElapsedCallback()}}
+{\footnotesize\ttfamily void H\+A\+L\+\_\+\+T\+I\+M\+\_\+\+Period\+Elapsed\+Callback (\begin{DoxyParamCaption}\item[{T\+I\+M\+\_\+\+Handle\+Type\+Def $\ast$}]{htim }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a840291bc02cba5474a4cb46a9b9566fe}\label{main_8c_a840291bc02cba5474a4cb46a9b9566fe}} 
+\index{main.\+c@{main.\+c}!main@{main}}
+\index{main@{main}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+The application entry point. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em int} & \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{main_8c_a70af21c671abfcc773614a9a4f63d920}\label{main_8c_a70af21c671abfcc773614a9a4f63d920}} 
+\index{main.\+c@{main.\+c}!System\+Clock\+\_\+\+Config@{System\+Clock\+\_\+\+Config}}
+\index{System\+Clock\+\_\+\+Config@{System\+Clock\+\_\+\+Config}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{System\+Clock\+\_\+\+Config()}{SystemClock\_Config()}}
+{\footnotesize\ttfamily void System\+Clock\+\_\+\+Config (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+System Clock Configuration. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em None} & \\
+\hline
+\end{DoxyRetVals}
+Initializes the C\+PU, A\+HB and A\+PB busses clocks
+
+Initializes the C\+PU, A\+HB and A\+PB busses clocks
+
+Configure the main internal regulator output voltage
+
+Enable M\+SI Auto calibration
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{main_8c_a1c3a92cc78d540581f0fc5eaf3fde4d4}\label{main_8c_a1c3a92cc78d540581f0fc5eaf3fde4d4}} 
+\index{main.\+c@{main.\+c}!capture\+Done@{capture\+Done}}
+\index{capture\+Done@{capture\+Done}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{capture\+Done}{captureDone}}
+{\footnotesize\ttfamily volatile uint8\+\_\+t capture\+Done = 0}
+
+\mbox{\Hypertarget{main_8c_aa9514c45c904a173fce4254b49aa316f}\label{main_8c_aa9514c45c904a173fce4254b49aa316f}} 
+\index{main.\+c@{main.\+c}!captures@{captures}}
+\index{captures@{captures}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{captures}{captures}}
+{\footnotesize\ttfamily uint32\+\_\+t captures\mbox{[}2\mbox{]}}
+
+\mbox{\Hypertarget{main_8c_a59b0cae4a09bd6b6f02e092732f100e9}\label{main_8c_a59b0cae4a09bd6b6f02e092732f100e9}} 
+\index{main.\+c@{main.\+c}!collect\+\_\+data\+\_\+flag@{collect\+\_\+data\+\_\+flag}}
+\index{collect\+\_\+data\+\_\+flag@{collect\+\_\+data\+\_\+flag}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{collect\+\_\+data\+\_\+flag}{collect\_data\_flag}}
+{\footnotesize\ttfamily uint32\+\_\+t collect\+\_\+data\+\_\+flag = 0}
+
+\mbox{\Hypertarget{main_8c_a480a106b52f3db4db03eca267fcd80ca}\label{main_8c_a480a106b52f3db4db03eca267fcd80ca}} 
+\index{main.\+c@{main.\+c}!current\+\_\+date@{current\+\_\+date}}
+\index{current\+\_\+date@{current\+\_\+date}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{current\+\_\+date}{current\_date}}
+{\footnotesize\ttfamily R\+T\+C\+\_\+\+Date\+Type\+Def current\+\_\+date}
+
+\mbox{\Hypertarget{main_8c_a70fedddc4f87a883c9b5e270193bcb3d}\label{main_8c_a70fedddc4f87a883c9b5e270193bcb3d}} 
+\index{main.\+c@{main.\+c}!current\+\_\+time@{current\+\_\+time}}
+\index{current\+\_\+time@{current\+\_\+time}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{current\+\_\+time}{current\_time}}
+{\footnotesize\ttfamily R\+T\+C\+\_\+\+Time\+Type\+Def current\+\_\+time}
+
+\mbox{\Hypertarget{main_8c_af06cbe59d61bec40b735effe12bedf8f}\label{main_8c_af06cbe59d61bec40b735effe12bedf8f}} 
+\index{main.\+c@{main.\+c}!diff\+Capture@{diff\+Capture}}
+\index{diff\+Capture@{diff\+Capture}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{diff\+Capture}{diffCapture}}
+{\footnotesize\ttfamily uint32\+\_\+t diff\+Capture = 0}
+
+\mbox{\Hypertarget{main_8c_acdfc8898c9e67fbcec81f3b04ae61bd9}\label{main_8c_acdfc8898c9e67fbcec81f3b04ae61bd9}} 
+\index{main.\+c@{main.\+c}!frequency@{frequency}}
+\index{frequency@{frequency}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{frequency}{frequency}}
+{\footnotesize\ttfamily float frequency = 0}
+
+\mbox{\Hypertarget{main_8c_af103e485f895120eef7c5b0624f6a88c}\label{main_8c_af103e485f895120eef7c5b0624f6a88c}} 
+\index{main.\+c@{main.\+c}!fs@{fs}}
+\index{fs@{fs}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{fs}{fs}}
+{\footnotesize\ttfamily \hyperlink{flash_8h_a813b2c2faae1816ffd6890a96f75dc97}{flash\+\_\+status\+\_\+t} fs}
+
+\mbox{\Hypertarget{main_8c_a22b804736f5648d52f639b2647d4ed13}\label{main_8c_a22b804736f5648d52f639b2647d4ed13}} 
+\index{main.\+c@{main.\+c}!hadc1@{hadc1}}
+\index{hadc1@{hadc1}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{hadc1}{hadc1}}
+{\footnotesize\ttfamily A\+D\+C\+\_\+\+Handle\+Type\+Def hadc1}
+
+\mbox{\Hypertarget{main_8c_ab051b95fbef5ff0c90c0782a26ab85ba}\label{main_8c_ab051b95fbef5ff0c90c0782a26ab85ba}} 
+\index{main.\+c@{main.\+c}!hdma\+\_\+tim2\+\_\+ch1@{hdma\+\_\+tim2\+\_\+ch1}}
+\index{hdma\+\_\+tim2\+\_\+ch1@{hdma\+\_\+tim2\+\_\+ch1}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{hdma\+\_\+tim2\+\_\+ch1}{hdma\_tim2\_ch1}}
+{\footnotesize\ttfamily D\+M\+A\+\_\+\+Handle\+Type\+Def hdma\+\_\+tim2\+\_\+ch1}
+
+File Name \+: \hyperlink{stm32l4xx__hal__msp_8c}{stm32l4xx\+\_\+hal\+\_\+msp.\+c} Description \+: This file provides code for the M\+SP Initialization and de-\/\+Initialization codes.
+
+This notice applies to any and all portions of this file that are not between comment pairs U\+S\+ER C\+O\+DE B\+E\+G\+IN and U\+S\+ER C\+O\+DE E\+ND. Other portions of this file, whether inserted by the user or by software development tools are owned by their respective copyright owners.
+
+C\+O\+P\+Y\+R\+I\+G\+H\+T(c) 2019 S\+T\+Microelectronics
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met\+:
+\begin{DoxyEnumerate}
+\item Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+\item Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+\item Neither the name of S\+T\+Microelectronics nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+\end{DoxyEnumerate}
+
+T\+H\+IS S\+O\+F\+T\+W\+A\+RE IS P\+R\+O\+V\+I\+D\+ED BY T\+HE C\+O\+P\+Y\+R\+I\+G\+HT H\+O\+L\+D\+E\+RS A\+ND C\+O\+N\+T\+R\+I\+B\+U\+T\+O\+RS \char`\"{}\+A\+S I\+S\char`\"{} A\+ND A\+NY E\+X\+P\+R\+E\+SS OR I\+M\+P\+L\+I\+ED W\+A\+R\+R\+A\+N\+T\+I\+ES, I\+N\+C\+L\+U\+D\+I\+NG, B\+UT N\+OT L\+I\+M\+I\+T\+ED TO, T\+HE I\+M\+P\+L\+I\+ED W\+A\+R\+R\+A\+N\+T\+I\+ES OF M\+E\+R\+C\+H\+A\+N\+T\+A\+B\+I\+L\+I\+TY A\+ND F\+I\+T\+N\+E\+SS F\+OR A P\+A\+R\+T\+I\+C\+U\+L\+AR P\+U\+R\+P\+O\+SE A\+RE D\+I\+S\+C\+L\+A\+I\+M\+ED. IN NO E\+V\+E\+NT S\+H\+A\+LL T\+HE C\+O\+P\+Y\+R\+I\+G\+HT H\+O\+L\+D\+ER OR C\+O\+N\+T\+R\+I\+B\+U\+T\+O\+RS BE L\+I\+A\+B\+LE F\+OR A\+NY D\+I\+R\+E\+CT, I\+N\+D\+I\+R\+E\+CT, I\+N\+C\+I\+D\+E\+N\+T\+AL, S\+P\+E\+C\+I\+AL, E\+X\+E\+M\+P\+L\+A\+RY, OR C\+O\+N\+S\+E\+Q\+U\+E\+N\+T\+I\+AL D\+A\+M\+A\+G\+ES (I\+N\+C\+L\+U\+D\+I\+NG, B\+UT N\+OT L\+I\+M\+I\+T\+ED TO, P\+R\+O\+C\+U\+R\+E\+M\+E\+NT OF S\+U\+B\+S\+T\+I\+T\+U\+TE G\+O\+O\+DS OR S\+E\+R\+V\+I\+C\+ES; L\+O\+SS OF U\+SE, D\+A\+TA, OR P\+R\+O\+F\+I\+TS; OR B\+U\+S\+I\+N\+E\+SS I\+N\+T\+E\+R\+R\+U\+P\+T\+I\+ON) H\+O\+W\+E\+V\+ER C\+A\+U\+S\+ED A\+ND ON A\+NY T\+H\+E\+O\+RY OF L\+I\+A\+B\+I\+L\+I\+TY, W\+H\+E\+T\+H\+ER IN C\+O\+N\+T\+R\+A\+CT, S\+T\+R\+I\+CT L\+I\+A\+B\+I\+L\+I\+TY, OR T\+O\+RT (I\+N\+C\+L\+U\+D\+I\+NG N\+E\+G\+L\+I\+G\+E\+N\+CE OR O\+T\+H\+E\+R\+W\+I\+SE) A\+R\+I\+S\+I\+NG IN A\+NY W\+AY O\+UT OF T\+HE U\+SE OF T\+H\+IS S\+O\+F\+T\+W\+A\+RE, E\+V\+EN IF A\+D\+V\+I\+S\+ED OF T\+HE P\+O\+S\+S\+I\+B\+I\+L\+I\+TY OF S\+U\+CH D\+A\+M\+A\+GE. \mbox{\Hypertarget{main_8c_ade328c372e5c1f34a2e0abe017fff447}\label{main_8c_ade328c372e5c1f34a2e0abe017fff447}} 
+\index{main.\+c@{main.\+c}!hdma\+\_\+tim2\+\_\+ch2\+\_\+ch4@{hdma\+\_\+tim2\+\_\+ch2\+\_\+ch4}}
+\index{hdma\+\_\+tim2\+\_\+ch2\+\_\+ch4@{hdma\+\_\+tim2\+\_\+ch2\+\_\+ch4}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{hdma\+\_\+tim2\+\_\+ch2\+\_\+ch4}{hdma\_tim2\_ch2\_ch4}}
+{\footnotesize\ttfamily D\+M\+A\+\_\+\+Handle\+Type\+Def hdma\+\_\+tim2\+\_\+ch2\+\_\+ch4}
+
+\mbox{\Hypertarget{main_8c_af7b2c26e44dadaaa798a5c3d82914ba7}\label{main_8c_af7b2c26e44dadaaa798a5c3d82914ba7}} 
+\index{main.\+c@{main.\+c}!hi2c1@{hi2c1}}
+\index{hi2c1@{hi2c1}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{hi2c1}{hi2c1}}
+{\footnotesize\ttfamily I2\+C\+\_\+\+Handle\+Type\+Def hi2c1}
+
+\mbox{\Hypertarget{main_8c_a5ccf4a01a8d7f08d3190181f843f7515}\label{main_8c_a5ccf4a01a8d7f08d3190181f843f7515}} 
+\index{main.\+c@{main.\+c}!hi2c3@{hi2c3}}
+\index{hi2c3@{hi2c3}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{hi2c3}{hi2c3}}
+{\footnotesize\ttfamily I2\+C\+\_\+\+Handle\+Type\+Def hi2c3}
+
+\mbox{\Hypertarget{main_8c_a5c3f9dccaa7cebcc70e1657af9e5e5dc}\label{main_8c_a5c3f9dccaa7cebcc70e1657af9e5e5dc}} 
+\index{main.\+c@{main.\+c}!hlpuart1@{hlpuart1}}
+\index{hlpuart1@{hlpuart1}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{hlpuart1}{hlpuart1}}
+{\footnotesize\ttfamily U\+A\+R\+T\+\_\+\+Handle\+Type\+Def hlpuart1}
+
+\mbox{\Hypertarget{main_8c_aa0c7fca836406ade332e1e3f1039d8ab}\label{main_8c_aa0c7fca836406ade332e1e3f1039d8ab}} 
+\index{main.\+c@{main.\+c}!hrtc@{hrtc}}
+\index{hrtc@{hrtc}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{hrtc}{hrtc}}
+{\footnotesize\ttfamily R\+T\+C\+\_\+\+Handle\+Type\+Def hrtc}
+
+\mbox{\Hypertarget{main_8c_a2c80fd5510e2990a59a5c90d745c716c}\label{main_8c_a2c80fd5510e2990a59a5c90d745c716c}} 
+\index{main.\+c@{main.\+c}!htim2@{htim2}}
+\index{htim2@{htim2}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{htim2}{htim2}}
+{\footnotesize\ttfamily T\+I\+M\+\_\+\+Handle\+Type\+Def htim2}
+
+\mbox{\Hypertarget{main_8c_ac523471a8c7c7d10b8622f5bc16068bd}\label{main_8c_ac523471a8c7c7d10b8622f5bc16068bd}} 
+\index{main.\+c@{main.\+c}!led\+\_\+state@{led\+\_\+state}}
+\index{led\+\_\+state@{led\+\_\+state}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{led\+\_\+state}{led\_state}}
+{\footnotesize\ttfamily uint8\+\_\+t led\+\_\+state}
+
+\mbox{\Hypertarget{main_8c_a6b29e4f37f4482274af785ad5ffe96a7}\label{main_8c_a6b29e4f37f4482274af785ad5ffe96a7}} 
+\index{main.\+c@{main.\+c}!mode@{mode}}
+\index{mode@{mode}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{mode}{mode}}
+{\footnotesize\ttfamily uint32\+\_\+t mode = \hyperlink{main_8h_a99fb83031ce9923c84392b4e92f956b5ae680fa7eb860abe7832f792cc18a44b4}{C\+O\+M\+M\+A\+ND}}
+
+\mbox{\Hypertarget{main_8c_a175dd8861c677905234893de94b4db69}\label{main_8c_a175dd8861c677905234893de94b4db69}} 
+\index{main.\+c@{main.\+c}!mode\+\_\+counter@{mode\+\_\+counter}}
+\index{mode\+\_\+counter@{mode\+\_\+counter}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{mode\+\_\+counter}{mode\_counter}}
+{\footnotesize\ttfamily uint32\+\_\+t mode\+\_\+counter = 0}
+
+\mbox{\Hypertarget{main_8c_a4e628eb32a0b092e4194d7cea9ba31db}\label{main_8c_a4e628eb32a0b092e4194d7cea9ba31db}} 
+\index{main.\+c@{main.\+c}!mode\+\_\+flag@{mode\+\_\+flag}}
+\index{mode\+\_\+flag@{mode\+\_\+flag}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{mode\+\_\+flag}{mode\_flag}}
+{\footnotesize\ttfamily uint32\+\_\+t mode\+\_\+flag = 0}
+
+\mbox{\Hypertarget{main_8c_a25f650d5a49abb0c1d5433f4e5012cbf}\label{main_8c_a25f650d5a49abb0c1d5433f4e5012cbf}} 
+\index{main.\+c@{main.\+c}!rtc\+\_\+counter@{rtc\+\_\+counter}}
+\index{rtc\+\_\+counter@{rtc\+\_\+counter}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{rtc\+\_\+counter}{rtc\_counter}}
+{\footnotesize\ttfamily uint32\+\_\+t rtc\+\_\+counter = 0}
+
+\mbox{\Hypertarget{main_8c_a60f346797b70da4ff860918b6b9b3f7c}\label{main_8c_a60f346797b70da4ff860918b6b9b3f7c}} 
+\index{main.\+c@{main.\+c}!rx\+\_\+queue@{rx\+\_\+queue}}
+\index{rx\+\_\+queue@{rx\+\_\+queue}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{rx\+\_\+queue}{rx\_queue}}
+{\footnotesize\ttfamily \hyperlink{queue_8h_a410790d8f6c9a3ad1a3dbdca2e09d16a}{queue\+\_\+t} rx\+\_\+queue}
+
+\mbox{\Hypertarget{main_8c_ad6d37d155f2f5dd54a5f79ee9640c8ec}\label{main_8c_ad6d37d155f2f5dd54a5f79ee9640c8ec}} 
+\index{main.\+c@{main.\+c}!sample\+\_\+interval@{sample\+\_\+interval}}
+\index{sample\+\_\+interval@{sample\+\_\+interval}!main.\+c@{main.\+c}}
+\subsubsection{\texorpdfstring{sample\+\_\+interval}{sample\_interval}}
+{\footnotesize\ttfamily uint32\+\_\+t sample\+\_\+interval = 0}
+

@@ -1,0 +1,89 @@
+\hypertarget{Src_2tsl237_8c}{}\section{Src/tsl237.c File Reference}
+\label{Src_2tsl237_8c}\index{Src/tsl237.\+c@{Src/tsl237.\+c}}
+{\ttfamily \#include \char`\"{}main.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}tsl237.\+h\char`\"{}}\newline
+Include dependency graph for tsl237.\+c\+:
+% FIG 0
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{Src_2tsl237_8c_af0b23eedf2352de4c1eff77e1401730c}{N\+U\+M\+\_\+\+S\+A\+M\+P\+L\+ES}~1000
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{Src_2tsl237_8c_a66b49dbe05ad5f2ae5785c3aa21d5b22}{tsl237\+\_\+vdd\+\_\+on} (void)
+\item 
+void \hyperlink{Src_2tsl237_8c_ab36ca2aa3ed357ba1e91ab8bd05a25e5}{tsl237\+\_\+vdd\+\_\+off} (void)
+\item 
+void \hyperlink{Src_2tsl237_8c_ad205b41703855c2ecc47fc07933131bf}{tsl237\+\_\+command} (char $\ast$arguments)
+\item 
+uint32\+\_\+t \hyperlink{Src_2tsl237_8c_a6008cc5283518fc1ef463f7f0fa02889}{tsl237\+\_\+readsensor} ()
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+T\+I\+M\+\_\+\+Handle\+Type\+Def \hyperlink{Src_2tsl237_8c_a2c80fd5510e2990a59a5c90d745c716c}{htim2}
+\item 
+uint32\+\_\+t \hyperlink{Src_2tsl237_8c_af0db5f49c0442984fd863fa682af7500}{tsl237\+\_\+done} = 0
+\item 
+uint32\+\_\+t \hyperlink{Src_2tsl237_8c_aef5aee184035478d6ce8bcc598f375c3}{tsl237t\+\_\+done} = 0
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{Src_2tsl237_8c_af0b23eedf2352de4c1eff77e1401730c}\label{Src_2tsl237_8c_af0b23eedf2352de4c1eff77e1401730c}} 
+\index{Src/tsl237.\+c@{Src/tsl237.\+c}!N\+U\+M\+\_\+\+S\+A\+M\+P\+L\+ES@{N\+U\+M\+\_\+\+S\+A\+M\+P\+L\+ES}}
+\index{N\+U\+M\+\_\+\+S\+A\+M\+P\+L\+ES@{N\+U\+M\+\_\+\+S\+A\+M\+P\+L\+ES}!Src/tsl237.\+c@{Src/tsl237.\+c}}
+\subsubsection{\texorpdfstring{N\+U\+M\+\_\+\+S\+A\+M\+P\+L\+ES}{NUM\_SAMPLES}}
+{\footnotesize\ttfamily \#define N\+U\+M\+\_\+\+S\+A\+M\+P\+L\+ES~1000}
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{Src_2tsl237_8c_ad205b41703855c2ecc47fc07933131bf}\label{Src_2tsl237_8c_ad205b41703855c2ecc47fc07933131bf}} 
+\index{Src/tsl237.\+c@{Src/tsl237.\+c}!tsl237\+\_\+command@{tsl237\+\_\+command}}
+\index{tsl237\+\_\+command@{tsl237\+\_\+command}!Src/tsl237.\+c@{Src/tsl237.\+c}}
+\subsubsection{\texorpdfstring{tsl237\+\_\+command()}{tsl237\_command()}}
+{\footnotesize\ttfamily void tsl237\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{arguments }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{Src_2tsl237_8c_a6008cc5283518fc1ef463f7f0fa02889}\label{Src_2tsl237_8c_a6008cc5283518fc1ef463f7f0fa02889}} 
+\index{Src/tsl237.\+c@{Src/tsl237.\+c}!tsl237\+\_\+readsensor@{tsl237\+\_\+readsensor}}
+\index{tsl237\+\_\+readsensor@{tsl237\+\_\+readsensor}!Src/tsl237.\+c@{Src/tsl237.\+c}}
+\subsubsection{\texorpdfstring{tsl237\+\_\+readsensor()}{tsl237\_readsensor()}}
+{\footnotesize\ttfamily uint32\+\_\+t tsl237\+\_\+readsensor (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{Src_2tsl237_8c_ab36ca2aa3ed357ba1e91ab8bd05a25e5}\label{Src_2tsl237_8c_ab36ca2aa3ed357ba1e91ab8bd05a25e5}} 
+\index{Src/tsl237.\+c@{Src/tsl237.\+c}!tsl237\+\_\+vdd\+\_\+off@{tsl237\+\_\+vdd\+\_\+off}}
+\index{tsl237\+\_\+vdd\+\_\+off@{tsl237\+\_\+vdd\+\_\+off}!Src/tsl237.\+c@{Src/tsl237.\+c}}
+\subsubsection{\texorpdfstring{tsl237\+\_\+vdd\+\_\+off()}{tsl237\_vdd\_off()}}
+{\footnotesize\ttfamily void tsl237\+\_\+vdd\+\_\+off (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{Src_2tsl237_8c_a66b49dbe05ad5f2ae5785c3aa21d5b22}\label{Src_2tsl237_8c_a66b49dbe05ad5f2ae5785c3aa21d5b22}} 
+\index{Src/tsl237.\+c@{Src/tsl237.\+c}!tsl237\+\_\+vdd\+\_\+on@{tsl237\+\_\+vdd\+\_\+on}}
+\index{tsl237\+\_\+vdd\+\_\+on@{tsl237\+\_\+vdd\+\_\+on}!Src/tsl237.\+c@{Src/tsl237.\+c}}
+\subsubsection{\texorpdfstring{tsl237\+\_\+vdd\+\_\+on()}{tsl237\_vdd\_on()}}
+{\footnotesize\ttfamily void tsl237\+\_\+vdd\+\_\+on (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{Src_2tsl237_8c_a2c80fd5510e2990a59a5c90d745c716c}\label{Src_2tsl237_8c_a2c80fd5510e2990a59a5c90d745c716c}} 
+\index{Src/tsl237.\+c@{Src/tsl237.\+c}!htim2@{htim2}}
+\index{htim2@{htim2}!Src/tsl237.\+c@{Src/tsl237.\+c}}
+\subsubsection{\texorpdfstring{htim2}{htim2}}
+{\footnotesize\ttfamily T\+I\+M\+\_\+\+Handle\+Type\+Def htim2}
+
+\mbox{\Hypertarget{Src_2tsl237_8c_af0db5f49c0442984fd863fa682af7500}\label{Src_2tsl237_8c_af0db5f49c0442984fd863fa682af7500}} 
+\index{Src/tsl237.\+c@{Src/tsl237.\+c}!tsl237\+\_\+done@{tsl237\+\_\+done}}
+\index{tsl237\+\_\+done@{tsl237\+\_\+done}!Src/tsl237.\+c@{Src/tsl237.\+c}}
+\subsubsection{\texorpdfstring{tsl237\+\_\+done}{tsl237\_done}}
+{\footnotesize\ttfamily uint32\+\_\+t tsl237\+\_\+done = 0}
+
+\mbox{\Hypertarget{Src_2tsl237_8c_aef5aee184035478d6ce8bcc598f375c3}\label{Src_2tsl237_8c_aef5aee184035478d6ce8bcc598f375c3}} 
+\index{Src/tsl237.\+c@{Src/tsl237.\+c}!tsl237t\+\_\+done@{tsl237t\+\_\+done}}
+\index{tsl237t\+\_\+done@{tsl237t\+\_\+done}!Src/tsl237.\+c@{Src/tsl237.\+c}}
+\subsubsection{\texorpdfstring{tsl237t\+\_\+done}{tsl237t\_done}}
+{\footnotesize\ttfamily uint32\+\_\+t tsl237t\+\_\+done = 0}
+

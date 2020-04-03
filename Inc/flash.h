@@ -40,7 +40,7 @@ typedef struct sensordata {
   uint16_t record_number;          // Which number is this particular record  
   uint32_t timestamp;              // Time, bit packed into 32 bits
   uint16_t battery_voltage;        // 16 bit battery voltage
-  uint16_t temperature;            // STM32 Temperature sensor reading 
+  int16_t temperature;            // STM32 Temperature sensor reading 
   float lux;                       // Reading from the light sensor
 } sensordata_t;
 

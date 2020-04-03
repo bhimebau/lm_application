@@ -11,9 +11,10 @@
 #ifndef TSL237_H
 #define TSL237_H
 
-
-
 #endif
+
+// Only allow 5 seconds for taking 1000 samples
+#define MAX_SAMPLE_TIME 5000
 
 extern uint32_t tsl237_done;
 extern uint32_t tsl237t_done;

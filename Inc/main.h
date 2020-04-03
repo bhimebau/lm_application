@@ -116,7 +116,7 @@ void Error_Handler(void);
   
 #define SENSOR_POWER_ON  HAL_GPIO_WritePin(GPIOB, SW_MODE_Pin, GPIO_PIN_SET);
 #define SENSOR_POWER_OFF  HAL_GPIO_WritePin(GPIOB, SW_MODE_Pin, GPIO_PIN_RESET);
-#define TICK_FREQ_HZ 100
+#define TICK_FREQ_HZ 1000
   
 /* USER CODE END Private defines */
 

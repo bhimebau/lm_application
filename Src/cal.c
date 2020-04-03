@@ -348,10 +348,10 @@ int cal_complete(void) {
 
 int cal_fake(void) {
   cal_blank();
-  calibration_ram[50] = 1000;
-  calibration_ram[100] = 3000;
-  calibration_ram[150] = 6000;
-  calibration_ram[190] = 13000;
+  calibration_ram[52] = 1000;
+  calibration_ram[107] = 3000;
+  calibration_ram[142] = 6000;
+  calibration_ram[195] = 13000;
   return(0);
 }
 
