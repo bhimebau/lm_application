@@ -70,6 +70,8 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 
+DAC_HandleTypeDef hdac1;
+
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c3;
 
@@ -92,6 +94,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_RTC_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_DAC1_Init(void);
 static void MX_LPUART1_UART_Init(void);
 static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
@@ -191,6 +194,7 @@ int main(void) {
   MX_DMA_Init();
   MX_RTC_Init();
   MX_ADC1_Init();          // 50uA 
+  MX_DAC1_Init();         
   MX_LPUART1_UART_Init();
   MX_TIM2_Init();          // 120uA 
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
@@ -202,34 +206,14 @@ int main(void) {
   HAL_ADC_DeInit(&hadc1);     // Kick off the A2D Subsystem
   HAL_TIM_Base_DeInit(&htim2);
   HAL_TIM_IC_DeInit(&htim2);
+
+  HAL_DAC_Start(&hdac1,DAC_CHANNEL_2);
+  HAL_DAC_SetValue(&hdac1,DAC_CHANNEL_2,DAC_ALIGN_12B_R,0x7FF); 
+ 
   #ifdef DEPLOY
   HAL_DBGMCU_DisableDBGStopMode();
   #endif
-  
-  /* cd.tsl237_frequency = 25.0; */
-  /* cd.magarcsec2_value = 25.0; */
-  /* for (i=0;i<256;i++) { */
-  /*   cd.tsl237_frequency -= .1; */
-  /*   cd.magarcsec2_value -= .1; */
-  /*   if (cd.magarcsec2_value < 0) { */
-  /*     cd.magarcsec2_value = 0; */
-  /*   } */
-  /*   if (cd.tsl237_frequency < 0) { */
-  /*     cd.tsl237_frequency = 0; */
-  /*   } */
-    
-  /*   if (flash_caldata(i,&cd)) { */
-  /*     printf("\n\rFlash not Erased\n\r"); */
-  /*     flash_error = 1; */
-  /*     break; */
-  /*   } */
-  /* } */
-  /* if (!flash_error) { */
-  /*   for (i=0; i<256; i++) { */
-  /*     printf("%f %f\n\r",cal_array[i].tsl237_frequency,cal_array[i].magarcsec2_value); */
-  /*   } */
-  /* } */
-  
+ 
   while (1) {
     printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
     printf("Version: %s\n\r",VERSION);
@@ -753,6 +737,52 @@ static void MX_GPIO_Init(void)
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+}
+
+/**
+  * @brief DAC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_DAC1_Init(void)
+{
+
+  /* USER CODE BEGIN DAC1_Init 0 */
+
+  /* USER CODE END DAC1_Init 0 */
+
+  DAC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN DAC1_Init 1 */
+
+  /* USER CODE END DAC1_Init 1 */
+  /** DAC Initialization 
+  */
+  hdac1.Instance = DAC1;
+  if (HAL_DAC_Init(&hdac1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** DAC channel OUT2 config 
+  */
+  sConfig.DAC_SampleAndHold = DAC_SAMPLEANDHOLD_DISABLE;
+  sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+  sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+  sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_DISABLE;
+  sConfig.DAC_UserTrimming = DAC_TRIMMING_FACTORY;
+  if (HAL_DAC_ConfigChannel(&hdac1, &sConfig, DAC_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN DAC1_Init 2 */
+
+  if (HAL_DACEx_SelfCalibrate(&hdac1, &sConfig, DAC_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /* USER CODE END DAC1_Init 2 */
 
 }
 
