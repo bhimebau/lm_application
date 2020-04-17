@@ -49,6 +49,7 @@ void led_command(char *arguments) {
 //          for a brighter led. 
 int led_drive(uint32_t value, uint32_t range) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
+  DAC_ChannelConfTypeDef sConfig = {0};
   
   if ((value > 0xFFF) | (range > 3)) {
     printf("%d %d\n\r",(int) value,(int) range);
@@ -61,14 +62,19 @@ int led_drive(uint32_t value, uint32_t range) {
     /*   printf("Starting the DAC\n\r"); */
     /*   HAL_DAC_Start(&hdac1,DAC_CHANNEL_2); */
     /* }     */
+    HAL_DBGMCU_EnableDBGStopMode(); // The debugger seems to need to be enabled 
     sensor_power(POWER_ON);
     if (HAL_DAC_Init(&hdac1) != HAL_OK) {
       Error_Handler();
     }
-    /* if (HAL_DACEx_SelfCalibrate(&hdac1, &sConfig, DAC_CHANNEL_2) != HAL_OK) { */
-    /*   Error_Handler(); */
-    /* } */
-    //    MX_DAC1_Init();   
+    sConfig.DAC_SampleAndHold = DAC_SAMPLEANDHOLD_DISABLE;
+    sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+    sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_DISABLE;
+    sConfig.DAC_UserTrimming = DAC_TRIMMING_FACTORY;
+    if (HAL_DACEx_SelfCalibrate(&hdac1, &sConfig, DAC_CHANNEL_2) != HAL_OK) {
+      Error_Handler();
+    }
     HAL_DAC_Start(&hdac1,DAC_CHANNEL_2);
     /* printf("About to set the channel to %d\n\r",(int) value); */
     HAL_DAC_SetValue(&hdac1,DAC_CHANNEL_2,DAC_ALIGN_12B_R,value); 
@@ -156,6 +162,7 @@ int led_drive(uint32_t value, uint32_t range) {
   // value is 0, this indicates that the drive should be off.
   // in this case, turn off all of the resistors. 
   else {
+    HAL_DBGMCU_DisableDBGStopMode();
     sensor_power(POWER_OFF);
     HAL_DAC_Stop(&hdac1,DAC_CHANNEL_2);
     HAL_DAC_DeInit(&hdac1);

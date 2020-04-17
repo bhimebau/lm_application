@@ -37,7 +37,8 @@ uint32_t read_battery(void) {
   if (first_time_up) {
     sConfig.Channel = ADC_CHANNEL_11;
     sConfig.Rank = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
+    /* sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5; */
+    sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
     sConfig.SingleDiff = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset = 0;
@@ -81,7 +82,8 @@ uint32_t read_vrefint(void) {
   if (first_time_up) {
     sConfig.Channel = ADC_CHANNEL_VREFINT;
     sConfig.Rank = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
+    //    sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
     sConfig.SingleDiff = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset = 0;
