@@ -207,7 +207,7 @@ int main(void) {
   //  tsl237_vdd_on();
 
 
-  //  HAL_DAC_DeInit(&hdac1);         
+  HAL_DAC_DeInit(&hdac1);         
   HAL_ADC_DeInit(&hadc1);      // Kick off the A2D Subsystem
   HAL_TIM_Base_DeInit(&htim2);
   HAL_TIM_IC_DeInit(&htim2);

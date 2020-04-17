@@ -62,6 +62,12 @@ int led_drive(uint32_t value, uint32_t range) {
     /*   HAL_DAC_Start(&hdac1,DAC_CHANNEL_2); */
     /* }     */
     sensor_power(POWER_ON);
+    if (HAL_DAC_Init(&hdac1) != HAL_OK) {
+      Error_Handler();
+    }
+    /* if (HAL_DACEx_SelfCalibrate(&hdac1, &sConfig, DAC_CHANNEL_2) != HAL_OK) { */
+    /*   Error_Handler(); */
+    /* } */
     //    MX_DAC1_Init();   
     HAL_DAC_Start(&hdac1,DAC_CHANNEL_2);
     /* printf("About to set the channel to %d\n\r",(int) value); */
@@ -152,7 +158,7 @@ int led_drive(uint32_t value, uint32_t range) {
   else {
     sensor_power(POWER_OFF);
     HAL_DAC_Stop(&hdac1,DAC_CHANNEL_2);
-    //    HAL_DAC_DeInit(&hdac1);
+    HAL_DAC_DeInit(&hdac1);
     GPIO_InitStruct.Pin =
       irange_0_Pin|
       irange_1_Pin|
