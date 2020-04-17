@@ -8,4 +8,8 @@
  *
  */
 
+#define POWER_OFF 0
+#define POWER_ON 1
+
 void lp_stop_wfi(void);
+int sensor_power(uint32_t state);

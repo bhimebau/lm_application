@@ -155,7 +155,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   if(htim->Instance == TIM2) {
     // Handle the timer overflow
     // This could be important for longer periods. 
-    HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET);
+    /* HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_SET); */
   }
 }
 
@@ -199,16 +199,21 @@ int main(void) {
   MX_TIM2_Init();          // 120uA 
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
   SysTick_Config(SystemCoreClock/TICK_FREQ_HZ);   // Start systick rolling
-  led_on();
+  //  led_on();
   HAL_Delay(600);
-  led_off();
-  tsl237_vdd_off();           // Turn off the sensor power
-  HAL_ADC_DeInit(&hadc1);     // Kick off the A2D Subsystem
+  //  led_off();
+  //  sensor_power(POWER_ON);
+  //  tsl237_vdd_off();           // Turn off the sensor power
+  //  tsl237_vdd_on();
+
+
+  //  HAL_DAC_DeInit(&hdac1);         
+  HAL_ADC_DeInit(&hadc1);      // Kick off the A2D Subsystem
   HAL_TIM_Base_DeInit(&htim2);
   HAL_TIM_IC_DeInit(&htim2);
 
-  HAL_DAC_Start(&hdac1,DAC_CHANNEL_2);
-  HAL_DAC_SetValue(&hdac1,DAC_CHANNEL_2,DAC_ALIGN_12B_R,0x7FF); 
+  /* HAL_DAC_Start(&hdac1,DAC_CHANNEL_2); */
+  /* HAL_DAC_SetValue(&hdac1,DAC_CHANNEL_2,DAC_ALIGN_12B_R,0x7FF);  */
  
   #ifdef DEPLOY
   HAL_DBGMCU_DisableDBGStopMode();
@@ -246,7 +251,7 @@ int main(void) {
         HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
         // Only collect data between EVENING_START_HOUR and MORNING_END_HOUR
         if (((current_time.Hours >= EVENING_START_HOUR) && (current_time.Hours <= 23)) ||
-            ((current_time.Hours >= 0) && (current_time.Hours <= MORNING_END_HOUR))) {
+             ((current_time.Hours >= 0) && (current_time.Hours <= MORNING_END_HOUR))) {
           sample();
         }
       }
@@ -630,10 +635,10 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  /* if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_2) != HAL_OK) */
+  /* { */
+  /*   Error_Handler(); */
+  /* } */
   /* USER CODE BEGIN TIM2_Init 2 */
   /* HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0); //Set the priority of the timer to highest (0) */
   /* HAL_NVIC_EnableIRQ(TIM2_IRQn);  // Enable the IRQ in the NVIC */
@@ -683,7 +688,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, tsl237_pwr_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET);
+  /* HAL_GPIO_WritePin(led_out_GPIO_Port, led_out_Pin, GPIO_PIN_RESET); */
 
   /*Configure GPIO pin Output Level */
   //  HAL_GPIO_WritePin(sensor_power_GPIO_Port, sensor_power_Pin, GPIO_PIN_RESET);
@@ -710,20 +715,28 @@ static void MX_GPIO_Init(void)
   /* HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); */
 
   /*Configure GPIO pin : led_out_Pin */
-  GPIO_InitStruct.Pin = led_out_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(led_out_GPIO_Port, &GPIO_InitStruct);
+  /* GPIO_InitStruct.Pin = led_out_Pin; */
+  /* GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; */
+  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
+  /* GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW; */
+  /* HAL_GPIO_Init(led_out_GPIO_Port, &GPIO_InitStruct); */
 
-  /*Configure GPIO pins : PB1 PB5 PB6 PB7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  /* // Initialize the Range Shunts for the precision LED driver.  */
+  /* GPIO_InitStruct.Pin = irange_0_Pin|irange_1_Pin|irange_2_Pin|irange_3_Pin; */
+  /* GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; */
+  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
+  /* GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW; */
+  /* HAL_GPIO_Init(led_out_GPIO_Port, &GPIO_InitStruct); */
+  
+  /* Configure GPIO pins : PB1 PB5 PB6 PB7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|irange_0_Pin|irange_1_Pin|irange_2_Pin|irange_3_Pin; // Removed 5, 6, and 7. They are the range pins. 
+  //  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7; 
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PA12 PA15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_15;
+  GPIO_InitStruct.Pin = batt_measure_Pin|GPIO_PIN_12|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -745,8 +758,7 @@ static void MX_GPIO_Init(void)
   * @param None
   * @retval None
   */
-static void MX_DAC1_Init(void)
-{
+static void MX_DAC1_Init(void) {
 
   /* USER CODE BEGIN DAC1_Init 0 */
 

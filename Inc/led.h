@@ -8,5 +8,6 @@
  *
  */
 
-void led_on(void);
-void led_off(void);
+int led_drive(uint32_t, uint32_t);
+
+

@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "tsl237.h"
 #include "flash.h"
+#include "power.h"
 
 #define NUM_SAMPLES 1000
 
@@ -21,27 +22,27 @@ uint32_t tsl237t_done = 0;
 
 extern flash_status_t fs;
 
-void tsl237_vdd_on(void) {
-  /* GPIO_InitTypeDef GPIO_InitStruct = {0}; */
-  /* GPIO_InitStruct.Pin = tsl237_pwr_Pin; */
-  /* GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; */
-  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
-  /* GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH; */
-  /* HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); */
-  HAL_GPIO_WritePin(GPIOA, tsl237_pwr_Pin, GPIO_PIN_SET);
-}
+/* void tsl237_vdd_on(void) { */
+/*   /\* GPIO_InitTypeDef GPIO_InitStruct = {0}; *\/ */
+/*   /\* GPIO_InitStruct.Pin = tsl237_pwr_Pin; *\/ */
+/*   /\* GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; *\/ */
+/*   /\* GPIO_InitStruct.Pull = GPIO_NOPULL; *\/ */
+/*   /\* GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH; *\/ */
+/*   /\* HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); *\/ */
+/*   HAL_GPIO_WritePin(GPIOA, tsl237_pwr_Pin, GPIO_PIN_SET); */
+/* } */
   
-void tsl237_vdd_off(void) {
-  /* GPIO_InitTypeDef GPIO_InitStruct = {0}; */
-  /* GPIO_InitStruct.Pin = tsl237_pwr_Pin; */
-  /* //   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG; */
-  /* GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; */
-  /* //   GPIO_InitStruct.Pull = GPIO_NOPULL; */
-  /* GPIO_InitStruct.Pull = GPIO_PULLDOWN; */
-  /* GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH; */
-  /* HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); */
-  HAL_GPIO_WritePin(GPIOA, tsl237_pwr_Pin, GPIO_PIN_RESET);
-}
+/* void tsl237_vdd_off(void) { */
+/*   /\* GPIO_InitTypeDef GPIO_InitStruct = {0}; *\/ */
+/*   /\* GPIO_InitStruct.Pin = tsl237_pwr_Pin; *\/ */
+/*   /\* //   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG; *\/ */
+/*   /\* GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; *\/ */
+/*   /\* //   GPIO_InitStruct.Pull = GPIO_NOPULL; *\/ */
+/*   /\* GPIO_InitStruct.Pull = GPIO_PULLDOWN; *\/ */
+/*   /\* GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH; *\/ */
+/*   /\* HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); *\/ */
+/*   HAL_GPIO_WritePin(GPIOA, tsl237_pwr_Pin, GPIO_PIN_RESET); */
+/* } */
 
 void tsl237_command(char *arguments) {
   if (arguments) {
@@ -61,7 +62,8 @@ uint32_t tsl237_readsensor() {
   uint32_t average_period;
   int i;
   uint32_t buf[NUM_SAMPLES] = {0}; // Buffer values initialized to 0 
-  tsl237_vdd_on();  // Power on the sensor
+  sensor_power(POWER_ON);
+  //tsl237_vdd_on();  // Power on the sensor
   HAL_Delay(100); // Wait 100mS to allow the boost converter to stabibilize
   //  MX_DMA_Init();
   //  HAL_TIM_Base_Init(&htim2);
@@ -109,7 +111,8 @@ uint32_t tsl237_readsensor() {
     }
   }
   // Power Savings
-  tsl237_vdd_off(); // Turn off the sensor to save power 
+  sensor_power(POWER_OFF);
+  /* tsl237_vdd_off(); // Turn off the sensor to save power  */
   //  __HAL_RCC_DMA1_CLK_DISABLE(); // Kick off the clock to the DMA controller
   //   HAL_TIM_Base_DeInit(&htim2);  // Uninitialize timer 2 to save power
   //  return ((float) HAL_RCC_GetHCLKFreq() / average_period);

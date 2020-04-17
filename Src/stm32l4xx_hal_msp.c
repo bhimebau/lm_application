@@ -189,19 +189,19 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     PA7     ------> I2C3_SCL
     PB4 (NJTRST)     ------> I2C3_SDA 
     */
-    GPIO_InitStruct.Pin = rtc_clock_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
-    HAL_GPIO_Init(rtc_clock_GPIO_Port, &GPIO_InitStruct);
+    /* GPIO_InitStruct.Pin = rtc_clock_Pin; */
+    /* GPIO_InitStruct.Mode = GPIO_MODE_AF_OD; */
+    /* GPIO_InitStruct.Pull = GPIO_PULLUP; */
+    /* GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH; */
+    /* GPIO_InitStruct.Alternate = GPIO_AF4_I2C3; */
+    /* HAL_GPIO_Init(rtc_clock_GPIO_Port, &GPIO_InitStruct); */
 
-    GPIO_InitStruct.Pin = rtc_data_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
-    HAL_GPIO_Init(rtc_data_GPIO_Port, &GPIO_InitStruct);
+    /* GPIO_InitStruct.Pin = rtc_data_Pin; */
+    /* GPIO_InitStruct.Mode = GPIO_MODE_AF_OD; */
+    /* GPIO_InitStruct.Pull = GPIO_PULLUP; */
+    /* GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH; */
+    /* GPIO_InitStruct.Alternate = GPIO_AF4_I2C3; */
+    /* HAL_GPIO_Init(rtc_data_GPIO_Port, &GPIO_InitStruct); */
 
     /* Peripheral clock enable */
     __HAL_RCC_I2C3_CLK_ENABLE();
@@ -250,9 +250,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
     PA7     ------> I2C3_SCL
     PB4 (NJTRST)     ------> I2C3_SDA 
     */
-    HAL_GPIO_DeInit(rtc_clock_GPIO_Port, rtc_clock_Pin);
+    /* HAL_GPIO_DeInit(rtc_clock_GPIO_Port, rtc_clock_Pin); */
 
-    HAL_GPIO_DeInit(rtc_data_GPIO_Port, rtc_data_Pin);
+    /* HAL_GPIO_DeInit(rtc_data_GPIO_Port, rtc_data_Pin); */
 
   /* USER CODE BEGIN I2C3_MspDeInit 1 */
 
@@ -404,7 +404,8 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     PA1     ------> TIM2_CH2
     PA5     ------> TIM2_CH1 
     */
-    GPIO_InitStruct.Pin = sm_237t_freq_Pin|tsl237_freq_Pin;
+    /* GPIO_InitStruct.Pin = sm_237t_freq_Pin|tsl237_freq_Pin; */
+    GPIO_InitStruct.Pin = tsl237_freq_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -479,7 +480,10 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
     PA1     ------> TIM2_CH2
     PA5     ------> TIM2_CH1 
     */
-    HAL_GPIO_DeInit(GPIOA, sm_237t_freq_Pin|tsl237_freq_Pin);
+    /* HAL_GPIO_DeInit(GPIOA, sm_237t_freq_Pin|tsl237_freq_Pin); */
+    HAL_GPIO_DeInit(GPIOA, tsl237_freq_Pin);
+
+    /* GPIO_InitStruct.Pin = sm_237t_freq_Pin|tsl237_freq_Pin; */
 
     /* TIM2 DMA DeInit */
     HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_CC1]);

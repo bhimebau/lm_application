@@ -81,23 +81,23 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define rtc_EVI_Pin GPIO_PIN_15
-#define rtc_EVI_GPIO_Port GPIOC
-#define sm_237t_pwr_Pin GPIO_PIN_0
-#define sm_237t_pwr_GPIO_Port GPIOA
-#define sm_237t_freq_Pin GPIO_PIN_1
-#define sm_237t_freq_GPIO_Port GPIOA
+/* #define rtc_EVI_Pin GPIO_PIN_15 */
+/* #define rtc_EVI_GPIO_Port GPIOC */
+/* #define sm_237t_pwr_Pin GPIO_PIN_0 */
+/* #define sm_237t_pwr_GPIO_Port GPIOA */
+/* #define sm_237t_freq_Pin GPIO_PIN_1 */
+/* #define sm_237t_freq_GPIO_Port GPIOA */
 #define tsl237_pwr_Pin GPIO_PIN_4
 #define tsl237_pwr_GPIO_Port GPIOA
-#define tsl237_freq_Pin GPIO_PIN_5
+#define tsl237_freq_Pin GPIO_PIN_0
 #define tsl237_freq_GPIO_Port GPIOA
-#define rtc_nINT_Pin GPIO_PIN_6
-#define rtc_nINT_GPIO_Port GPIOA
-#define rtc_nINT_EXTI_IRQn EXTI9_5_IRQn
-#define rtc_clock_Pin GPIO_PIN_7
-#define rtc_clock_GPIO_Port GPIOA
-#define led_out_Pin GPIO_PIN_0
-#define led_out_GPIO_Port GPIOB
+/* #define rtc_nINT_Pin GPIO_PIN_6 */
+/* #define rtc_nINT_GPIO_Port GPIOA */
+/* #define rtc_nINT_EXTI_IRQn EXTI9_5_IRQn */
+/* #define rtc_clock_Pin GPIO_PIN_7 */
+/* #define rtc_clock_GPIO_Port GPIOA */
+/* #define led_out_Pin GPIO_PIN_0 */
+/* #define led_out_GPIO_Port GPIOB */
 #define sensor_int_Pin GPIO_PIN_8
 #define sensor_int_GPIO_Port GPIOA
 #define sensor_int_EXTI_IRQn EXTI9_5_IRQn
@@ -109,6 +109,19 @@ void Error_Handler(void);
 #define sensor_power_GPIO_Port GPIOA
 #define rtc_data_Pin GPIO_PIN_4
 #define rtc_data_GPIO_Port GPIOB
+
+  // Adding these to 
+#define batt_measure_Pin GPIO_PIN_6
+#define batt_measure_GPIO_Port GPIOA
+#define irange_0_Pin GPIO_PIN_4
+#define irange_0_GPIO_Port GPIOB
+#define irange_1_Pin GPIO_PIN_5
+#define irange_1_GPIO_Port GPIOB
+#define irange_2_Pin GPIO_PIN_6
+#define irange_2_GPIO_Port GPIOB
+#define irange_3_Pin GPIO_PIN_7
+#define irange_3_GPIO_Port GPIOB
+  
 /* USER CODE BEGIN Private defines */
 
 #define sensor_power_Pin GPIO_PIN_11

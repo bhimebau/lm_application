@@ -42,14 +42,16 @@ void log_command(char *);
 void erase_command(char *);
 void help_command(char *);
 void version_command(char *);
-void lof_command(char *);
-void lon_command(char *);
+/* void lof_command(char *); */
+/* void lon_command(char *); */
+void led_command(char *);
 void raw_command(char *);
 void sample_command(char *);
 void debug_command(char *);
 void flash_command(char *);
 void uid_command(char *);
 void cal_command(char *);
+void batt_command(char *);
 
 command_t commands[] = {
   {"@",att_command},
@@ -62,13 +64,15 @@ command_t commands[] = {
   {"ef",erase_command},
   {"help",help_command},
   {"ver",version_command},
-  {"lof",lof_command},
-  {"lon",lon_command},
+  /* {"lof",lof_command}, */
+  /* {"lon",lon_command}, */
+  {"led",led_command},
   {"sample",sample_command},
   {"debug",debug_command},
   {"flash",flash_command},
   {"uid",uid_command},
   {"cal",cal_command},
+  {"batt",batt_command},
   {0,0}
 };
 
@@ -174,15 +178,22 @@ void __attribute__((weak)) stop_command(char *arguments) {
   }
 }
 
-void __attribute__((weak)) lof_command(char *arguments) {
-  printf("Led On Default Command\n\r");
-  if (arguments) {
-    printf("Arguments = %s\n\r",arguments);
-  }
-}
+/* void __attribute__((weak)) lof_command(char *arguments) { */
+/*   printf("Led On Default Command\n\r"); */
+/*   if (arguments) { */
+/*     printf("Arguments = %s\n\r",arguments); */
+/*   } */
+/* } */
 
-void __attribute__((weak)) lon_command(char *arguments) {
-  printf("Enter lpstop mode\n\r");
+/* void __attribute__((weak)) lon_command(char *arguments) { */
+/*   printf("Enter lpstop mode\n\r"); */
+/*   if (arguments) { */
+/*     printf("Arguments = %s\n\r",arguments); */
+/*   } */
+/* } */
+
+void __attribute__((weak)) led_command(char *arguments) {
+  printf("Led Drive Default Command\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
@@ -236,8 +247,6 @@ void __attribute__((weak)) cal_command(char *arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
-
-
 
 int execute_command(uint8_t * line) {
   uint8_t *cmd;
