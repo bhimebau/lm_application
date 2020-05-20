@@ -72,7 +72,7 @@ command_t commands[] = {
   {"flash",flash_command},
   {"uid",uid_command},
   {"cal",cal_command},
-  {"batt",batt_command},
+  /* {"batt",batt_command}, */
   {0,0}
 };
 
@@ -119,12 +119,12 @@ void __attribute__((weak)) temp_command(char *arguments) {
   }
 }
 
-void __attribute__((weak)) batt_command(char *arguments) {
-  printf("Batt Command Processing\n\r");
-  if (arguments) {
-    printf("Arguments = %s\n\r",arguments);
-  }
-}
+/* void __attribute__((weak)) batt_command(char *arguments) { */
+/*   printf("Batt Command Processing\n\r"); */
+/*   if (arguments) { */
+/*     printf("Arguments = %s\n\r",arguments); */
+/*   } */
+/* } */
 
 void __attribute__((weak)) data_command(char *arguments) {
   printf("Data Command Processing\n\r");

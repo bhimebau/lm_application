@@ -14,7 +14,11 @@
 #endif
 
 // Only allow 5 seconds for taking 1000 samples
-#define MAX_SAMPLE_TIME 5000
+// #define MAX_SAMPLE_TIME 5000
+
+// Testing value to see if this is why the sensor is not seeing sky values greater than 21. 
+#define MAX_SAMPLE_TIME 300000
+
 
 extern uint32_t tsl237_done;
 extern uint32_t tsl237t_done;

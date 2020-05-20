@@ -240,12 +240,98 @@ int cal_write(char * mag, uint32_t data) {
   return(0);
 }
 
+/* int cal_lookup(uint32_t count) { */
+/*   int i = 0; */
+/*   int index = -1; */
+/*   int delta = 0; */
+
+/*   uint32_t current_index = 0; */
+/*   int32_t current_value = calibration_ram[current_index]; */
+/*   uint32_t next_index; */
+/*   int32_t next_value; */
+/*   uint32_t end = 0; */
+  
+/*   while (i<(CAL_MAX_INDEX-1)) { */
+/*     // start at the beginning and walk the entire calibration */
+
+/*     // find the first non-negative value */
+/*     while (current_value < 0) { */
+/*       current_value = calibration_ram[++i]; */
+/*       if (i>=CAL_MAX_INDEX) { */
+/*         // Check to see if we are at the end of the calibration */
+/*         end = 1; */
+/*         break; */
+/*       } */
+/*     } */
+/*     if (!end) { */
+/*       i+=1; */
+/*       next_value = calibration_ram[i]; */
+/*       while (next_value < 0) { */
+/*         next_value = calibration_ram[++i]; */
+/*       } */
+/*     } */
+/*     else { */
+      
+
+
+/*     } */
+    
+    
+
+    
+    
+
+
+/*   } */
+  
+
+  
+/*   for (i=0;i<(CAL_MAX_INDEX-1);i++) { */
+/*     // Acending Values  */
+/*     if (calibration_ram[i] < calibration_ram[i+1]) { */
+/*       if ((count >= calibration_ram[i]) && */
+/*           (count <= calibration_ram[i+1])) { */
+/*         index = i; */
+/*         delta = (calibration_ram[i+1]-calibration_ram[i])/10; */
+/*         count = (count-calibration_ram[i])/delta; */
+/*         index = (index + (BRIGHT_MAG*10))*10; */
+/*         index = index + count; */
+/*         break; */
+/*       }   */
+/*     } */
+/*     // Decending Values */
+/*     else if (calibration_ram[i] > calibration_ram[i+1]) { */
+/*       if ((count <= calibration_ram[i]) && */
+/*           (count >= calibration_ram[i+1])) { */
+/*         index = i; */
+/*         delta = (calibration_ram[i]-calibration_ram[i+1])/10; */
+/*         count = (count-calibration_ram[i+1])/delta; */
+/*         if (count == 0) { */
+/*           index = index+1; */
+/*         } */
+/*         index = (index + (BRIGHT_MAG*10))*10; */
+/*         index = index + count; */
+/*         break; */
+/*       }   */
+/*     } */
+/*     // Flat Values */
+/*     else { */
+/*       if (count==calibration_ram[i]) { */
+/*         index = i; */
+/*         count = 0; */
+/*         break; */
+/*       } */
+/*     } */
+/*   } */
+/*   return(index); */
+/* } */
+
 int cal_lookup(uint32_t count) {
   int i;
   int index = -1;
   int delta = 0;
   for (i=0;i<(CAL_MAX_INDEX-1);i++) {
-    // Acending Values 
+    // Acending Values
     if (calibration_ram[i] < calibration_ram[i+1]) {
       if ((count >= calibration_ram[i]) &&
           (count <= calibration_ram[i+1])) {
@@ -255,7 +341,7 @@ int cal_lookup(uint32_t count) {
         index = (index + (BRIGHT_MAG*10))*10;
         index = index + count;
         break;
-      }  
+      }
     }
     // Decending Values
     else if (calibration_ram[i] > calibration_ram[i+1]) {
@@ -270,7 +356,7 @@ int cal_lookup(uint32_t count) {
         index = (index + (BRIGHT_MAG*10))*10;
         index = index + count;
         break;
-      }  
+      }
     }
     // Flat Values
     else {
@@ -348,10 +434,10 @@ int cal_complete(void) {
 
 int cal_fake(void) {
   cal_blank();
-  calibration_ram[52] = 1000;
-  calibration_ram[107] = 3000;
-  calibration_ram[142] = 6000;
-  calibration_ram[195] = 13000;
+  calibration_ram[1] = 1000;
+  calibration_ram[10] = 3000;
+  calibration_ram[20] = 6000;
+  calibration_ram[50] = 13000;
   return(0);
 }
 

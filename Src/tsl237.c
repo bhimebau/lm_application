@@ -13,7 +13,8 @@
 #include "flash.h"
 #include "power.h"
 
-#define NUM_SAMPLES 1000
+//#define NUM_SAMPLES 1000
+#define NUM_SAMPLES 10
 
 TIM_HandleTypeDef htim2;
 
@@ -62,7 +63,7 @@ uint32_t tsl237_readsensor() {
   uint32_t average_period;
   int i;
   uint32_t buf[NUM_SAMPLES] = {0}; // Buffer values initialized to 0 
-  sensor_power(POWER_ON);
+  // sensor_power(POWER_ON);
   //tsl237_vdd_on();  // Power on the sensor
   HAL_Delay(100); // Wait 100mS to allow the boost converter to stabibilize
   //  MX_DMA_Init();
@@ -111,7 +112,7 @@ uint32_t tsl237_readsensor() {
     }
   }
   // Power Savings
-  sensor_power(POWER_OFF);
+  // sensor_power(POWER_OFF);
   /* tsl237_vdd_off(); // Turn off the sensor to save power  */
   //  __HAL_RCC_DMA1_CLK_DISABLE(); // Kick off the clock to the DMA controller
   //   HAL_TIM_Base_DeInit(&htim2);  // Uninitialize timer 2 to save power
