@@ -537,7 +537,7 @@ int write_log_data(flash_status_t *fs,
     }
     if (write_record(fs,&lext)) {
       return (-1); // write failed
-    }b
+    }
     else {
       return (0);
     }
