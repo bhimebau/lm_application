@@ -23,13 +23,14 @@
 #include "cal.h"
 
 #define MAX_ARGS 3
-int32_t calibration_ram[CAL_MAX_INDEX];
+int32_t calibration_ram[CAL_SIZE];
 
 void cal_command(char *arguments) {
   char * argv[MAX_ARGS];
   char *p = arguments;
   int i;
   long value;
+  int magarc = 0;
   if (!arguments) {
     cal_show_sram();
     return;
@@ -77,7 +78,8 @@ void cal_command(char *arguments) {
     }
   }
   else if (!strcmp(argv[0],"write")) {
-    if (!cal_write(argv[1],sample_noflash())) {
+    //    if (!cal_write(argv[1],sample_noflash())) {
+    if (!cal_write(argv[1],argv[2])) {
       printf("OK\n\r");
     }
     else {
@@ -86,18 +88,19 @@ void cal_command(char *arguments) {
   }
   else if (!strcmp(argv[0],"lookup")) {
     value = strtol(argv[1],NULL,10);
-    if ((value=cal_lookup(value))!=-1) {
-      printf("%d.%d\n\r",(int)(value/100),(int)(value%100));
-      printf("OK\n\r");
+    magarc = cal_lookup(value);
+    if ((magarc == 1) || (magarc == -1)) {
+      printf("%d\n\r",magarc);
     }
     else {
-      printf("NOK\n\r");
+      printf("%d.%02d\n\r",(int)(magarc/100),(int)(magarc%100));
     }
-  }
-  else if (!strcmp(argv[0],"complete")) {
-    cal_complete();
     printf("OK\n\r");
   }
+  /* else if (!strcmp(argv[0],"complete")) { */
+  /*   cal_complete(); */
+  /*   printf("OK\n\r"); */
+  /* } */
   else if (!strcmp(argv[0],"fake")) {
     cal_fake();
     printf("OK\n\r");
@@ -110,7 +113,7 @@ void cal_command(char *arguments) {
 
 int cal_blank(void) {
   int i;
-  for (i=0;i<CAL_MAX_INDEX;i++) {
+  for (i=0;i<CAL_SIZE;i++) {
     calibration_ram[i] = 0xFFFFFFFF;
   }
   return(0);
@@ -119,7 +122,7 @@ int cal_blank(void) {
 int cal_fill_test_ascending(void) {
   int i;
   int data = 100;
-  for (i=0;i<CAL_MAX_INDEX;i++) {
+  for (i=0;i<CAL_SIZE;i++) {
     calibration_ram[i] = data;
     data+=100;
   }
@@ -129,7 +132,7 @@ int cal_fill_test_ascending(void) {
 int cal_fill_test_descending(void) {
   int i;
   int data = 20100;
-  for (i=0;i<CAL_MAX_INDEX;i++) {
+  for (i=0;i<CAL_SIZE;i++) {
     calibration_ram[i] = data;
     data-=100;
   }
@@ -139,21 +142,27 @@ int cal_fill_test_descending(void) {
 
 int cal_show_sram(void) {
   int i = 0;
-  printf("%2d.0:%11d ",i+BRIGHT_MAG,(int)calibration_ram[i]);
-  for (i=1;i<CAL_MAX_INDEX;i++) {
-    if (!(i%10)) {
-      printf("\n\r%2d.0:",(i/10)+BRIGHT_MAG);
-    }
-    printf("%11d ",(int)calibration_ram[i]);
+  for (i=0;i<CAL_SIZE;i++) {
+    printf("%d.%d,%d\n\r",
+           (i+BRIGHT_MAG_X10)/10,
+           (i+BRIGHT_MAG_X10)%10,
+           (int)calibration_ram[i]);
   }
-  printf("\n\rOK\n\r");
+ 
+  /* for (i=1;i<CAL_SIZE;i++) { */
+  /*   if (!(i%10)) { */
+  /*     printf("\n\r%2d.0:",(i/10)+BRIGHT_MAG); */
+  /*   } */
+  /*   printf("%11d ",(int)calibration_ram[i]); */
+  /* } */
+  printf("OK\n\r");
   return(0);
 }
 
 int cal_f2r(void) {
   int i;
   uint32_t *p = (uint32_t *) CAL_START;
-  for (i=0;i<CAL_MAX_INDEX;i++) {
+  for (i=0;i<CAL_SIZE;i++) {
     calibration_ram[i] = *p;
     p++;
   }
@@ -170,7 +179,7 @@ int cal_r2f(void) {
   cal_erase();  // Erase the flash page that holds the calibration
   HAL_FLASH_Unlock();
   // Copy the calibration_ram array to flash
-  for (i=0;i<((CAL_MAX_INDEX/2)+(CAL_MAX_INDEX%2));i++) {
+  for (i=0;i<((CAL_SIZE/2)+(CAL_SIZE%2));i++) {
     if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) p, *q))) {
       ret_val = -1;
       break;
@@ -182,10 +191,11 @@ int cal_r2f(void) {
   return (ret_val);
 }
 
-int cal_write(char * mag, uint32_t data) {
+int cal_write(char * mag, char * value) {
   char * p = 0;  // Used to hold the whole number portion
   char * q = 0;   // Used to hold the decimal portion
   long index;
+  long value_number;
 
   // Make sure that this is a good pointer
   if (!mag) {
@@ -222,215 +232,169 @@ int cal_write(char * mag, uint32_t data) {
     }
   }
    
-  // Convert the number to an integer
+  // Convert the mag to an integer
   if (q) {
-    index = ((strtol(mag,NULL,10)-BRIGHT_MAG)*10)+strtol(q,NULL,10);
+    index = (strtol(mag,NULL,10)*10)+strtol(q,NULL,10) - BRIGHT_MAG_X10;
   }
   else {
-    index = ((strtol(mag,NULL,10)-BRIGHT_MAG)*10);
+    index = (strtol(mag,NULL,10)*10) - BRIGHT_MAG_X10;
+  }
+
+  // Convert the value to an integer
+  if (value) {
+    value_number = (strtol(value,NULL,10));
+  }
+  else {
+    return (-1);
   }
   
   // Check to make sure the number is in range
-  if ((index < 0) || index > (CAL_MAX_INDEX)) {
+  if ((index < 0) || index > (CAL_SIZE)) {
     return(-1);
   }
   else {
-    calibration_ram[index] = data;
+    calibration_ram[index] = value_number;
   }
   return(0);
 }
 
-/* int cal_lookup(uint32_t count) { */
-/*   int i = 0; */
-/*   int index = -1; */
-/*   int delta = 0; */
-
-/*   uint32_t current_index = 0; */
-/*   int32_t current_value = calibration_ram[current_index]; */
-/*   uint32_t next_index; */
-/*   int32_t next_value; */
-/*   uint32_t end = 0; */
-  
-/*   while (i<(CAL_MAX_INDEX-1)) { */
-/*     // start at the beginning and walk the entire calibration */
-
-/*     // find the first non-negative value */
-/*     while (current_value < 0) { */
-/*       current_value = calibration_ram[++i]; */
-/*       if (i>=CAL_MAX_INDEX) { */
-/*         // Check to see if we are at the end of the calibration */
-/*         end = 1; */
-/*         break; */
-/*       } */
-/*     } */
-/*     if (!end) { */
-/*       i+=1; */
-/*       next_value = calibration_ram[i]; */
-/*       while (next_value < 0) { */
-/*         next_value = calibration_ram[++i]; */
-/*       } */
-/*     } */
-/*     else { */
-      
-
-
-/*     } */
-    
-    
-
-    
-    
-
-
-/*   } */
-  
-
-  
-/*   for (i=0;i<(CAL_MAX_INDEX-1);i++) { */
-/*     // Acending Values  */
-/*     if (calibration_ram[i] < calibration_ram[i+1]) { */
-/*       if ((count >= calibration_ram[i]) && */
-/*           (count <= calibration_ram[i+1])) { */
-/*         index = i; */
-/*         delta = (calibration_ram[i+1]-calibration_ram[i])/10; */
-/*         count = (count-calibration_ram[i])/delta; */
-/*         index = (index + (BRIGHT_MAG*10))*10; */
-/*         index = index + count; */
-/*         break; */
-/*       }   */
-/*     } */
-/*     // Decending Values */
-/*     else if (calibration_ram[i] > calibration_ram[i+1]) { */
-/*       if ((count <= calibration_ram[i]) && */
-/*           (count >= calibration_ram[i+1])) { */
-/*         index = i; */
-/*         delta = (calibration_ram[i]-calibration_ram[i+1])/10; */
-/*         count = (count-calibration_ram[i+1])/delta; */
-/*         if (count == 0) { */
-/*           index = index+1; */
-/*         } */
-/*         index = (index + (BRIGHT_MAG*10))*10; */
-/*         index = index + count; */
-/*         break; */
-/*       }   */
-/*     } */
-/*     // Flat Values */
-/*     else { */
-/*       if (count==calibration_ram[i]) { */
-/*         index = i; */
-/*         count = 0; */
-/*         break; */
-/*       } */
-/*     } */
-/*   } */
-/*   return(index); */
-/* } */
 
 int cal_lookup(uint32_t count) {
+  // Function to lookup a light sensor reading in the table.
+  // Assumes that the data in the table is monotonically increasing.
+  // The value returned is the mag/arcsec2 * 100.
+  // Value of -1 are acceptable. The function will linearly interpolate between the values
+  
   int i;
-  int index = -1;
+  int retval = 1;
   int delta = 0;
-  for (i=0;i<(CAL_MAX_INDEX-1);i++) {
-    // Acending Values
-    if (calibration_ram[i] < calibration_ram[i+1]) {
-      if ((count >= calibration_ram[i]) &&
-          (count <= calibration_ram[i+1])) {
-        index = i;
-        delta = (calibration_ram[i+1]-calibration_ram[i])/10;
-        count = (count-calibration_ram[i])/delta;
-        index = (index + (BRIGHT_MAG*10))*10;
-        index = index + count;
+  int last_index = -1;
+ 
+  for (i=0;i<(CAL_SIZE-1);i++) {
+    if (calibration_ram[i] == -1); // skip -1 values
+    else if (count > calibration_ram[i]) {
+      last_index = i; // Capture the last valid index value
+    }
+    else if (count < calibration_ram[i]) {
+      if (last_index != -1) {
+        delta = (calibration_ram[i] - calibration_ram[last_index])/((i-last_index)*10);
+        count = (count-calibration_ram[last_index])/delta;
+        retval = (last_index + BRIGHT_MAG_X10) * 10 + count;
+        break;
+      }
+      else {
+        // Count is less than the lowest value in the table
+        retval = -1;
         break;
       }
     }
-    // Decending Values
-    else if (calibration_ram[i] > calibration_ram[i+1]) {
-      if ((count <= calibration_ram[i]) &&
-          (count >= calibration_ram[i+1])) {
-        index = i;
-        delta = (calibration_ram[i]-calibration_ram[i+1])/10;
-        count = (count-calibration_ram[i+1])/delta;
-        if (count == 0) {
-          index = index+1;
-        }
-        index = (index + (BRIGHT_MAG*10))*10;
-        index = index + count;
-        break;
-      }
-    }
-    // Flat Values
-    else {
-      if (count==calibration_ram[i]) {
-        index = i;
-        count = 0;
-        break;
-      }
+    else if (count == calibration_ram[i]) {
+      // count is equal to a value in the table.
+      retval = (i + BRIGHT_MAG_X10) * 10;
+      break;
     }
   }
-  return(index);
+  return (retval);
 }
 
-int cal_complete(void) {
-  int i;
-  float x1,x2,y1,y2;
-  float m, b;
-  float value;
-  int begin = 0;
-  int end = 0;
-  int found = 0;
-  int last_pass = 0;
-    // see of the first element in the table has a value.
-  begin = 0;
-  while (!last_pass) {
-    if (calibration_ram[begin]==-1) {
-      x1 = begin;
-      y1 = CAL_MIN_VALUE;
-      calibration_ram[begin] = CAL_MIN_VALUE;
-    }
-    else {
-      x1 = begin;
-      y1 = calibration_ram[begin];
-    }
-    found = 0;
-    for (i=begin+1;i<CAL_MAX_INDEX;i++) {
-      if (calibration_ram[i] != -1) {
-        end = i;
-        x2=end;
-        y2=calibration_ram[i];
-        found = 1;
-        break;
-      }
-    }
-    if (!found) {
-      i = CAL_MAX_INDEX;
-      x2 = CAL_MAX_INDEX;
-      y2 = CAL_MAX_VALUE;
-      end = CAL_MAX_INDEX-1;
-      calibration_ram[end] = CAL_MAX_VALUE;
-    }
-    if (i == CAL_MAX_INDEX) {
-      last_pass = 1;
-    }
-    /* printf("begin=%d, end=%d\n\r",begin, end); */
-    /* printf("x1=%f,y1=%f  x2=%f,y2=%f\n\r",x1,y1,x2,y2); */
-    // compute the slope
-    m = (y2-y1)/(x2-x1);
+  /*   // Acending Values */
+  /*   if (calibration_ram[i] < calibration_ram[i+1]) { */
+  /*     if ((count >= calibration_ram[i]) && */
+  /*         (count <= calibration_ram[i+1])) { */
+  /*       retval = i; */
+  /*       delta = (calibration_ram[i+1]-calibration_ram[i])/10; */
+  /*       count = (count-calibration_ram[i])/delta; */
+  /*       retval = (retval + BRIGHT_MAG_X10) * 10 + count; // Make space for the 100ths place */
+  /*       break; */
+  /*     } */
+  /*   } */
+  /*   // Decending Values */
+  /*   else if (calibration_ram[i] > calibration_ram[i+1]) { */
+  /*     if ((count <= calibration_ram[i]) && */
+  /*         (count >= calibration_ram[i+1])) { */
+  /*       retval = i; */
+  /*       delta = (calibration_ram[i]-calibration_ram[i+1])/10; */
+  /*       count = (count-calibration_ram[i+1])/delta; */
+  /*       if (count == 0) { */
+  /*         retval = retval+1; */
+  /*       } */
+  /*       retval = (retval + BRIGHT_MAG_X10)*10 + count; // Multiply by 10 to make space for 100ths place.  */
+  /*       break; */
+  /*     } */
+  /*   } */
+  /*   // Exact Match  */
+  /*   else { */
+  /*     if (count==calibration_ram[i]) { */
+  /*       retval = (i + BRIGHT_MAG_X10)*10; */
+  /*       count = 0; */
+  /*       break; */
+  /*     } */
+  /*   } */
+  /* } */
+  /* return(retval); */
+//}
+
+/* int cal_complete(void) { */
+/*   int i; */
+/*   float x1,x2,y1,y2; */
+/*   float m, b; */
+/*   float value; */
+/*   int begin = 0; */
+/*   int end = 0; */
+/*   int found = 0; */
+/*   int last_pass = 0; */
+/*     // see of the first element in the table has a value. */
+/*   begin = 0; */
+/*   while (!last_pass) { */
+/*     if (calibration_ram[begin]==-1) { */
+/*       x1 = begin; */
+/*       y1 = CAL_MIN_VALUE; */
+/*       calibration_ram[begin] = CAL_MIN_VALUE; */
+/*     } */
+/*     else { */
+/*       x1 = begin; */
+/*       y1 = calibration_ram[begin]; */
+/*     } */
+/*     found = 0; */
+/*     for (i=begin+1;i<CAL_SIZE;i++) { */
+/*       if (calibration_ram[i] != -1) { */
+/*         end = i; */
+/*         x2=end; */
+/*         y2=calibration_ram[i]; */
+/*         found = 1; */
+/*         break; */
+/*       } */
+/*     } */
+/*     if (!found) { */
+/*       i = CAL_SIZE; */
+/*       x2 = CAL_SIZE; */
+/*       y2 = CAL_MAX_VALUE; */
+/*       end = CAL_SIZE-1; */
+/*       calibration_ram[end] = CAL_MAX_VALUE; */
+/*     } */
+/*     if (i == CAL_SIZE) { */
+/*       last_pass = 1; */
+/*     } */
+/*     /\* printf("begin=%d, end=%d\n\r",begin, end); *\/ */
+/*     /\* printf("x1=%f,y1=%f  x2=%f,y2=%f\n\r",x1,y1,x2,y2); *\/ */
+/*     // compute the slope */
+/*     m = (y2-y1)/(x2-x1); */
     
-    // compute the y-intercept
-    b = y1 - (m * x1);
+/*     // compute the y-intercept */
+/*     b = y1 - (m * x1); */
     
-    // print the equation for the line 
-    /* printf("line equation: y = %.2f*x + %.2f\n\r",m,b); */
+/*     // print the equation for the line  */
+/*     /\* printf("line equation: y = %.2f*x + %.2f\n\r",m,b); *\/ */
     
-    // Compute the intermediate points
-    for (i=begin+1;i<end;i++) {
-      value = m * (float) i + b;
-      calibration_ram[i] = (int) value;
-    }
-    begin = end;
-  }
-  return (0);
-}
+/*     // Compute the intermediate points */
+/*     for (i=begin+1;i<end;i++) { */
+/*       value = m * (float) i + b; */
+/*       calibration_ram[i] = (int) value; */
+/*     } */
+/*     begin = end; */
+/*   } */
+/*   return (0); */
+/* } */
 
 int cal_fake(void) {
   cal_blank();

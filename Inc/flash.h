@@ -32,7 +32,8 @@
 
 #define DATA_RECORD 1
 #define LOG_RECORD 2
-#define ALL_RECORD 3
+#define LOG_EXTENSION 3 
+#define ALL_RECORD 4
 
 typedef struct sensordata {
   uint8_t watermark;               // 0x01=populated, 0xFF=unpopulated 
@@ -40,8 +41,8 @@ typedef struct sensordata {
   uint16_t record_number;          // Which number is this particular record  
   uint32_t timestamp;              // Time, bit packed into 32 bits
   uint16_t battery_voltage;        // 16 bit battery voltage
-  int16_t temperature;            // STM32 Temperature sensor reading 
-  float lux;                       // Reading from the light sensor
+  int16_t temperature;             // STM32 Temperature sensor reading 
+  int light_data;                  // Reading from the light sensor
 } sensordata_t;
 
 typedef struct log_data {
@@ -49,8 +50,13 @@ typedef struct log_data {
   uint8_t status;                  // record type, 01=sensor data, 02=error data;
   uint16_t record_number;          // Which number is this particular record  
   uint32_t timestamp;              // Time, bit packed into 32 bits
-  uint8_t msg[8];                  // String message to make the record seem less cryptic.
+  uint8_t length;                  // message length
+  uint8_t msg[7];                  // String message to make the record seem less cryptic.
 } logdata_t;
+
+typedef struct log_extension {
+  uint8_t msg[16];                 // String message to make the record seem less cryptic.
+} logex_t;
 
 typedef struct caldata {
   float tsl237_frequency;
@@ -78,7 +84,7 @@ int write_sentinel(uint64_t *, raw_t *);
 int flash_write_init(flash_status_t *);
 int write_record(flash_status_t *, void *);
 int read_all_records(flash_status_t *, int);
-int write_sensor_data(flash_status_t *,uint16_t,uint16_t,float);
+int write_sensor_data(flash_status_t *,uint16_t,uint16_t,int);
 int write_log_data(flash_status_t *, char *);
 int report_flash_status(flash_status_t *);
 int flash_reset(flash_status_t *);

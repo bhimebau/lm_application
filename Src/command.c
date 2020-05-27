@@ -42,6 +42,8 @@ void log_command(char *);
 void erase_command(char *);
 void help_command(char *);
 void version_command(char *);
+void tsl237_command(char *);
+
 /* void lof_command(char *); */
 /* void lon_command(char *); */
 void led_command(char *);
@@ -52,6 +54,7 @@ void flash_command(char *);
 void uid_command(char *);
 void cal_command(char *);
 void batt_command(char *);
+
 
 command_t commands[] = {
   {"@",att_command},
@@ -64,6 +67,7 @@ command_t commands[] = {
   {"ef",erase_command},
   {"help",help_command},
   {"ver",version_command},
+  {"tsl237",tsl237_command},
   /* {"lof",lof_command}, */
   /* {"lon",lon_command}, */
   {"led",led_command},

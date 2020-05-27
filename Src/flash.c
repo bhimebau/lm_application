@@ -18,6 +18,7 @@
 #include "temperature.h"
 #include "tsl237.h"
 #include "sample.h"
+#include "cal.h"
 
 extern int _edata;
 extern int _sdata;
@@ -30,6 +31,7 @@ extern TIM_HandleTypeDef htim2;
 
 void data_command(char * arguments) {
   if (arguments) {
+    //     write_sensor_data(&fs,1,2,3);
     printf("NOK\n\r");
     return;
   }
@@ -38,6 +40,7 @@ void data_command(char * arguments) {
 
 void log_command(char * arguments) {
   if (arguments) {
+    // write_log_data(&fs,arguments);
     printf("NOK\n\r");
     return;
   }
@@ -120,7 +123,7 @@ int flash_write_init(flash_status_t * fs) {
     /* printf("Memory Uninitialized\n\r"); */
     /* printf("Writing sentinels..."); */
     if (write_sentinel(top,&sentinel_top)) {
-      /* printf("Could not write top sentinel\n\r"); */
+      /* printf("Could not write top sentinel\n\r"); */ 
       return(-1);
     } 
     if (write_sentinel(bottom,&sentinel_bottom)) {
@@ -146,7 +149,12 @@ int flash_write_init(flash_status_t * fs) {
     /* printf("Memory initialized and ready to go.\n\r"); */
     if (pb!=bottom) {
       /* printf("Sentinel is not at the bottom of the lowest flash page\n\r"); */
-      return (-1);
+      // This indicates that the lower sentinel is not actually at the bottom of the
+      // memory. This would get corrected on the next full erasure and rebuild
+      // of the file system. During development, this causes a "flash full" error.
+      // The correct response should be to erase the current lower sentinel and then
+      // rewrite the new one in the lower page. 
+      // return (-1);
     }
   }
   else {
@@ -345,7 +353,11 @@ int read_all_records(flash_status_t * fs, int type) {
   sensordata_t * p = (sensordata_t *) fs->data_start;
   RTC_TimeTypeDef time;
   RTC_DateTypeDef date;
-    
+  int value;
+  uint8_t * q;
+  uint8_t log_length;
+  uint8_t count;
+  int i;
   
   if (p->watermark == 0xFF) {
     printf("OK\n\r"); 
@@ -353,32 +365,96 @@ int read_all_records(flash_status_t * fs, int type) {
   }
   else {
     while ((p->watermark!=0xFF)&&(p->watermark!=0xa5)) {
-      unpack_time(p->timestamp,&time,&date);
       switch (p->status) {
       case DATA_RECORD:
         if ((type == DATA_RECORD) || (type == ALL_RECORD)) {
+          unpack_time(p->timestamp,&time,&date);
           printf("D,");
           printf("%d,",p->record_number);
           printf("%02d/%02d/20%02d,",date.Month,date.Date,date.Year);
           printf("%02d:%02d:%02d,",time.Hours,time.Minutes,time.Seconds);
           printf("%d.%03d,",(int) p->battery_voltage/1000,(int) p->battery_voltage%1000);
           printf("%d,",p->temperature);
-          printf("%6.3f\n\r",p->lux);
+          printf("%d,",p->light_data);
+          value = cal_lookup(p->light_data);
+          if ((value == 1) ||
+              (value == -1)) {
+            // Indicates light data was outside of the cal table data
+            printf("%d\n\r",value);
+          }
+          else {
+            printf("%d.%02d\n\r",value/100,value%100);
+          }
         }
+        p--;
         break;
       case LOG_RECORD:
+        log_length = ((logdata_t *)p)->length;
         if ((type == LOG_RECORD) || (type == ALL_RECORD)) {          
+          unpack_time(p->timestamp,&time,&date);
           printf("L,");
           printf("%d,",p->record_number);
           printf("%02d/%02d/20%02d,",date.Month,date.Date,date.Year);
           printf("%02d:%02d:%02d,",time.Hours,time.Minutes,time.Seconds);
-          printf("%s\n\r",((logdata_t *)p)->msg);
+          if (log_length <= 7) {
+            printf("%s\n\r",((logdata_t *)p)->msg);
+            p--;
+          }
+          else {
+            // Print the first 7 characters in the log record
+            q = ((logdata_t *)p)->msg;
+            count = 7;
+            while (count > 0) {
+              printf("%c",*q);
+              q++;
+              count--;
+            }
+            // Print the remaining exension records. 
+            count = log_length - 7; // Account for the first 7 characters
+            p--;                    // point at the next record, type logex_t
+            while (count/16) {
+              q = (uint8_t *) p;
+              for (i=0;i<16;i++) {
+                printf("%c",*q);
+                q++;
+                count--;
+              }
+              p--;
+            }
+            if (count%16) {
+              printf("%s",((logex_t *)p)->msg);
+              /* q = ((logdata_t *)p)->msg; */
+              /* for (i=0;i<(count%16);i++) { */
+              /*   printf("%c",*q); */
+              /*   q++; */
+              /* } */
+              p--;
+            }
+            printf("\n\r");
+            /* p = p - (log_length-7)/16; */
+            /* // Handle the additional partial frame */
+            /* if ((log_length-7)%16) { */
+            /*   p--; */
+            /* } */
+          }
+        }
+        else {
+          if (log_length < 8) {            // Short Record
+            p--;                           
+          }
+          else {                           // Long Record  
+            p--;                           // Head Log Record
+            p = p - (log_length-7)/16;     // Full Extension Records
+            if ((log_length-7)%16) {       // Partial Extension Record 
+              p--;
+            }
+          }
         }
         break;
       default:
+        p--;
         printf("NOK\n\r");
       }
-      p--;
     }
     printf("OK\n\r");
   }
@@ -388,7 +464,7 @@ int read_all_records(flash_status_t * fs, int type) {
 int write_sensor_data(flash_status_t *fs,
                       uint16_t battery_voltage,
                       uint16_t temperature,
-                      float lux) {
+                      int light_data) {
   RTC_TimeTypeDef current_time;
   RTC_DateTypeDef current_date;
   
@@ -401,7 +477,7 @@ int write_sensor_data(flash_status_t *fs,
                     pack_time(&current_time,&current_date),
                     battery_voltage,
                     temperature,
-                    lux
+                    light_data
   };
   if (write_record(fs,&p)) {
     return (-1); // Write failed
@@ -414,22 +490,61 @@ int write_log_data(flash_status_t *fs,
   
   RTC_TimeTypeDef current_time;
   RTC_DateTypeDef current_date;
-   
+  int message_length = 0;
+  char * p = write_string;
+  uint8_t *q;
+  int count;
+  logex_t lext = {0};
+  
   HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
   HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);
-  
-  logdata_t p = {0x01,
-                 LOG_RECORD,
-                 fs->next_record_number,
-                 pack_time(&current_time,&current_date),
-                 {0,0,0,0,0,0,0,0}
-  };
-  strncpy((char *) p.msg,write_string,7);  // Copy the first 7 characters of the string
-                                  // NULL character is provided by the initialization of p 
-  if (write_record(fs,&p)) {
+  message_length = strlen(p);
+  logdata_t log_struct = {0x01,
+                          LOG_RECORD,
+                          fs->next_record_number,
+                          pack_time(&current_time,&current_date),
+                          message_length,
+                          {0,0,0,0,0,0,0}
+  }; 
+  strncpy((char *) log_struct.msg,
+         write_string,
+          7);  // Copy the first 7 characters of the string
+  if (write_record(fs,&log_struct)) {
     return (-1); // write failed
   }
-  return(0);
+  if (message_length > 7) {
+    p += 7;
+    q = lext.msg;
+    count = 0;
+    while (*p) {
+      *q=*p;
+      q++;
+      p++;
+      count++;
+      if (count > 15) {
+        if (write_record(fs,&lext)) {
+          return (-1); // write failed
+        }
+        count = 0;
+        q = lext.msg;
+      }
+    }
+    // Write the remainder of the last part of the message
+    while ((count > 0) && (count < 16)) {
+      *q = 0;
+      q++;
+      count++;
+    }
+    if (write_record(fs,&lext)) {
+      return (-1); // write failed
+    }b
+    else {
+      return (0);
+    }
+  }
+  else {
+    return (0);
+  }
 }
 
 int report_flash_status(flash_status_t *fs) {

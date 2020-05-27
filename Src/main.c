@@ -225,7 +225,7 @@ int main(void) {
     /* print_option_bytes(); */
     /* printf("************************\n\r"); */
     flash_write_init(&fs);
-    write_log_data(&fs,"r-cold");
+    write_log_data(&fs,"Note: Cold Reset");
     cal_f2r();  // Copy calibration from flash to ram array. 
     prompt();
     
