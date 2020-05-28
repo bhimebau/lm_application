@@ -70,7 +70,15 @@ void tsl237_command(char *arguments) {
     HAL_TIM_IC_Init(&htim2);
     HAL_Delay(3);
     value = cal_lookup(tsl237_readsensor());
-    printf("%d.%02d\n\r",value/100,value%100);
+    if (value == 1) {
+      printf("Brigher than Table\n\r");
+    }
+    else if (value == -1) {
+      printf("Darker than Table\n\r");
+    }
+    else {
+      printf("%d.%02d\n\r",value/100,value%100);
+    }
     HAL_TIM_Base_DeInit(&htim2);
     HAL_TIM_IC_DeInit(&htim2);
     sensor_power(POWER_OFF);
