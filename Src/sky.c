@@ -23,7 +23,7 @@ extern DAC_HandleTypeDef hdac1;
 void sky_command(char *arguments) {
   float magvalue;
   int magvalue_int;
-  int32_t dacval;
+  int16_t dacval;
   char * endptr;
   char * argv[MAX_ARGS];
   char *p = arguments;
@@ -73,20 +73,29 @@ void sky_command(char *arguments) {
       magvalue = strtof(argv[1],&endptr);
       magvalue_int  = (int) roundf(magvalue*10);
       dacval = sky2dac((uint32_t) magvalue_int);
-      printf("The dacval is %ld\n\r", dacval);
       if (dacval < 0) {
-        printf("Sky Value outside of range %f.0 to %f.0\n\r",BRIGHTEST_VALUE_ALLOWED,DARKEST_VALUE_ALLOWED);
+        printf("Sky Value outside of range %2.1f to %2.1f\n\r",((float)BRIGHTEST_VALUE_ALLOWED)/10.0,((float)DARKEST_VALUE_ALLOWED)/10.0);
+        printf("NOK\n\r");
+        return;
       }
-      if (hdac1.State ==  HAL_DAC_STATE_RESET) {
-        // DAC is uninitialized or disabled, need to enable
-        MX_DAC1_Init();
-        HAL_DAC_Start(&hdac1,DAC_CHANNEL_2);
+      else {
+        printf("The magvalue is %d\n\r", magvalue_int);
+        printf("The dacval is 0x%04x\n\r", (unsigned int) dacval);
+        sky_set_range(dacval>>12);
+        dacval &= 0x0FFF;
+        printf("The dacval is 0x%04x\n\r", (unsigned int) dacval);
+        
+        if (hdac1.State ==  HAL_DAC_STATE_RESET) {
+          // DAC is uninitialized or disabled, need to enable
+          MX_DAC1_Init();
+          HAL_DAC_Start(&hdac1,DAC_CHANNEL_2);
+        }
+        __HAL_DAC_ENABLE(&hdac1,DAC_CHANNEL_2);
+        sensor_power(POWER_ON);
+        power_lock_enable = 1;
+        HAL_DAC_SetValue(&hdac1,DAC_CHANNEL_2,DAC_ALIGN_12B_R,dacval);
+        printf("OK\n\r");
       }
-      __HAL_DAC_ENABLE(&hdac1,DAC_CHANNEL_2);
-      sensor_power(POWER_ON);
-      power_lock_enable = 1;
-      HAL_DAC_SetValue(&hdac1,DAC_CHANNEL_2,DAC_ALIGN_12B_R,(uint32_t) sky2dac((uint32_t) magvalue_int));
-      printf("OK\n\r");
     }
     else {
       printf("NOK\n\r");
@@ -97,12 +106,12 @@ void sky_command(char *arguments) {
 
 uint32_t sky2dac(uint32_t sky_index) {
   // Make sure that the index is within the array 
-  if ((sky_index > (int) (DARKEST_VALUE_ALLOWED*10)) ||
-      (sky_index < (int) (BRIGHTEST_VALUE_ALLOWED*10))) {
+  if ((sky_index > DARKEST_VALUE_ALLOWED) ||
+      (sky_index < BRIGHTEST_VALUE_ALLOWED)) {
     return (-1);
   }
-  printf("The index is: %ld\n\r", (sky_index - (int)(BRIGHTEST_VALUE_ALLOWED*10)));
-  return (skydata[sky_index - (int) (BRIGHTEST_VALUE_ALLOWED*10)]);
+  printf("The index is: %ld\n\r", (sky_index - BRIGHTEST_VALUE_ALLOWED));
+  return (skydata[sky_index -BRIGHTEST_VALUE_ALLOWED]);
 }
 
 uint32_t sky_set_range(int32_t range) {
@@ -116,6 +125,7 @@ uint32_t sky_set_range(int32_t range) {
    */
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   
+  printf("Resistor range = %d\n\r",(int)range);
   switch (range) {
   case -1:
     GPIO_InitStruct.Pin = irange_0_Pin|irange_0_Pin|irange_2_Pin|irange_3_Pin; 

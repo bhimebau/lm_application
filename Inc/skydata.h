@@ -1,14 +1,6 @@
-/* skydata.h
- * Description: 
- *
- * Author: Bryce Himebaugh 
- * Contact: bhimebau@indiana.edu
- * Date: 01.17.2020
- * Copyright (C) 2020
- *
- */
+#include <stdint.h>
 
-#define DARKEST_VALUE_ALLOWED 24.1
-#define BRIGHTEST_VALUE_ALLOWED 19.4
+#define DARKEST_VALUE_ALLOWED 260
+#define BRIGHTEST_VALUE_ALLOWED 153
 
-extern float skydata[];
+extern const uint16_t skydata[];
