@@ -83,8 +83,9 @@ Src/debug.c \
 Src/sample.c \
 Src/cal.c \
 Src/uid.c \
-Src/option_byte.c
-
+Src/option_byte.c \
+Src/sky.c \
+Src/skydata.c
 
 # ASM sources
 ASM_SOURCES =  \

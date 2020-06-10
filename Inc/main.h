@@ -66,6 +66,8 @@ enum {COMMAND, SAMPLE};
 extern uint32_t mode;
 extern uint32_t mode_counter;
 extern uint32_t mode_flag;
+extern uint32_t power_lock_enable;
+  
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -131,6 +133,9 @@ void Error_Handler(void);
 #define SENSOR_POWER_OFF  HAL_GPIO_WritePin(GPIOB, SW_MODE_Pin, GPIO_PIN_RESET);
 #define TICK_FREQ_HZ 1000
   
+void MX_DAC1_Init(void);
+
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

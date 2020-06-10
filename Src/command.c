@@ -17,6 +17,7 @@
 #include "command.h"
 #include "queue.h"
 #include "interrupt.h"
+#include "skydata.h"
 #include <stm32l4xx_ll_lpuart.h>
 
 extern UART_HandleTypeDef huart1;
@@ -54,6 +55,7 @@ void flash_command(char *);
 void uid_command(char *);
 void cal_command(char *);
 void batt_command(char *);
+void sky_command(char *);
 
 
 command_t commands[] = {
@@ -76,6 +78,7 @@ command_t commands[] = {
   {"flash",flash_command},
   {"uid",uid_command},
   {"cal",cal_command},
+  {"sky",sky_command},
   /* {"batt",batt_command}, */
   {0,0}
 };
@@ -247,6 +250,13 @@ void __attribute__((weak)) flash_command(char *arguments) {
 
 void __attribute__((weak)) cal_command(char *arguments) {
   printf("Build and report on the sensor calibration command\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
+
+void __attribute__((weak)) sky_command(char *arguments) {
+  printf("write the LED to a specific dark sky value\n\r");
   if (arguments) {
     printf("Arguments = %s\n\r",arguments);
   }

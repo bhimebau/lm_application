@@ -94,7 +94,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_RTC_Init(void);
 static void MX_ADC1_Init(void);
-static void MX_DAC1_Init(void);
+void MX_DAC1_Init(void);
 static void MX_LPUART1_UART_Init(void);
 static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
@@ -116,6 +116,8 @@ uint32_t captures[2];
 volatile uint8_t captureDone = 0;
 float frequency = 0;
 uint32_t diffCapture = 0;
+
+uint32_t power_lock_enable = 0;
 
 
 /* USER CODE END PFP */
@@ -194,7 +196,7 @@ int main(void) {
   MX_DMA_Init();
   MX_RTC_Init();
   MX_ADC1_Init();          // 50uA 
-  MX_DAC1_Init();         
+  //   MX_DAC1_Init();         // Pull out later
   MX_LPUART1_UART_Init();
   MX_TIM2_Init();          // 120uA 
   RetargetInit(&hlpuart1);                        // Allow printf to work properly
@@ -202,18 +204,20 @@ int main(void) {
   //  led_on();
   HAL_Delay(600);
   //  led_off();
-  //  sensor_power(POWER_ON);
+  //   sensor_power(POWER_ON);// Pull out later
   //  tsl237_vdd_off();           // Turn off the sensor power
   //  tsl237_vdd_on();
 
-  HAL_DAC_DeInit(&hdac1);         
+  //  HAL_DAC_DeInit(&hdac1);         
   HAL_ADC_DeInit(&hadc1);      // Kick off the A2D Subsystem
   HAL_TIM_Base_DeInit(&htim2);
   HAL_TIM_IC_DeInit(&htim2);
 
-  /* HAL_DAC_Start(&hdac1,DAC_CHANNEL_2); */
-  /* HAL_DAC_SetValue(&hdac1,DAC_CHANNEL_2,DAC_ALIGN_12B_R,0x7FF);  */
- 
+  // Pull out later
+  //  HAL_DAC_Start(&hdac1,DAC_CHANNEL_2);
+  //   HAL_DAC_SetValue(&hdac1,DAC_CHANNEL_2,DAC_ALIGN_12B_R,0x7FF);
+  // Pull out later
+  
   #ifdef DEPLOY
   HAL_DBGMCU_DisableDBGStopMode();
   #endif
@@ -228,6 +232,8 @@ int main(void) {
     write_log_data(&fs,"Note: Cold Reset");
     cal_f2r();  // Copy calibration from flash to ram array. 
     prompt();
+
+    //     while (1);
     
     while (1) {
       // Command Interpreter
@@ -254,11 +260,13 @@ int main(void) {
           sample();
         }
       }
-      // Drop to Low Power Mode
-      lp_stop_wfi();
+      if (!power_lock_enable) {
+        // Make sure that the DAC is off and go to stop 2 mode
+        lp_stop_wfi();
+      }
     }
   }
-}
+} 
 
 /* 1 Mhz Version */
 /**
@@ -734,6 +742,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  // Turn on the brightest LED as a test. 
+  /* GPIO_InitStruct.Pin = irange_1_Pin; */
+  /* GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; */
+  /* GPIO_InitStruct.Pull = GPIO_NOPULL; */
+  /* GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW; */
+  /* HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); */
+
   /*Configure GPIO pins : PA12 PA15 */
   GPIO_InitStruct.Pin = batt_measure_Pin|GPIO_PIN_12|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -757,7 +772,7 @@ static void MX_GPIO_Init(void)
   * @param None
   * @retval None
   */
-static void MX_DAC1_Init(void) {
+void MX_DAC1_Init(void) {
 
   /* USER CODE BEGIN DAC1_Init 0 */
 
