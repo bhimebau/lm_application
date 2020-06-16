@@ -8,10 +8,14 @@
  *
  */
 
+#include "skydata.h"
 
 // Brightest and the Darkest Detectable Values
-#define DARK_MAG_X10 250
-#define BRIGHT_MAG_X10 190
+/* #define DARK_MAG_X10 250 */
+/* #define BRIGHT_MAG_X10 190 */
+#define DARK_MAG_X10 DARKEST_VALUE_ALLOWED
+#define BRIGHT_MAG_X10 BRIGHTEST_VALUE_ALLOWED
+
 #define CAL_SIZE (DARK_MAG_X10-BRIGHT_MAG_X10)
 // #define CAL_MAX_VALUE 60000000
 // #define CAL_MIN_VALUE 200000

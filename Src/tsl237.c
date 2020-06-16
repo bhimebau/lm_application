@@ -16,7 +16,7 @@
 #include "cal.h"
 
 //#define NUM_SAMPLES 1000
-#define NUM_SAMPLES 10
+#define NUM_SAMPLES 8
 #define MAX_ARGS 3
 
 TIM_HandleTypeDef htim2;
@@ -33,7 +33,7 @@ void tsl237_command(char *arguments) {
   int value;
   
   if (!arguments) {
-    printf("NOK\n\r");
+    printf("NOK1\n\r"); //RM
     return;
   }
   else {
@@ -85,7 +85,7 @@ void tsl237_command(char *arguments) {
     printf("OK\n\r");
   }
   else {
-    printf("NOK\n\r");
+    printf("NOK2\n\r"); //RM
   }    
 }
 
@@ -107,7 +107,7 @@ uint32_t tsl237_readsensor() {
   
   while (1) { 
     if (tsl237_done != 0) {
-      for (i=1;i<NUM_SAMPLES;i++) {
+      for (i=3;i<NUM_SAMPLES;i++) {
         if (buf[i] >= buf[i-1]) {
           sum += (long long) (buf[i] - buf[i-1]);
         }

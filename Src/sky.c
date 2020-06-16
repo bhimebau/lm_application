@@ -79,11 +79,11 @@ void sky_command(char *arguments) {
         return;
       }
       else {
-        printf("The magvalue is %d\n\r", magvalue_int);
-        printf("The dacval is 0x%04x\n\r", (unsigned int) dacval);
+        //        printf("The magvalue is %d\n\r", magvalue_int);
+        //        printf("The dacval is 0x%04x\n\r", (unsigned int) dacval);
         sky_set_range(dacval>>12);
         dacval &= 0x0FFF;
-        printf("The dacval is 0x%04x\n\r", (unsigned int) dacval);
+        //        printf("The dacval is 0x%04x\n\r", (unsigned int) dacval);
         
         if (hdac1.State ==  HAL_DAC_STATE_RESET) {
           // DAC is uninitialized or disabled, need to enable
@@ -110,7 +110,7 @@ uint32_t sky2dac(uint32_t sky_index) {
       (sky_index < BRIGHTEST_VALUE_ALLOWED)) {
     return (-1);
   }
-  printf("The index is: %ld\n\r", (sky_index - BRIGHTEST_VALUE_ALLOWED));
+  //  printf("The index is: %ld\n\r", (sky_index - BRIGHTEST_VALUE_ALLOWED));
   return (skydata[sky_index -BRIGHTEST_VALUE_ALLOWED]);
 }
 
@@ -125,7 +125,7 @@ uint32_t sky_set_range(int32_t range) {
    */
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   
-  printf("Resistor range = %d\n\r",(int)range);
+  //  printf("Resistor range = %d\n\r",(int)range);
   switch (range) {
   case -1:
     GPIO_InitStruct.Pin = irange_0_Pin|irange_0_Pin|irange_2_Pin|irange_3_Pin; 
