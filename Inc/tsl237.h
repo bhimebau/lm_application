@@ -19,7 +19,6 @@
 // Testing value to see if this is why the sensor is not seeing sky values greater than 21. 
 #define MAX_SAMPLE_TIME 480000
 
-
 extern uint32_t tsl237_done;
 extern uint32_t tsl237t_done;
 

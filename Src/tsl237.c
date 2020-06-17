@@ -26,11 +26,19 @@ uint32_t tsl237t_done = 0;
 
 extern flash_status_t fs;
 
+// Buffer for the TSL samples
+// Buffer is two larger than needed
+// because the sensor sends two mis-sized pulses
+// after power on. 
+uint32_t buf[NUM_SAMPLES+2] = {0}; // Buffer values initialized to 0
+
+
 void tsl237_command(char *arguments) {
   char * argv[MAX_ARGS];
   char *p = arguments;
   int i;
   int value;
+  uint32_t raw;
   
   if (!arguments) {
     printf("NOK1\n\r"); //RM
@@ -69,12 +77,10 @@ void tsl237_command(char *arguments) {
     HAL_TIM_Base_Init(&htim2);
     HAL_TIM_IC_Init(&htim2);
     HAL_Delay(3);
-    value = cal_lookup(tsl237_readsensor());
-    if (value == 1) {
-      printf("Brigher than Table\n\r");
-    }
-    else if (value == -1) {
-      printf("Darker than Table\n\r");
+    raw = tsl237_readsensor();
+    value = cal_lookup(raw);
+    if ((value == 1) || (value == -1)) {
+        printf("%f\n\r",(float) raw);
     }
     else {
       printf("%d.%02d\n\r",value/100,value%100);
@@ -95,24 +101,28 @@ uint32_t tsl237_readsensor() {
   //float average_period;
   uint32_t average_period;
   int i;
-  uint32_t buf[NUM_SAMPLES] = {0}; // Buffer values initialized to 0 
   // sensor_power(POWER_ON);
   //tsl237_vdd_on();  // Power on the sensor
-  HAL_Delay(100); // Wait 100mS to allow the boost converter to stabibilize
+  HAL_Delay(1000); // Wait a second to allow the sensor to stabilize
   //  MX_DMA_Init();
   //  HAL_TIM_Base_Init(&htim2);
   uint32_t start_time = HAL_GetTick();
   tsl237_done = 0;
-  HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, (uint32_t*) buf, NUM_SAMPLES);
+  HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, (uint32_t*) buf, NUM_SAMPLES+2);
   
   while (1) { 
     if (tsl237_done != 0) {
-      for (i=3;i<NUM_SAMPLES;i++) {
+      for (i=3;i<NUM_SAMPLES+2;i++) {
         if (buf[i] >= buf[i-1]) {
           sum += (long long) (buf[i] - buf[i-1]);
+          printf("GTE %d\n\r",(int) (buf[i]-buf[i-1]));
         }
         else {
           sum += (long long) ((htim2.Instance->ARR - buf[i-1]) + buf[i]);
+          printf("ARR = %u\n\r",(unsigned int) htim2.Instance->ARR);
+          printf("buf[i-1] = %u\n\r",(unsigned int) buf[i-1]);
+          printf("buf[i] = %u\n\r",(unsigned int) buf[i]);
+          printf("LT %d\n\r",(int) (((uint32_t) htim2.Instance->ARR) - buf[i-1] + buf[i]));
         }
       }
       //    average_period = (float) sum/(NUM_SAMPLES-1);  // Compute the average
@@ -150,6 +160,7 @@ uint32_t tsl237_readsensor() {
   //  __HAL_RCC_DMA1_CLK_DISABLE(); // Kick off the clock to the DMA controller
   //   HAL_TIM_Base_DeInit(&htim2);  // Uninitialize timer 2 to save power
   //  return ((float) HAL_RCC_GetHCLKFreq() / average_period);
+  printf("Average Period = %d\n\r",(int) average_period);
   return(average_period);
 }
 

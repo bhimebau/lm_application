@@ -5,6 +5,15 @@ define portb
   p/x GPIOB->IDR
 end
 
+define read_msi_pll
+  p/x RCC->CR
+  if (RCC->CR&0x00000004)
+     echo MSI PLL Enabled
+  else
+     echo MSI PLL Disabled
+  end
+end
+
 define reset
  monitor reset halt
 end
