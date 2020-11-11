@@ -250,7 +250,11 @@ int main(void) {
         prompt();
       }
       // Automatic Data Collection
-      if (collect_data_flag) {
+      // The collection is triggered by the RTC alarm.
+      // If the power lock is enabled, then the sampling is blocked.
+      // This modality is used in the sky command for the light source
+      // mode of operation. 
+      if ((collect_data_flag) && (!power_lock_enable)) {
         collect_data_flag = 0;
         HAL_RTC_GetTime(&hrtc,&current_time,RTC_FORMAT_BIN);
         HAL_RTC_GetDate(&hrtc,&current_date,RTC_FORMAT_BIN);

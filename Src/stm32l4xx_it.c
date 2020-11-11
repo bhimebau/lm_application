@@ -42,6 +42,8 @@
 #include "command.h"
 #include "interrupt.h"
 #include "queue.h"
+#include "tsl237.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -318,7 +320,11 @@ void LPUART1_IRQHandler(void)
   /* static uint8_t char_count = 0; */
   /* uint8_t ch; */
   uint8_t ch;
-  
+
+  // flag to indicate that the current light sensor
+  // measurement should be aborted by a key press. 
+  tsl237_break_received = 1; 
+    
   ch = LL_LPUART_ReceiveData8(LPUART1);
   if (enqueue(&rx_queue,ch)) {
       // queue is full

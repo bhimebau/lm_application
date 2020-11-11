@@ -86,6 +86,16 @@ void cal_command(char *arguments) {
       printf("NOK\n\r");
     }
   }
+  else if (!strcmp(argv[0],"offset")) {
+    //    if (!cal_write(argv[1],sample_noflash())) {
+    if (!cal_offset(argv[1])) {
+      printf("OK\n\r");
+    }
+    else {
+      printf("NOK\n\r");
+    }
+  }
+
   else if (!strcmp(argv[0],"lookup")) {
     value = strtol(argv[1],NULL,10);
     magarc = cal_lookup(value);
@@ -258,6 +268,24 @@ int cal_write(char * mag, char * value) {
   return(0);
 }
 
+int cal_offset(char * mag) {
+  int result = 0;
+  offset_t * p = (offset_t *) CAL_END;
+ 
+  // Make sure that this is a good pointer
+  if (!mag) {
+    return(-1);
+  }
+  result = (int) strtol(mag,NULL,10);
+  printf("The offset is %d\n\r",result);
+  if (flash_cal_offset(result) == -1) {
+    return (-1);
+  }
+  else {
+    printf("The offset pulled from flash is %d\n\r",p->offset);
+    return(0);
+  }
+}
 
 int cal_lookup(uint32_t count) {
   // Function to lookup a light sensor reading in the table.
@@ -420,6 +448,26 @@ int flash_caldata(int index, caldata_t * val) {
   }
   HAL_FLASH_Unlock();
   if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) p, *q))) {
+    HAL_FLASH_Lock();
+    return (-1);
+  }
+  HAL_FLASH_Lock();
+  return(0);
+}
+
+int flash_cal_offset(int offset) {
+  HAL_StatusTypeDef status;
+  uint64_t *q = (uint64_t *) CAL_END;
+  offset_t write_data = {0};
+  offset_t * p = &write_data;
+  write_data.offset = offset;
+  
+  /* Check to see if the particular flash location is blank */
+  if (*((int64_t *) q) != 0xFFFFFFFFFFFFFFFF) {
+    return (-1);
+  }
+  HAL_FLASH_Unlock();
+  if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) q, *((uint64_t *) p)))) {
     HAL_FLASH_Lock();
     return (-1);
   }

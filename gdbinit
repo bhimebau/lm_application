@@ -8,9 +8,9 @@ end
 define read_msi_pll
   p/x RCC->CR
   if (RCC->CR&0x00000004)
-     echo MSI PLL Enabled
+     echo MSI PLL Enabled\n
   else
-     echo MSI PLL Disabled
+     echo MSI PLL Disabled\n
   end
 end
 

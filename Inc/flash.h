@@ -63,6 +63,11 @@ typedef struct caldata {
   float magarcsec2_value;
 } caldata_t;
 
+typedef struct offset {
+  int offset;
+  int fill;
+} offset_t;
+
 typedef struct raw {
   uint64_t data0;
   uint64_t data1;

@@ -70,11 +70,11 @@ uint32_t read_battery(void) {
      uV. It is only necessary to have the voltage in mV. The
      additional precision is eliminated by dividing by 1000.
   */
-  printf("Reference Voltage = %d\n\r",(int) read_vrefint());
-  printf("Raw Converted Counts = %d\n\r",(int) vbatt_raw);
+  /* printf("Reference Voltage = %d\n\r",(int) read_vrefint()); */
+  /* printf("Raw Converted Counts = %d\n\r",(int) vbatt_raw); */
   //  vbatt_raw = (vbatt_raw * 488 * 2)/1000;
   vbatt_raw = (vbatt_raw * (int) read_vrefint() * 2)/4096;
-  printf("Computed Battery Voltage = %d\n\r",(int) vbatt_raw);
+  /* printf("Computed Battery Voltage = %d\n\r",(int) vbatt_raw); */
   
   return(vbatt_raw);
 }

@@ -31,6 +31,9 @@ int cal_write(char *,char *);
 int cal_lookup(uint32_t);
 int cal_complete(void);
 int cal_fake(void);
+int cal_offset(char *);
+int flash_cal_offset(int);
+
 
 
 
