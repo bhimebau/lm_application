@@ -31,9 +31,10 @@ int cal_write(char *,char *);
 int cal_lookup(uint32_t);
 int cal_complete(void);
 int cal_fake(void);
-int cal_offset(char *);
-int flash_cal_offset(int);
-
-
+int cal_offset(char *, char *);
+int cal_temp(char *, char *);
+int flash_cal_offset(offset_t *);
+int flash_cal_temperature(tempdata_t * t);
+int cal_show_conditions(void);
 
 

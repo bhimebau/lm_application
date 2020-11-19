@@ -56,6 +56,7 @@ void uid_command(char *);
 void cal_command(char *);
 void batt_command(char *);
 void sky_command(char *);
+void temp_command(char *);
 
 
 command_t commands[] = {
@@ -79,7 +80,9 @@ command_t commands[] = {
   {"uid",uid_command},
   {"cal",cal_command},
   {"sky",sky_command},
+  {"temp",temp_command},
   /* {"batt",batt_command}, */
+  
   {0,0}
 };
 
@@ -261,6 +264,9 @@ void __attribute__((weak)) sky_command(char *arguments) {
     printf("Arguments = %s\n\r",arguments);
   }
 }
+
+
+
 
 int execute_command(uint8_t * line) {
   uint8_t *cmd;

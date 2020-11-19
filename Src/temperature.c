@@ -22,12 +22,15 @@ void temp_command(char *arguments) {
     printf("NOK\n\r");
   }
   else {
+    HAL_ADC_Init(&hadc1);
+    while (HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED) != HAL_OK); 
     printf("%d\n\r",(int)read_temp());
+    HAL_ADC_DeInit(&hadc1);
     printf("OK\n\r");
   }
 }
 
-uint32_t read_temp(void) {
+int32_t read_temp(void) {
   static uint32_t first_time_up = 1;
   static ADC_ChannelConfTypeDef sConfig = {0};
   uint32_t rawTemp;

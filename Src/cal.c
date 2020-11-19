@@ -24,6 +24,8 @@
 
 #define MAX_ARGS 3
 int32_t calibration_ram[CAL_SIZE];
+offset_t off_struct = {0,1.0};
+tempdata_t temp_struct = {20,400};
 
 void cal_command(char *arguments) {
   char * argv[MAX_ARGS];
@@ -88,7 +90,25 @@ void cal_command(char *arguments) {
   }
   else if (!strcmp(argv[0],"offset")) {
     //    if (!cal_write(argv[1],sample_noflash())) {
-    if (!cal_offset(argv[1])) {
+    if (!cal_offset(argv[1],argv[2])) {
+      printf("OK\n\r");
+    }
+    else {
+      printf("NOK\n\r");
+    }
+  }
+
+  else if (!strcmp(argv[0],"temp")) {
+    if (!cal_temp(argv[1],argv[2])) {
+      printf("OK\n\r");
+    }
+    else {
+      printf("NOK\n\r");
+    }
+  }
+ 
+  else if (!strcmp(argv[0],"cond")) {
+    if (!cal_show_conditions()) {
       printf("OK\n\r");
     }
     else {
@@ -157,9 +177,9 @@ int cal_show_sram(void) {
            (i+BRIGHT_MAG_X10)/10,
            (i+BRIGHT_MAG_X10)%10,
            (int)calibration_ram[i]);
+    
   }
- 
-  /* for (i=1;i<CAL_SIZE;i++) { */
+   /* for (i=1;i<CAL_SIZE;i++) { */
   /*   if (!(i%10)) { */
   /*     printf("\n\r%2d.0:",(i/10)+BRIGHT_MAG); */
   /*   } */
@@ -169,16 +189,39 @@ int cal_show_sram(void) {
   return(0);
 }
 
+int cal_show_conditions(void) {
+  printf("Calibration Temperature = %d\n\r",temp_struct.calibration_temperature); 
+  printf("Sensor Compensation Factor = %d\n\r",temp_struct.sensor_compensation_factor);
+  printf("Calibration Offset = %d\n\r",off_struct.offset);
+  printf("Calibration Scale Factor = %f\n\r",off_struct.scale_factor);
+  return(0);
+}
+  
+  
+/* 
+Read the calibration from the flash and store it in the the
+calibration_ram[] array in RAM
+*/
 int cal_f2r(void) {
   int i;
   uint32_t *p = (uint32_t *) CAL_START;
+  offset_t *ofs = (offset_t *) CAL_OFFSET;
+  tempdata_t *temp = (tempdata_t *) CAL_TEMP;
   for (i=0;i<CAL_SIZE;i++) {
     calibration_ram[i] = *p;
     p++;
   }
+  off_struct.offset = ofs->offset;
+  off_struct.scale_factor = ofs->scale_factor;
+  temp_struct.calibration_temperature = temp->calibration_temperature;
+  temp_struct.sensor_compensation_factor = temp->sensor_compensation_factor;
   return (0);
 }
 
+/* 
+Write the calibration from RAM and place it into Flash. Should include
+the offset and the tempdata in these writes
+*/
 int cal_r2f(void) {
   int i;
   uint64_t *p = (uint64_t *) CAL_START;
@@ -197,10 +240,21 @@ int cal_r2f(void) {
     p++;  // Stepping through addresses in 8 byte chunks
     q++;  // Stepping through the data in 8 byte chunks. 
   }
+  if ((ret_val = flash_cal_offset(&off_struct))==-1) {
+    HAL_FLASH_Lock();
+    return(ret_val);
+  }
+  if ((ret_val = flash_cal_temperature(&temp_struct))==-1) {
+    HAL_FLASH_Lock();
+    return(ret_val);
+  }
   HAL_FLASH_Lock();
   return (ret_val);
 }
 
+/* 
+Converts magnitudes and value and stores them in the calibration_ram[] array
+*/
 int cal_write(char * mag, char * value) {
   char * p = 0;  // Used to hold the whole number portion
   char * q = 0;   // Used to hold the decimal portion
@@ -268,25 +322,67 @@ int cal_write(char * mag, char * value) {
   return(0);
 }
 
-int cal_offset(char * mag) {
-  int result = 0;
-  offset_t * p = (offset_t *) CAL_END;
- 
-  // Make sure that this is a good pointer
-  if (!mag) {
+/*  
+Takes a string in, converts it to a base 10 integer and then writes it
+to the flash in the offset position. This should include a scale
+factor as well.  Consider making this such that the cal can be pulled
+into ram, the block erased, and then the data re-written.
+*/
+int cal_offset(char * ofs, char * sf) {
+  //  offset_t * p = (offset_t *) CAL_OFFSET;
+  
+  // Make sure that these are good pointer
+  if ((!ofs) || (!sf)) {
     return(-1);
   }
-  result = (int) strtol(mag,NULL,10);
-  printf("The offset is %d\n\r",result);
-  if (flash_cal_offset(result) == -1) {
-    return (-1);
-  }
-  else {
-    printf("The offset pulled from flash is %d\n\r",p->offset);
-    return(0);
-  }
+  off_struct.offset = (int) strtol(ofs,NULL,10);
+  printf("The offset is %d\n\r",off_struct.offset);
+
+  off_struct.scale_factor = strtof(sf,NULL);
+  printf("The scale factor is %f\n\r",off_struct.scale_factor);
+  return(0);
+  /* 
+     Results are retained in ram. Only written to flash when cal is committed using
+     r2f().
+  */
+    
+  /* if (flash_cal_offset(&off_struct) == -1) { */
+  /*   return (-1); */
+  /* } */
+  /* else { */
+  /*   printf("The offset pulled from flash is %d\n\r",p->offset); */
+  /*   printf("The scale factor pulled from flash is %f\n\r",p->scale_factor); */
+  /*   return(0); */
+  /* } */
 }
 
+/*  
+Takes in the base temperature data and sensor correction factor for the calibration. 
+*/
+int cal_temp(char * tmp, char * ppm) {
+  //  offset_t * p = (offset_t *) CAL_OFFSET;
+  
+  // Make sure that these are good pointer
+  if ((!tmp) || (!ppm)) {
+    return(-1);
+  }
+  temp_struct.calibration_temperature = (int) strtol(tmp,NULL,10);
+  printf("The calibration temperatures is %d\n\r",temp_struct.calibration_temperature);
+
+  temp_struct.sensor_compensation_factor = (int) strtol(ppm,NULL,10);
+  printf("The sensor compensation factor is  %d\n\r",temp_struct.sensor_compensation_factor);
+  return(0);
+  /* 
+     Results are retained in ram. Only written to flash when cal is committed using
+     r2f().
+  */
+}
+
+/*
+Base on the period count from the capture measuring the period of the
+light sensor signal, the magnitude is looked up from the ram
+array. The code will interpolate once the bounding values are located
+*/
 int cal_lookup(uint32_t count) {
   // Function to lookup a light sensor reading in the table.
   // Assumes that the data in the table is monotonically increasing.
@@ -297,7 +393,40 @@ int cal_lookup(uint32_t count) {
   int retval = 1;
   int delta = 0;
   int last_index = -1;
- 
+  float tcomp;
+
+  /* 
+     Temperature Compensation  
+     
+     Multiple the scale factor in ppm/C by the current delta from the ambient temperature
+     that was used to calibrate the sensor. 
+  */
+  tcomp = ((read_temp() - (int32_t) temp_struct.calibration_temperature)
+             * (int32_t) temp_struct.sensor_compensation_factor);
+  /*
+    Convert the ppm measurement into a percentage to use to multiply the current period measurement. 
+   
+    If the current temperature is colder than the calibration temp,
+    the final period value should be decreased. The implication is
+    that the measured period would actually be shorter for this actual
+    light value if the temperature were at the calibration
+    temperature. This assumption is reversed for temperatures that are
+    higher than the calibration temperature.
+  */
+  tcomp = 1.0 + (tcomp/1000000);
+
+  /* 
+     Compute the temperature adjusted count and store it as a float. 
+
+  */
+  tcomp = tcomp * count;
+
+  /* 
+     Convert the count back to an integer to use in the magniture lookup
+
+   */
+  count = (uint32_t) tcomp;
+  
   for (i=0;i<(CAL_SIZE-1);i++) {
     if (calibration_ram[i] == -1); // skip -1 values
     else if (count > calibration_ram[i]) {
@@ -424,6 +553,9 @@ int cal_lookup(uint32_t count) {
 /*   return (0); */
 /* } */
 
+/* 
+Provide some fake calibration data to test other functionality in the system
+*/
 int cal_fake(void) {
   cal_blank();
   calibration_ram[1] = 1000;
@@ -433,41 +565,48 @@ int cal_fake(void) {
   return(0);
 }
 
-int flash_caldata(int index, caldata_t * val) {
-  HAL_StatusTypeDef status;
-  uint64_t *q = (uint64_t *) val;
+/* 
+Remnant of a previous version of the code 
+*/
+
+/* int flash_caldata(int index, caldata_t * val) { */
+/*   HAL_StatusTypeDef status; */
+/*   uint64_t *q = (uint64_t *) val; */
   
-  if ((index > 255) || (index < 0) || (!val)) {
-    return (-1);
-  }
-  caldata_t *p = (caldata_t *) CAL_START + index;
+/*   if ((index > 255) || (index < 0) || (!val)) { */
+/*     return (-1); */
+/*   } */
+/*   caldata_t *p = (caldata_t *) CAL_START + index; */
 
-  /* Check to see if the particular flash location is blank */
-  if (*((int64_t *) p) != 0xFFFFFFFFFFFFFFFF) {
-    return (-1);
-  }
-  HAL_FLASH_Unlock();
-  if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) p, *q))) {
-    HAL_FLASH_Lock();
-    return (-1);
-  }
-  HAL_FLASH_Lock();
-  return(0);
-}
+/*   /\* Check to see if the particular flash location is blank *\/ */
+/*   if (*((int64_t *) p) != 0xFFFFFFFFFFFFFFFF) { */
+/*     return (-1); */
+/*   } */
+/*   HAL_FLASH_Unlock(); */
+/*   if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) p, *q))) { */
+/*     HAL_FLASH_Lock(); */
+/*     return (-1); */
+/*   } */
+/*   HAL_FLASH_Lock(); */
+/*   return(0); */
+/* } */
 
-int flash_cal_offset(int offset) {
+/*
+ Used to adjust a reference calibration for a particular sensor.  The
+ offset and scale factors will be computed based on one or more
+ calibration points that will be used to adjust all future
+ computations
+*/
+int flash_cal_offset(offset_t *ofs) {
   HAL_StatusTypeDef status;
-  uint64_t *q = (uint64_t *) CAL_END;
-  offset_t write_data = {0};
-  offset_t * p = &write_data;
-  write_data.offset = offset;
+  uint64_t *q = (uint64_t *) CAL_OFFSET;
   
   /* Check to see if the particular flash location is blank */
   if (*((int64_t *) q) != 0xFFFFFFFFFFFFFFFF) {
     return (-1);
   }
   HAL_FLASH_Unlock();
-  if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) q, *((uint64_t *) p)))) {
+  if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) q, *((uint64_t *) ofs)))) {
     HAL_FLASH_Lock();
     return (-1);
   }
@@ -475,6 +614,29 @@ int flash_cal_offset(int offset) {
   return(0);
 }
 
+/* 
+ The temperature that the calibration was collected is stored with the
+ calibration along with the temperature compensation factor that is
+ provided for the TSL237 in the datasheet. This will allow a
+ particular measurement to be adjust to account for the temperature
+ when the sample was taken.
+*/
+int flash_cal_temperature(tempdata_t * t) {
+  HAL_StatusTypeDef status;
+  uint64_t *q = (uint64_t *) CAL_TEMP;
+  
+  /* Check to see if the particular flash location is blank */
+  if (*((int64_t *) q) != 0xFFFFFFFFFFFFFFFF) {
+    return (-1);
+  }
+  HAL_FLASH_Unlock();
+  if ((status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,(int) q, *((uint64_t *) t)))) {
+    HAL_FLASH_Lock();
+    return (-1);
+  }
+  HAL_FLASH_Lock();
+  return(0);
+}
 
 
 

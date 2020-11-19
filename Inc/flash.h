@@ -24,8 +24,10 @@
 
 // Calibration data lives in the top page 
 #define CAL_START      0x0803F800
-#define CAL_END        0x0803FFF0
-
+// #define CAL_END        0x0803FFF0
+#define CAL_END        0x0803FFE8
+#define CAL_OFFSET     0x0803FFE8
+#define CAL_TEMP       0x0803FFF0
 
 #define SENTINEL_MARK_BOTTOM      0xDEADBEEFA5A5A5A5
 #define SENTINEL_MARK_TOP         0xFEEDC0DE5A5A5A5A
@@ -65,8 +67,13 @@ typedef struct caldata {
 
 typedef struct offset {
   int offset;
-  int fill;
+  float scale_factor;
 } offset_t;
+
+typedef struct tempdata {
+  int calibration_temperature;
+  int sensor_compensation_factor;
+} tempdata_t;
 
 typedef struct raw {
   uint64_t data0;
