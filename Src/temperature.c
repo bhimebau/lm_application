@@ -22,10 +22,10 @@ void temp_command(char *arguments) {
     printf("NOK\n\r");
   }
   else {
-    /* HAL_ADC_Init(&hadc1); */
-    /* while (HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED) != HAL_OK);  */
+    HAL_ADC_Init(&hadc1);
+    while (HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED) != HAL_OK);
     printf("%d\n\r",(int)read_temp());
-    /* HAL_ADC_DeInit(&hadc1); */
+    HAL_ADC_DeInit(&hadc1);
     printf("OK\n\r");
   }
 }

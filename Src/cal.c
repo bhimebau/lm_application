@@ -404,15 +404,15 @@ uint32_t cal_sample_temperature_compensation(uint32_t count, uint32_t sample_tem
     higher than the calibration temperature.
   */
   tcomp = 1.0 + (tcomp/1000000);
-  printf("Adjustment scale factor: %f\n\r",tcomp); 
+  /* printf("Adjustment scale factor: %f\n\r",tcomp);  */
 
   /* 
      Compute the temperature adjusted count and store it as a float. 
 
   */
-  printf("count prior to adjustment: %d\n\r",(int) count);  
+  /* printf("count prior to adjustment: %d\n\r",(int) count);   */
   tcomp = tcomp * count;
-  printf("count after the adjustment: %d\n\r",(int) tcomp); 
+  /* printf("count after the adjustment: %d\n\r",(int) tcomp);  */
 
   /* 
      Convert the count back to an integer to use in the magniture lookup

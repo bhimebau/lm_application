@@ -14,12 +14,14 @@
 #include "flash.h"
 #include "power.h"
 #include "cal.h"
+#include "temperature.h"
 
 //#define NUM_SAMPLES 1000
 #define NUM_SAMPLES 4
 #define MAX_ARGS 3
 
 TIM_HandleTypeDef htim2;
+extern ADC_HandleTypeDef hadc1;
 
 uint32_t tsl237_break_received = 0;
 
@@ -41,6 +43,8 @@ void tsl237_command(char *arguments) {
   int i;
   int value;
   uint32_t raw;
+  uint32_t temperature;
+  uint32_t compensated_counts;
   
   if (!arguments) {
     printf("NOK1\n\r"); //RM
@@ -86,11 +90,15 @@ void tsl237_command(char *arguments) {
     HAL_TIM_IC_Init(&htim2);
     HAL_Delay(3);
     raw = tsl237_readsensor();
+    HAL_ADC_Init(&hadc1);
+    while (HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED) != HAL_OK);
     if (raw == 0) {
       printf("Aborted\n\r");
     }
     else {
-      value = cal_lookup(raw);
+      temperature = read_temp();
+      compensated_counts = cal_sample_temperature_compensation(raw,temperature);
+      value = cal_lookup(compensated_counts);
       if ((value == 1) || (value == -1)) {
         printf("%f\n\r",(float) raw);
       }
@@ -98,6 +106,7 @@ void tsl237_command(char *arguments) {
         printf("%d.%02d\n\r",value/100,value%100);
       }
     }
+    HAL_ADC_DeInit(&hadc1);
     HAL_TIM_Base_DeInit(&htim2);
     HAL_TIM_IC_DeInit(&htim2);
     sensor_power(POWER_OFF);
