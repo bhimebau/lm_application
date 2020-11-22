@@ -66,8 +66,8 @@ typedef struct caldata {
 } caldata_t;
 
 typedef struct offset {
-  int offset;
   float scale_factor;
+  float offset;
 } offset_t;
 
 typedef struct tempdata {

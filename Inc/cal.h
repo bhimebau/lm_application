@@ -37,4 +37,4 @@ int flash_cal_offset(offset_t *);
 int flash_cal_temperature(tempdata_t * t);
 int cal_show_conditions(void);
 uint32_t cal_sample_temperature_compensation(uint32_t, uint32_t);
-
+int cal_compensate_magnitude(int);

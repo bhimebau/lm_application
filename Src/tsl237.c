@@ -103,6 +103,7 @@ void tsl237_command(char *arguments) {
         printf("%f\n\r",(float) raw);
       }
       else {
+        value = cal_compensate_magnitude(value);
         printf("%d.%02d\n\r",value/100,value%100);
       }
     }

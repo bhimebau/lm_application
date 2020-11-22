@@ -194,7 +194,7 @@ int cal_show_sram(void) {
 int cal_show_conditions(void) {
   printf("Calibration Temperature = %d\n\r",temp_struct.calibration_temperature); 
   printf("Sensor Compensation Factor = %d\n\r",temp_struct.sensor_compensation_factor);
-  printf("Calibration Offset = %d\n\r",off_struct.offset);
+  printf("Calibration Offset = %f\n\r",off_struct.offset);
   printf("Calibration Scale Factor = %f\n\r",off_struct.scale_factor);
   return(0);
 }
@@ -331,31 +331,16 @@ factor as well.  Consider making this such that the cal can be pulled
 into ram, the block erased, and then the data re-written.
 */
 int cal_offset(char * ofs, char * sf) {
-  //  offset_t * p = (offset_t *) CAL_OFFSET;
-  
   // Make sure that these are good pointer
   if ((!ofs) || (!sf)) {
     return(-1);
   }
-  off_struct.offset = (int) strtol(ofs,NULL,10);
-  printf("The offset is %d\n\r",off_struct.offset);
+  off_struct.offset = strtof(ofs,NULL);
+  printf("The offset is %f\n\r", off_struct.offset);
 
   off_struct.scale_factor = strtof(sf,NULL);
   printf("The scale factor is %f\n\r",off_struct.scale_factor);
   return(0);
-  /* 
-     Results are retained in ram. Only written to flash when cal is committed using
-     r2f().
-  */
-    
-  /* if (flash_cal_offset(&off_struct) == -1) { */
-  /*   return (-1); */
-  /* } */
-  /* else { */
-  /*   printf("The offset pulled from flash is %d\n\r",p->offset); */
-  /*   printf("The scale factor pulled from flash is %f\n\r",p->scale_factor); */
-  /*   return(0); */
-  /* } */
 }
 
 /*  
@@ -374,10 +359,12 @@ int cal_temp(char * tmp, char * ppm) {
   temp_struct.sensor_compensation_factor = (int) strtol(ppm,NULL,10);
   printf("The sensor compensation factor is  %d\n\r",temp_struct.sensor_compensation_factor);
   return(0);
-  /* 
-     Results are retained in ram. Only written to flash when cal is committed using
-     r2f().
-  */
+}
+
+int cal_compensate_magnitude(int magnitudex100) {
+  float scaled_magnitudex100;
+  scaled_magnitudex100 = (off_struct.scale_factor * magnitudex100) + (off_struct.offset * 100);
+  return((int32_t) scaled_magnitudex100);
 }
 
 uint32_t cal_sample_temperature_compensation(uint32_t count, uint32_t sample_temperature) {

@@ -383,6 +383,7 @@ int read_all_records(flash_status_t * fs, int type) {
             printf("%d\n\r",value);
           }
           else {
+            value = cal_compensate_magnitude(value);
             printf("%d.%02d\n\r",value/100,value%100);
           }
         }
