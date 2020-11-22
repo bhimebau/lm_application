@@ -19,7 +19,7 @@
 #include "interrupt.h"
 #include "skydata.h"
 #include <stm32l4xx_ll_lpuart.h>
-
+extern ADC_HandleTypeDef hadc1;
 extern UART_HandleTypeDef huart1;
 extern RTC_HandleTypeDef hrtc;
 extern queue_t rx_queue;
@@ -286,7 +286,11 @@ int execute_command(uint8_t * line) {
       if (!p->cmd_function) {
         return (-1);
       }
+      HAL_ADC_Init(&hadc1);
+      // Calibrate the A2D
+      while (HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED) != HAL_OK); // must be done on each init of the converter. 
       (*p->cmd_function)((char *)arg);            // Run the command with the passed arguments
+      HAL_ADC_DeInit(&hadc1);
       success = 1;
       break;
     }

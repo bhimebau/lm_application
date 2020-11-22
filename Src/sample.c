@@ -19,6 +19,7 @@
 #include "tsl237.h"
 #include "sample.h"
 #include "power.h"
+#include "cal.h"
 
 extern flash_status_t fs;
 extern ADC_HandleTypeDef hadc1;
@@ -34,12 +35,14 @@ void sample_command(char * arguments) {
 }
 
 void sample(void) {
-  uint32_t raw;
+  uint32_t raw_sensor_counts;
+  uint32_t compensated_sensor_counts;
+  uint32_t temperature;
   sensor_power(POWER_ON);
   HAL_TIM_Base_Init(&htim2);
   HAL_TIM_IC_Init(&htim2);
   HAL_Delay(3);
-  raw = tsl237_readsensor();
+  raw_sensor_counts = tsl237_readsensor();
 
   HAL_ADC_Init(&hadc1);
   // Calibrate the A2D
@@ -47,7 +50,9 @@ void sample(void) {
   //  write_sensor_data(&fs,read_vrefint(),read_temp(),tsl237_readsensor());
   //  printf("battery value=%d\n\r",(int)((read_battery()*488*2)/1000)); 
   //write_sensor_data(&fs,read_battery(),read_temp(),tsl237_readsensor());
-  write_sensor_data(&fs,read_battery(),read_temp(),raw);
+  temperature = read_temp();
+  compensated_sensor_counts = cal_sample_temperature_compensation(raw_sensor_counts,temperature);
+  write_sensor_data(&fs,read_battery(),temperature,compensated_sensor_counts);
   HAL_ADC_DeInit(&hadc1);
   HAL_TIM_Base_DeInit(&htim2);
   HAL_TIM_IC_DeInit(&htim2);

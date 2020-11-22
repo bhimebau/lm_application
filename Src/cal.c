@@ -22,6 +22,8 @@
 #include "sample.h"
 #include "cal.h"
 
+// extern ADC_HandleTypeDef hadc1;
+
 #define MAX_ARGS 3
 int32_t calibration_ram[CAL_SIZE];
 offset_t off_struct = {0,1.0};
@@ -378,6 +380,47 @@ int cal_temp(char * tmp, char * ppm) {
   */
 }
 
+uint32_t cal_sample_temperature_compensation(uint32_t count, uint32_t sample_temperature) {
+  /* 
+     Temperature Compensation  
+     
+     Multiple the scale factor in ppm/C by the current delta from the ambient temperature
+     that was used to calibrate the sensor. 
+  */
+  float tcomp;
+  tcomp = ((sample_temperature - (int32_t) temp_struct.calibration_temperature)
+             * (int32_t) temp_struct.sensor_compensation_factor);
+  /* printf("The current temperature is: %d\n\r",(int) current_temp); */
+  /* printf("The temperature used to take calibration is: %d\n\r",(int) temp_struct.calibration_temperature); */
+  /* printf("This adjustment used to  compensate the cal: %f ppm\n\r",tcomp); */
+  /*
+    Convert the ppm measurement into a percentage to use to multiply the current period measurement. 
+   
+    If the current temperature is colder than the calibration temp,
+    the final period value should be decreased. The implication is
+    that the measured period would actually be shorter for this actual
+    light value if the temperature were at the calibration
+    temperature. This assumption is reversed for temperatures that are
+    higher than the calibration temperature.
+  */
+  tcomp = 1.0 + (tcomp/1000000);
+  printf("Adjustment scale factor: %f\n\r",tcomp); 
+
+  /* 
+     Compute the temperature adjusted count and store it as a float. 
+
+  */
+  printf("count prior to adjustment: %d\n\r",(int) count);  
+  tcomp = tcomp * count;
+  printf("count after the adjustment: %d\n\r",(int) tcomp); 
+
+  /* 
+     Convert the count back to an integer to use in the magniture lookup
+
+   */
+  return((uint32_t) tcomp);
+}
+
 /*
 Base on the period count from the capture measuring the period of the
 light sensor signal, the magnitude is looked up from the ram
@@ -393,7 +436,8 @@ int cal_lookup(uint32_t count) {
   int retval = 1;
   int delta = 0;
   int last_index = -1;
-  float tcomp;
+  /* float tcomp; */
+  /* int32_t current_temp; */
 
   /* 
      Temperature Compensation  
@@ -401,8 +445,15 @@ int cal_lookup(uint32_t count) {
      Multiple the scale factor in ppm/C by the current delta from the ambient temperature
      that was used to calibrate the sensor. 
   */
-  tcomp = ((read_temp() - (int32_t) temp_struct.calibration_temperature)
-             * (int32_t) temp_struct.sensor_compensation_factor);
+  //  HAL_ADC_Init(&hadc1);
+  //   while (HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED) != HAL_OK); 
+  /* current_temp = (int32_t) read_temp(); */
+  //  HAL_ADC_DeInit(&hadc1);
+  /* tcomp = ((current_temp - (int32_t) temp_struct.calibration_temperature) */
+  /*            * (int32_t) temp_struct.sensor_compensation_factor); */
+  /* printf("The current temperature is: %d\n\r",(int) current_temp); */
+  /* printf("The temperature used to take calibration is: %d\n\r",(int) temp_struct.calibration_temperature); */
+  /* printf("This adjustment used to  compensate the cal: %f ppm\n\r",tcomp); */
   /*
     Convert the ppm measurement into a percentage to use to multiply the current period measurement. 
    
@@ -413,21 +464,27 @@ int cal_lookup(uint32_t count) {
     temperature. This assumption is reversed for temperatures that are
     higher than the calibration temperature.
   */
-  tcomp = 1.0 + (tcomp/1000000);
+  /* tcomp = 1.0 + (tcomp/1000000); */
+  /* printf("Adjustment scale factor: %f\n\r",tcomp); */
 
   /* 
      Compute the temperature adjusted count and store it as a float. 
 
   */
-  tcomp = tcomp * count;
+  /* printf("count prior to adjustment: %d\n\r",(int) count);   */
+  /* tcomp = tcomp * count; */
+  /* printf("count after the adjustment: %d\n\r",(int) tcomp);  */
 
   /* 
      Convert the count back to an integer to use in the magniture lookup
 
    */
-  count = (uint32_t) tcomp;
+  /* count = (uint32_t) tcomp; */
+
+  /* printf("Last index value = %d\n\r",(CAL_SIZE-1)); */
+  /* printf("Last value in table = %d\n\r",(int)calibration_ram[CAL_SIZE-1]); */
   
-  for (i=0;i<(CAL_SIZE-1);i++) {
+  for (i=0;i<(CAL_SIZE);i++) {
     if (calibration_ram[i] == -1); // skip -1 values
     else if (count > calibration_ram[i]) {
       last_index = i; // Capture the last valid index value
