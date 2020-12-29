@@ -1,7 +1,10 @@
 # E314 Local targets
 
+
 download: $(BUILD_DIR)/$(TARGET).elf
-	./dl.sh 
+	st-flash write $(BUILD_DIR)/$(TARGET).elf 0x8000000 > st-flash.log 2>&1
+	grep -o "jolly" st-flash.log | sed 's/jolly/Success/'
+	grep -o "Couldn" st-flash.log | sed 's/Couldn/Fail/'
 
 etags:
 	rm -f TAGS

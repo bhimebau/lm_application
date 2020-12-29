@@ -109,7 +109,7 @@ void cal_command(char *arguments) {
     }
   }
  
-  else if (!strcmp(argv[0],"cond")) {
+  else if (!strcmp(argv[0],"config")) {
     if (!cal_show_conditions()) {
       printf("OK\n\r");
     }
@@ -357,7 +357,7 @@ int cal_temp(char * tmp, char * ppm) {
   printf("The calibration temperatures is %d\n\r",temp_struct.calibration_temperature);
 
   temp_struct.sensor_compensation_factor = (int) strtol(ppm,NULL,10);
-  printf("The sensor compensation factor is  %d\n\r",temp_struct.sensor_compensation_factor);
+  printf("The sensor compensation factor is %d\n\r",temp_struct.sensor_compensation_factor);
   return(0);
 }
 
@@ -367,7 +367,7 @@ int cal_compensate_magnitude(int magnitudex100) {
   return((int32_t) scaled_magnitudex100);
 }
 
-uint32_t cal_sample_temperature_compensation(uint32_t count, uint32_t sample_temperature) {
+uint32_t cal_sample_temperature_compensation(uint32_t count, int32_t sample_temperature) {
   /* 
      Temperature Compensation  
      
@@ -375,9 +375,10 @@ uint32_t cal_sample_temperature_compensation(uint32_t count, uint32_t sample_tem
      that was used to calibrate the sensor. 
   */
   float tcomp;
+  /* printf("%d %d\n\r",(int) count, (int) sample_temperature); */
   tcomp = ((sample_temperature - (int32_t) temp_struct.calibration_temperature)
              * (int32_t) temp_struct.sensor_compensation_factor);
-  /* printf("The current temperature is: %d\n\r",(int) current_temp); */
+  /* printf("The current temperature is: %d\n\r",(int) sample_temperature); */
   /* printf("The temperature used to take calibration is: %d\n\r",(int) temp_struct.calibration_temperature); */
   /* printf("This adjustment used to  compensate the cal: %f ppm\n\r",tcomp); */
   /*
@@ -390,16 +391,16 @@ uint32_t cal_sample_temperature_compensation(uint32_t count, uint32_t sample_tem
     temperature. This assumption is reversed for temperatures that are
     higher than the calibration temperature.
   */
-  tcomp = 1.0 + (tcomp/1000000);
-  /* printf("Adjustment scale factor: %f\n\r",tcomp);  */
+  tcomp = 1.0 - (tcomp/1000000);
+  /* printf("Adjustment scale factor: %f\n\r",tcomp); */
 
   /* 
      Compute the temperature adjusted count and store it as a float. 
 
   */
-  /* printf("count prior to adjustment: %d\n\r",(int) count);   */
+  /* printf("count prior to adjustment: %d\n\r",(int) count); */
   tcomp = tcomp * count;
-  /* printf("count after the adjustment: %d\n\r",(int) tcomp);  */
+  /* printf("count after the adjustment: %d\n\r",(int) tcomp); */
 
   /* 
      Convert the count back to an integer to use in the magniture lookup

@@ -98,12 +98,15 @@ void tsl237_command(char *arguments) {
     else {
       temperature = read_temp();
       compensated_counts = cal_sample_temperature_compensation(raw,temperature);
+      //      printf("Raw = %d Compensated = %d Diference = %d\n\r",raw,compensated_counts,raw-compensated_counts);
       value = cal_lookup(compensated_counts);
+      // value = cal_lookup(raw);
+      //      printf("value = %d\n\r",(int) value);
       if ((value == 1) || (value == -1)) {
         printf("%f\n\r",(float) raw);
       }
       else {
-        value = cal_compensate_magnitude(value);
+        // value = cal_compensate_magnitude(value);
         printf("%d.%02d\n\r",value/100,value%100);
       }
     }
