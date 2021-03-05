@@ -31,30 +31,30 @@ ignored.
   * Format: help
   * Successful Example: Reports the available commands. Command 
   ``` bash
-03/05/2021 07:49:28 IULS> help
-Available Commands:
-@
-ds
-ts
-tr
-dr
-data
-log
-ef
-help
-ver
-tsl237
-led
-sample
-debug
-flash
-uid
-cal
-sky
-temp
-OK
-03/05/2021 07:49:37 IULS>
-```
+  03/05/2021 07:49:28 IULS> help
+  Available Commands:
+  @
+  ds
+  ts
+  tr
+  dr
+  data
+  log
+  ef
+  help
+  ver
+  tsl237
+  led
+  sample
+  debug
+  flash
+  uid
+  cal
+  sky
+  temp
+  OK
+  03/05/2021 07:49:37 IULS>
+  ```
   * Failed Example: If the word "help" is typed successfully, this command should not fail. 
 
 
