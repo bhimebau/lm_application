@@ -60,7 +60,7 @@ ignored.
      the result to the sensor's flash memory.
    * Format: **tsl237,\<mode\>**
    * mode: determines whether the raw value or a converted magnitude is displayed. 
-     * raw: reports the period of the TSL237 signal in microseconds (uS)
+       * raw: reports the period of the TSL237 signal in microseconds (uS)
        * mag: reports value in mag/arcsec^2 after running through a conversion table. 
    * Example: 
    ``` bash
