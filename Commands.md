@@ -28,7 +28,7 @@ appended to the command in a **comma delimited list**. White space is
 ignored. 
 
 * **Help:** This command lists all of the command that are available. 
-  * Format: help
+  * Format: **help**
   * Example Usage: 
   ``` bash
       03/05/2021 07:49:28 IULS> help
@@ -58,9 +58,9 @@ ignored.
 
 * **tsl237** This commands reads from the light sensor without writing
      the result to the sensors flash memory.
-    * Format: tsl237,<mode>
-      *mode: 
-      * raw: reports the period of the TSL237 signal in microseconds (uS)
+    * Format: **tsl237,<mode>**
+      * mode: 
+        * raw: reports the period of the TSL237 signal in microseconds (uS)
     * Example Usage: 
         
     ``` bash
