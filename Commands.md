@@ -58,8 +58,8 @@ ignored.
 
 * **tsl237** This commands reads from the light sensor without writing
      the result to the sensors flash memory.
-    * Format: **tsl237,<mode>**
-      * mode: 
+    * Format: **tsl237,\<mode\>**
+      * mode: determines whether the raw value or a converted magnitude is displayed. 
         * raw: reports the period of the TSL237 signal in microseconds (uS)
     * Example Usage: 
         
