@@ -56,7 +56,7 @@ ignored.
       03/05/2021 07:49:37 IULS>
   ```
 
-* **tsl237** This commands reads from the light sensor without writing
+* **tsl237:** This commands reads from the light sensor without writing
      the result to the sensor's flash memory.
    * Format: **tsl237,\<mode\>**
    * mode: determines whether the raw value or a converted magnitude is displayed. 
@@ -70,7 +70,7 @@ ignored.
    ```
    *The sensor is reporting that the period the light sensor square wave is 146uS.* 
 
-* **data** Read all of the data records stored in the device. This
+* **data:** Read all of the data records stored in the device. This
   includes data that is automatically sampled per the sampling
   schedule (hourly from 5pm to 8am) and also snapshot data that is
   taken using the sample command.
