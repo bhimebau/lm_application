@@ -124,6 +124,18 @@ ignored.
        (15.3). A 1 indicates that the sample was darker than the
        highest value in the table (24.0).
 
+* **sample:** Force the sensor to take a sample now and store it to
+  flash. To read the data, use the data command. In darker
+  environments, this command can take minutes to return.
+  * Format: sample
+  * Example: 
+
+   ``` bash
+   03/05/2021 08:08:10 IULS> sample
+   OK
+   03/05/2021 08:32:46 IULS> 
+   ```
+
 * **Attention:** This is a command is used to confirm that the system
   is connected. Just returns OK if successful. Presumably, nothing
   would be received in response if the system was not connected.
