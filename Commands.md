@@ -30,32 +30,31 @@ ignored.
 * **Help:** This command lists all of the command that are available. 
   * Format: help
   * Example Usage: 
-
-    ``` bash
-        03/05/2021 07:49:28 IULS> help
-        Available Commands:
-        @
-        ds
-        ts
-        tr
-        dr
-        data
-        log
-        ef
-        help
-        ver
-        tsl237
-        led
-        sample
-        debug
-        flash
-        uid
-        cal
-        sky
-        temp
-        OK
-        03/05/2021 07:49:37 IULS>
-    ```
+  ``` bash
+      03/05/2021 07:49:28 IULS> help
+      Available Commands:
+      @
+      ds
+      ts
+      tr
+      dr
+      data
+      log
+      ef
+      help
+      ver
+      tsl237
+      led
+      sample
+      debug
+      flash
+      uid
+      cal
+      sky
+      temp
+      OK
+      03/05/2021 07:49:37 IULS>
+  ```
 
 * **tsl237** This commands reads from the light sensor without writing
      the result to the sensors flash memory.
