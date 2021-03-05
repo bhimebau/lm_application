@@ -2,16 +2,61 @@
 
 ## Command Overview
 
-The light sensor will be using the LPUART for communication. The
-LPUART is special in that it can accept characters in the STOP
-modes. A command is a group of ASCII characters that are terminated
-with a newline (\n) or a newline/cr (\n\r). Arguments to a command are
-appended to the command in a comma delimited list. While space is
-ignored. Typical terminal functionality is not included (like
-backspace) because the typical mode of interacting with the system
-will be through a script or other programmatic interface.
+The light sensor uses the STM32L4 LPUART for communication. This UART
+is special in that it can run when the sensor is in STOP2 low power
+mode. The tradeoff for this low power operation is that the UART runs
+at 9600 baud. The communication parameters should be set to 8-N-1 (8
+bits, no parity, 1 stop bit). 
+
+
+It is assumed that you are using a USB-UART converter such as many
+that are made using the FTDI series of chips. On Linux and OSX, the
+screen utility can be used to get access to the serial port. Here is
+an example invocation from linux.
+
+```bash
+bhimebau@orion:/dev$ screen /dev/ttyUSB0 9600
+```
+
+On Windows, consider using [Putty](https://www.putty.org/) as a serial terminal. 
 
 ## Commands
+
+A command is a group of ASCII characters that are terminated with a
+newline (\n) or a newline/cr (\n\r). Arguments to a command are
+appended to the command in a **comma delimited list**. White space is
+ignored. 
+
+* **Help:** This will list all of the command that are available. 
+  * Format: help
+  * Successful Example: Reports the available commands. Command 
+  ``` bash
+03/05/2021 07:49:28 IULS> help
+Available Commands:
+@
+ds
+ts
+tr
+dr
+data
+log
+ef
+help
+ver
+tsl237
+led
+sample
+debug
+flash
+uid
+cal
+sky
+temp
+OK
+03/05/2021 07:49:37 IULS>
+```
+  * Failed Example: If the word "help" is typed successfully, this command should not fail. 
+
 
 * **Attention:** This is a command is used to wake up the system
   through the LPUART. The symbol is sent with the expectation of
