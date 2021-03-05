@@ -58,17 +58,16 @@ ignored.
 
 * **tsl237** This commands reads from the light sensor without writing
      the result to the sensor's flash memory.
-    * Format: **tsl237,\<mode\>**
-      * mode: determines whether the raw value or a converted magnitude is displayed. 
-        * raw: reports the period of the TSL237 signal in microseconds (uS)
-        * mag: reports value in mag/arcsec^2 after running through a conversion table. 
-    * Example: 
-        
-    ``` bash
-        03/05/2021 08:06:33 IULS> tsl237,raw
-        146
-        OK
-    ```
+ * Format: **tsl237,\<mode\>**
+   * mode: determines whether the raw value or a converted magnitude is displayed. 
+     * raw: reports the period of the TSL237 signal in microseconds (uS)
+       * mag: reports value in mag/arcsec^2 after running through a conversion table. 
+   * Example: 
+   ``` bash
+   03/05/2021 08:06:33 IULS> tsl237,raw
+   146
+   OK
+   ```
 
 * **Attention:** This is a command is used to confirm that the system
   is connected. Just returns OK if successful. Presumably, nothing
@@ -76,11 +75,11 @@ ignored.
   * Format: @
   * Example: 
 
-    ``` bash
-        @
-        OK
-        IULS>
-    ```
+   ``` bash
+   03/05/2021 08:08:10 IULS> @
+   OK
+   03/05/2021 08:32:46 IULS> 
+   ```
   
 * **Set date:** Commands to set the real-time clock date
   * Format: ds,\<month\>,\<day\>,\<year\>
