@@ -99,27 +99,27 @@ ignored.
 
    A single record format can be interpreted as follows: 
    * Record Format
-     * Record Type - D = Data Record, L = Log Record. Always D from the data command. 
-     * Record Number - the specic record number in the flash. These
+     * **Record Type:** D = Data Record, L = Log Record. Always D from the data command. 
+     * **Record Number:** Specific record number in the flash. These
        will alway be increasing. However, they may go up by more than
        1 for each record. This could be caused by a log record being
        written between data records.
-     * Date - Date that the sample was completed. If the sample was
+     * **Date:** Date that the sample was completed. If the sample was
        started near the end of a day and the date changed before the
        sample completed, this date reflects when it finished.
-     * Time - 24 Hour time that represents when the sample
+     * **Time:** 24 Hour time that represents when the sample
        completed. In the case of a scheduled sample, it is possible to
        determine how long the sample started based in the time stamp.
-     * Battery Voltage - loaded terminal voltage. The battery voltage
-       can only be measured when the tsl237 sensor is powered. Because
-       of the relatively high ESR of the battery, this additional load
-       causes the terminal voltage to read about 100 mV lower than it
-       is when the sensor is sleeping.
-     * Temperature - temperature when the sample was taken. This
+     * **Battery Voltage:** Loaded battery terminal voltage. The
+       battery voltage can only be measured when the tsl237 sensor is
+       powered. Because of the relatively high ESR of the battery,
+       this additional load causes the terminal voltage to read about
+       100 mV lower than it is when the sensor is sleeping.
+     * **Temperature:** Temperature when the sample was taken. This
        measurement is taken from the STM32L432's internal temperature
        sensor. The measurement is +/- 1 Deg C.
-     * Period - Period of the tsl237 signal in microseconds. 
-     * Magnitude - Period converted to mag/arcsec^2. A -1 indicates
+     * **Period:** Period of the tsl237 signal in microseconds. 
+     * **Magnitude:** Period converted to mag/arcsec^2. A -1 indicates
        that the sample was brighter than the lowest value in the table
        (15.3). A 1 indicates that the sample was darker than the
        highest value in the table (24.0).
