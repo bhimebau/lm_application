@@ -29,7 +29,7 @@ ignored.
 
 * **Help:** This command lists all of the command that are available. 
   * Format: **help**
-  * Example Usage: 
+  * Example: 
   ``` bash
       03/05/2021 07:49:28 IULS> help
       Available Commands:
@@ -57,12 +57,12 @@ ignored.
   ```
 
 * **tsl237** This commands reads from the light sensor without writing
-     the result to the sensors flash memory.
+     the result to the sensor's flash memory.
     * Format: **tsl237,\<mode\>**
       * mode: determines whether the raw value or a converted magnitude is displayed. 
         * raw: reports the period of the TSL237 signal in microseconds (uS)
         * mag: reports value in mag/arcsec^2 after running through a conversion table. 
-    * Example Usage: 
+    * Example: 
         
     ``` bash
         03/05/2021 08:06:33 IULS> tsl237,raw
@@ -70,29 +70,20 @@ ignored.
         OK
     ```
 
-
-
-
-* **Attention:** This is a command is used to wake up the system
-  through the LPUART. The symbol is sent with the expectation of
-  receiving an "OK" when the system has recovered from STOP2.
+* **Attention:** This is a command is used to confirm that the system
+  is connected. Just returns OK if successful. Presumably, nothing
+  would be received in response if the system was not connected.
   * Format: @
-  * Successful Example: Wakes the system up from STOP2. Returns OK
-  ``` bash
-    @
-    OK
-    IULS>
-  ```
-  * Failed Example: Wrong character sent.  Will still wake up the
-    system but the system will immediately go back to sleep. Returns
-    NOK but no prompt - system goes back to sleep.
-  ``` bash
-    %
-    NOK
-  ```
+  * Example: 
+
+    ``` bash
+        @
+        OK
+        IULS>
+    ```
   
 * **Set date:** Commands to set the real-time clock date
-  * Format: ds,*month*,*day*,*year*
+  * Format: ds,\<month\>,\<day\>,\<year\>
   * Successful Example: Sets date to 5/31/2019. Returns OK
   ``` bash
     IULS> ds,5,31,2019
