@@ -53,7 +53,7 @@ ignored.
   sky
   temp
   OK
-  03/05/2021 07:49:37 IULS>
+      03/05/2021 07:49:37 IULS>
   ```
 
 * **tsl237** This commands reads from the light sensor without writing
@@ -68,7 +68,61 @@ ignored.
    146
    OK
    ```
-   The sensor is reporting that the period the light sensor square wave is 146uS. 
+   *The sensor is reporting that the period the light sensor square wave is 146uS.* 
+
+* **data** Read all of the data records stored in the device. This
+  includes data that is automatically sampled per the sampling
+  schedule (hourly from 5pm to 8am) and also snapshot data that is
+  taken using the sample command.
+   * Format: **data**
+   * Example: 
+   ``` bash
+   03/05/2021 08:06:33 IULS> data
+
+    ... many records ommitted for brevity ...
+
+   D,1609,03/04/2021,22:00:01,3.454,17,3582,-1
+   D,1610,03/04/2021,23:00:01,3.453,17,3577,-1
+   D,1611,03/05/2021,00:00:01,3.455,17,3575,-1
+   D,1612,03/05/2021,01:00:01,3.454,17,3579,-1
+   D,1613,03/05/2021,02:00:01,3.452,16,3578,-1
+   D,1614,03/05/2021,03:00:01,3.452,16,3581,-1
+   D,1615,03/05/2021,04:00:01,3.451,17,3575,-1
+   D,1616,03/05/2021,05:00:01,3.451,16,3581,-1
+   D,1617,03/05/2021,06:00:01,3.450,16,3586,-1
+   D,1618,03/05/2021,07:00:01,3.451,17,85,-1
+   D,1619,03/05/2021,08:00:01,3.469,21,148,-1
+   D,1620,03/05/2021,08:08:10,3.485,22,107,-1
+   OK
+   03/05/2021 09:32:48 IULS> 
+   ```
+
+   A single record format can be interpreted as follows: 
+   * Record Format
+     * Record Type - D = Data Record, L = Log Record. Always D from the data command. 
+     * Record Number - the specic record number in the flash. These
+       will alway be increasing. However, they may go up by more than
+       1 for each record. This could be caused by a log record being
+       written between data records.
+     * Date - Date that the sample was completed. If the sample was
+       started near the end of a day and the date changed before the
+       sample completed, this date reflects when it finished.
+     * Time - 24 Hour time that represents when the sample
+       completed. In the case of a scheduled sample, it is possible to
+       determine how long the sample started based in the time stamp.
+     * Battery Voltage - loaded terminal voltage. The battery voltage
+       can only be measured when the tsl237 sensor is powered. Because
+       of the relatively high ESR of the battery, this additional load
+       causes the terminal voltage to read about 100 mV lower than it
+       is when the sensor is sleeping.
+     * Temperature - temperature when the sample was taken. This
+       measurement is taken from the STM32L432's internal temperature
+       sensor. The measurement is +/- 1 Deg C.
+     * Period - Period of the tsl237 signal in microseconds. 
+     * Magnitude - Period converted to mag/arcsec^2. A -1 indicates
+       that the sample was brighter than the lowest value in the table
+       (15.3). A 1 indicates that the sample was darker than the
+       highest value in the table (24.0).
 
 * **Attention:** This is a command is used to confirm that the system
   is connected. Just returns OK if successful. Presumably, nothing
@@ -82,48 +136,42 @@ ignored.
    03/05/2021 08:32:46 IULS> 
    ```
   
-* **Set date:** Commands to set the real-time clock date
+* **Set date:** Set the real-time clock date
   * Format: ds,\<month\>,\<day\>,\<year\>
-  * Successful Example: Sets date to 5/31/2019. Returns OK
+  * Example: Sets date to 5/31/2019. Returns OK
   ``` bash
-    IULS> ds,5,31,2019
+    03/05/2021 08:08:10 IULS> ds,5,31,2019
     OK
-    IULS>
+    05/31/2019 08:32:46 IULS>
   ```
-  * Failed Example: Missing month field. Returns NOK. 
+
+* **Set time:** Set the real-time clock time
+  * Format: ts,\<hour\>,\<min\>,\<second>\
+  * Example: Sets time to 13:45:10 (24 hour time) - 10 seconds passed 1:45pm. Returns OK
   ``` bash
-    IULS> ds,5,2019
-    NOK
-    IULS>
+  03/05/2021 08:08:10 IULS> ts,13,45,10
+  OK
+  03/05/2021 13:45:10 IULS> 
   ```
-* **Set time:** 
-  * Format: ts,*hour*,*min*,*second*
-  * Successful Example: Sets time to 13:45:10 (24 hour time) - 10 seconds passed 1:45pm. Returns OK
-  ``` bash
-    IULS> ts,13,45,10
-    OK
-    IULS>
-  ```
-  * Failed Example: Out of range hour field. Returns NOK. 
-  ``` bash
-    IULS> ts,35,45,10
-    NOK
-    IULS>
-  ```
+
 * **Report time:** Report the current time from the sensor RTC
   * Format: tr 
-  * Successful Example: Reads the current time from the board. 
+  * Example: 
   ``` bash
-    IULS> tr
-    tr,13,45,10
-    OK
-    IULS>
+  03/05/2021 09:24:08 IULS> tr
+  tr,09,27,18
+  OK
+  03/05/2021 09:27:18 IULS> 
   ```
-  * Failed Example: Argument passed to the report time command which does not take a command. 
+
+* **Report Date:** Report the current date from the sensor RTC
+  * Format: td
+  * Example: 
   ``` bash
-    IULS> tr,23
-    NOK
-    IULS>
+  03/05/2021 09:28:48 IULS> dr
+  dr,03,05,2021
+  OK
+  03/05/2021 09:28:54 IULS> 
   ```
 
 * **Report date:** dr
