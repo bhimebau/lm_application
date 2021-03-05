@@ -68,6 +68,8 @@ ignored.
    146
    OK
    ```
+   
+   The sensor is reporting that the period the light sensor square wave is 146uS. 
 
 * **Attention:** This is a command is used to confirm that the system
   is connected. Just returns OK if successful. Presumably, nothing
