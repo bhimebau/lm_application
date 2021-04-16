@@ -341,6 +341,7 @@ void SystemClock_Config(void)
   HAL_RCCEx_EnableMSIPLLMode();
 }
 
+
 /* 80 Mhz Version */
 /* /\** */
 /*   * @brief System Clock Configuration */

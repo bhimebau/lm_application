@@ -20,7 +20,7 @@
 #define NUM_SAMPLES 4
 #define MAX_ARGS 3
 
-TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim2;
 extern ADC_HandleTypeDef hadc1;
 
 uint32_t tsl237_break_received = 0;
@@ -71,12 +71,20 @@ void tsl237_command(char *arguments) {
     HAL_TIM_Base_Init(&htim2);
     HAL_TIM_IC_Init(&htim2);
     HAL_Delay(3);
+
+    HAL_ADC_Init(&hadc1);
+    while (HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED) != HAL_OK);
     raw = tsl237_readsensor();
     if (raw == 0) {
       printf("Aborted\n\r");
     }
     else {
-      printf("%d\n\r",(int) raw);
+      temperature = read_temp();
+      compensated_counts = cal_sample_temperature_compensation(raw,temperature);
+      printf("temperature = %d, uncompensated = %d, temperature compensated = %d\n\r",
+             (int) temperature,
+             (int) raw,
+             (int) compensated_counts);
     }
     HAL_TIM_Base_DeInit(&htim2);
     HAL_TIM_IC_DeInit(&htim2);
@@ -100,13 +108,14 @@ void tsl237_command(char *arguments) {
       compensated_counts = cal_sample_temperature_compensation(raw,temperature);
       //      printf("Raw = %d Compensated = %d Diference = %d\n\r",raw,compensated_counts,raw-compensated_counts);
       value = cal_lookup(compensated_counts);
+         
       // value = cal_lookup(raw);
       //      printf("value = %d\n\r",(int) value);
       if ((value == 1) || (value == -1)) {
         printf("%f\n\r",(float) raw);
       }
       else {
-        // value = cal_compensate_magnitude(value);
+        value = cal_compensate_magnitude(value);
         printf("%d.%02d\n\r",value/100,value%100);
       }
     }
