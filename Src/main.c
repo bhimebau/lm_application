@@ -119,6 +119,8 @@ uint32_t diffCapture = 0;
 
 uint32_t power_lock_enable = 0;
 
+RTC_AlarmTypeDef sAlarm = {0};
+
 
 /* USER CODE END PFP */
 

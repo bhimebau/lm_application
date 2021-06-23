@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include "flash.h"
 #include "rtc.h"
 #include "battery.h"
@@ -24,6 +25,9 @@
 extern flash_status_t fs;
 extern ADC_HandleTypeDef hadc1;
 extern TIM_HandleTypeDef htim2;
+extern RTC_HandleTypeDef hrtc;
+
+extern RTC_AlarmTypeDef sAlarm;
 
 void sample_command(char * arguments) {
   if (arguments) {
@@ -32,6 +36,55 @@ void sample_command(char * arguments) {
   }
   sample();
   printf("OK\n\r");
+}
+  
+void sample_frequency_command(char * arguments) {
+  char * argument;
+  int argument_count = 0;
+  int minutes;
+  int hours;
+  if (!arguments) {
+    printf("NOK\n\r");
+    return;
+  }
+  argument = strtok(arguments,",");
+  if (!argument) {
+    printf("NOK\n\r");
+    return;
+  }
+  while (argument) {
+    //    printf("%d: %s\n\r",argument_count,argument);
+    switch (argument_count) {
+    case 0:
+      minutes = (int) strtol(argument,NULL,10);
+      hours = (int) minutes/60;
+      minutes = (int) minutes%60;
+      printf("hours = %d minutes = %d\n\r",hours, minutes);
+      break;
+    default:
+      break;
+    }
+    argument_count++;
+    argument=strtok(NULL,",");
+  }
+  if (argument_count>1) {
+    printf("NOK\n\r");
+  }
+  else {
+
+    //    sAlarm.AlarmTime.Minutes = (current_time.Minutes + SAMPLE_INTERVAL_MINUTES) % 60; // Set the alarm 5 minutes in the future
+    sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    sAlarm.AlarmMask =  RTC_ALARMMASK_DATEWEEKDAY|RTC_ALARMMASK_HOURS|RTC_ALARMMASK_SECONDS; // Only consider the minutes value
+    sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
+    sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
+    sAlarm.AlarmDateWeekDay = 0x1;
+    sAlarm.Alarm = RTC_ALARM_A;
+    if (HAL_RTC_SetAlarm_IT(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK) {
+      Error_Handler();
+    }
+    printf("OK\n\r");
+  }
 }
 
 void sample(void) {

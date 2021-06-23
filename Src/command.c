@@ -57,6 +57,7 @@ void cal_command(char *);
 void batt_command(char *);
 void sky_command(char *);
 void temp_command(char *);
+void sample_frequency_command(char *);
 
 
 command_t commands[] = {
@@ -82,7 +83,7 @@ command_t commands[] = {
   {"sky",sky_command},
   {"temp",temp_command},
   /* {"batt",batt_command}, */
-  
+  {"sampfreq",sample_frequency_command},
   {0,0}
 };
 
@@ -265,8 +266,12 @@ void __attribute__((weak)) sky_command(char *arguments) {
   }
 }
 
-
-
+void __attribute__((weak)) sample_frequency_command(char *arguments) {
+  printf("Set the sample frequency of the system\n\r");
+  if (arguments) {
+    printf("Arguments = %s\n\r",arguments);
+  }
+}
 
 int execute_command(uint8_t * line) {
   uint8_t *cmd;
