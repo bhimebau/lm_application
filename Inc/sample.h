@@ -8,5 +8,13 @@
  *
  */
 
+typedef struct sample_control {
+  int enable;
+  int interval_hours;
+  int interval_minutes;
+  int begin_hour;
+  int end_hour;
+} sample_control_t;
+  
 void sample(void);
 uint32_t sample_noflash();
