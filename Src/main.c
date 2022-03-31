@@ -220,10 +220,11 @@ int main(void) {
   //   HAL_DAC_SetValue(&hdac1,DAC_CHANNEL_2,DAC_ALIGN_12B_R,0x7FF);
   // Pull out later
   
-  #ifdef DEPLOY
+#ifdef DEPLOY
+#warning "Disabling Processor Debugger Interface by Default"
   HAL_DBGMCU_DisableDBGStopMode();
-  #endif
- 
+#endif
+  
   while (1) {
     printf("\n\r\n\rIU Dark Sky Light Sensor\n\r");
     printf("Version: %s\n\r",VERSION);

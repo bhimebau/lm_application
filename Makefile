@@ -18,10 +18,17 @@ TARGET = lm_application
 GIT_VERSION := "$(shell git describe --dirty --always --tags)"
 
 ######################################
+# DEPLOY 
+# Set this if DEPLOYING to the field
+# This will disable the debugger
+# interface by default
+######################################
+DEPLOY = 1
+
+######################################
 # building variables
 ######################################
-# debug build?
-DEBUG = 1
+
 # optimization
 OPT = -O0
 
@@ -133,15 +140,15 @@ AS_DEFS =
 
 # C defines
 
-ifeq ($(DEBUG), 1)
-C_DEFS =  \
--DUSE_HAL_DRIVER \
--DSTM32L432xx
-else
+ifdef DEPLOY
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
 -DSTM32L432xx \
 -DDEPLOY
+else
+C_DEFS =  \
+-DUSE_HAL_DRIVER \
+-DSTM32L432xx 
 endif
 
 # AS includes
@@ -163,9 +170,10 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -DVERSION=\"$(GIT_VERSION)\"
 
-ifeq ($(DEBUG), 1)
+ifndef DEPLOY
 CFLAGS += -g3 -gdwarf-4
 endif
+
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
